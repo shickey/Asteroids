@@ -9,10 +9,25 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>libAsteroids.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>A3BEEA321DF630D600F79B91</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A3BEEA4E1DF631E600F79B91</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A3BEEA581DF6325000F79B91</key>
 		<dict>
 			<key>primary</key>
 			<true/>

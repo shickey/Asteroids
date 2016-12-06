@@ -11,7 +11,24 @@
 		A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA381DF630D600F79B91 /* ViewController.swift */; };
 		A3BEEA3B1DF630D600F79B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */; };
 		A3BEEA3E1DF630D600F79B91 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3C1DF630D600F79B91 /* Main.storyboard */; };
+		A3BEEA461DF6312100F79B91 /* MetalWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA451DF6312100F79B91 /* MetalWorker.swift */; };
+		A3BEEA481DF6315900F79B91 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA471DF6315900F79B91 /* Shaders.metal */; };
+		A3BEEA641DF6338700F79B91 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA631DF6338700F79B91 /* Shared.swift */; };
+		A3BEEA661DF633D800F79B91 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA651DF633D800F79B91 /* Renderer.swift */; };
+		A3BEEA681DF6351C00F79B91 /* Ship.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA671DF6351C00F79B91 /* Ship.swift */; };
+		A3BEEA6C1DF6410200F79B91 /* TypesAndMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA6B1DF6410200F79B91 /* TypesAndMath.swift */; };
+		A3BEEA6F1DF6616800F79B91 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA631DF6338700F79B91 /* Shared.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A3BEEA5D1DF6325400F79B91 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A3BEEA2B1DF630D600F79B91 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A3BEEA581DF6325000F79B91;
+			remoteInfo = libAsteroids;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A3BEEA331DF630D600F79B91 /* Asteroids.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroids.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -20,10 +37,25 @@
 		A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A3BEEA3D1DF630D600F79B91 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A3BEEA3F1DF630D600F79B91 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A3BEEA451DF6312100F79B91 /* MetalWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalWorker.swift; sourceTree = "<group>"; };
+		A3BEEA471DF6315900F79B91 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		A3BEEA591DF6325000F79B91 /* libAsteroids.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libAsteroids.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		A3BEEA621DF6338700F79B91 /* libAsteroids-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "libAsteroids-Bridging-Header.h"; sourceTree = "<group>"; };
+		A3BEEA631DF6338700F79B91 /* Shared.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Shared.swift; path = Asteroids/Shared.swift; sourceTree = "<group>"; };
+		A3BEEA651DF633D800F79B91 /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Renderer.swift; path = Asteroids/Renderer.swift; sourceTree = "<group>"; };
+		A3BEEA671DF6351C00F79B91 /* Ship.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ship.swift; sourceTree = "<group>"; };
+		A3BEEA6B1DF6410200F79B91 /* TypesAndMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypesAndMath.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		A3BEEA301DF630D600F79B91 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A3BEEA561DF6325000F79B91 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -36,7 +68,9 @@
 		A3BEEA2A1DF630D600F79B91 = {
 			isa = PBXGroup;
 			children = (
-				A3BEEA351DF630D600F79B91 /* Asteroids */,
+				A3BEEA631DF6338700F79B91 /* Shared.swift */,
+				A3BEEA611DF6335900F79B91 /* Asteroids */,
+				A3BEEA351DF630D600F79B91 /* AsteroidsPlatform */,
 				A3BEEA341DF630D600F79B91 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -45,23 +79,48 @@
 			isa = PBXGroup;
 			children = (
 				A3BEEA331DF630D600F79B91 /* Asteroids.app */,
+				A3BEEA591DF6325000F79B91 /* libAsteroids.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A3BEEA351DF630D600F79B91 /* Asteroids */ = {
+		A3BEEA351DF630D600F79B91 /* AsteroidsPlatform */ = {
 			isa = PBXGroup;
 			children = (
 				A3BEEA361DF630D600F79B91 /* AppDelegate.swift */,
 				A3BEEA381DF630D600F79B91 /* ViewController.swift */,
+				A3BEEA451DF6312100F79B91 /* MetalWorker.swift */,
+				A3BEEA471DF6315900F79B91 /* Shaders.metal */,
 				A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */,
 				A3BEEA3C1DF630D600F79B91 /* Main.storyboard */,
 				A3BEEA3F1DF630D600F79B91 /* Info.plist */,
 			);
+			name = AsteroidsPlatform;
 			path = Asteroids;
 			sourceTree = "<group>";
 		};
+		A3BEEA611DF6335900F79B91 /* Asteroids */ = {
+			isa = PBXGroup;
+			children = (
+				A3BEEA621DF6338700F79B91 /* libAsteroids-Bridging-Header.h */,
+				A3BEEA651DF633D800F79B91 /* Renderer.swift */,
+				A3BEEA671DF6351C00F79B91 /* Ship.swift */,
+				A3BEEA6B1DF6410200F79B91 /* TypesAndMath.swift */,
+			);
+			name = Asteroids;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		A3BEEA571DF6325000F79B91 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		A3BEEA321DF630D600F79B91 /* Asteroids */ = {
@@ -75,11 +134,29 @@
 			buildRules = (
 			);
 			dependencies = (
+				A3BEEA5E1DF6325400F79B91 /* PBXTargetDependency */,
 			);
 			name = Asteroids;
 			productName = Asteroids;
 			productReference = A3BEEA331DF630D600F79B91 /* Asteroids.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A3BEEA581DF6325000F79B91 /* libAsteroids */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A3BEEA5A1DF6325000F79B91 /* Build configuration list for PBXNativeTarget "libAsteroids" */;
+			buildPhases = (
+				A3BEEA551DF6325000F79B91 /* Sources */,
+				A3BEEA561DF6325000F79B91 /* Frameworks */,
+				A3BEEA571DF6325000F79B91 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libAsteroids;
+			productName = libAsteroids;
+			productReference = A3BEEA591DF6325000F79B91 /* libAsteroids.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
 
@@ -92,6 +169,9 @@
 				ORGANIZATIONNAME = "Sean Hickey";
 				TargetAttributes = {
 					A3BEEA321DF630D600F79B91 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					A3BEEA581DF6325000F79B91 = {
 						CreatedOnToolsVersion = 7.3;
 					};
 				};
@@ -110,6 +190,7 @@
 			projectRoot = "";
 			targets = (
 				A3BEEA321DF630D600F79B91 /* Asteroids */,
+				A3BEEA581DF6325000F79B91 /* libAsteroids */,
 			);
 		};
 /* End PBXProject section */
@@ -131,12 +212,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3BEEA6F1DF6616800F79B91 /* Shared.swift in Sources */,
+				A3BEEA481DF6315900F79B91 /* Shaders.metal in Sources */,
+				A3BEEA461DF6312100F79B91 /* MetalWorker.swift in Sources */,
 				A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */,
 				A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A3BEEA551DF6325000F79B91 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3BEEA661DF633D800F79B91 /* Renderer.swift in Sources */,
+				A3BEEA681DF6351C00F79B91 /* Ship.swift in Sources */,
+				A3BEEA641DF6338700F79B91 /* Shared.swift in Sources */,
+				A3BEEA6C1DF6410200F79B91 /* TypesAndMath.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A3BEEA5E1DF6325400F79B91 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A3BEEA581DF6325000F79B91 /* libAsteroids */;
+			targetProxy = A3BEEA5D1DF6325400F79B91 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		A3BEEA3C1DF630D600F79B91 /* Main.storyboard */ = {
@@ -256,6 +359,33 @@
 			};
 			name = Release;
 		};
+		A3BEEA5B1DF6325000F79B91 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "libAsteroids-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A3BEEA5C1DF6325000F79B91 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "libAsteroids-Bridging-Header.h";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -275,6 +405,16 @@
 				A3BEEA441DF630D600F79B91 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A3BEEA5A1DF6325000F79B91 /* Build configuration list for PBXNativeTarget "libAsteroids" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A3BEEA5B1DF6325000F79B91 /* Debug */,
+				A3BEEA5C1DF6325000F79B91 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

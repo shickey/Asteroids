@@ -13,13 +13,12 @@ class ViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        view.wantsLayer = true;
+        inputSystemInit()
     }
 
-    override var representedObject: AnyObject? {
-        didSet {
-        // Update the view, if already loaded.
-        }
+    override func viewDidAppear() {
+        beginRendering(view.layer!)
     }
 
 
