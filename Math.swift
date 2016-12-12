@@ -8,10 +8,8 @@
 
 import Darwin
 
-struct Point {
-    var x : Float = 0.0
-    var y : Float = 0.0
-}
+let FLOAT_PI = Float(M_PI)
+let FLOAT_TWO_PI = Float(2.0 * M_PI)
 
 struct Size {
     var width : Float = 1.0
@@ -58,6 +56,10 @@ func +(lhs: Vec2, rhs: Vec2) -> Vec2 {
     return Vec2(lhs.x + rhs.x, lhs.y + rhs.y)
 }
 
+func +=(inout lhs: Vec2, rhs: Vec2) {
+    lhs = lhs + rhs
+}
+
 func norm(vec: Vec2) -> Float {
     return sqrt((vec.x * vec.x) + (vec.y * vec.y))
 }
@@ -74,6 +76,14 @@ func normalizeToRange(val: Float, _ min: Float, _ max: Float) -> Float {
     return (offset - (floorf(offset / width) * width)) + min
 }
 
+func distanceSquared(v1: Vec2, _ v2: Vec2) -> Float {
+    return ((v1.x - v2.x) * (v1.x - v2.x)) + ((v1.y - v2.y) * (v1.y - v2.y))
+}
+
+func distance(v1: Vec2, _ v2: Vec2) -> Float {
+    return sqrt(distanceSquared(v1, v2))
+}
+
 func clamp(val: Float, _ min: Float, _ max: Float) -> Float {
     if val < min {
         return min
@@ -82,4 +92,20 @@ func clamp(val: Float, _ min: Float, _ max: Float) -> Float {
         return max
     }
     return val
+}
+
+// Random Numbers
+
+var seeded = false
+
+func randomZeroToOne() -> Float {
+    if !seeded {
+        srand48(Int(arc4random()))
+        seeded = true
+    }
+    return Float(drand48())
+}
+
+func randomInRange(min: Float, _ max: Float) -> Float {
+    return (randomZeroToOne() * (max - min)) + min
 }

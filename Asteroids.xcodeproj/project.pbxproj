@@ -6,18 +6,45 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		A3EACC9C1DF909BE00025665 /* CompileAssets */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = A3EACC9D1DF909BE00025665 /* Build configuration list for PBXAggregateTarget "CompileAssets" */;
+			buildPhases = (
+				A3EACCA01DF909CB00025665 /* CopyFiles */,
+			);
+			dependencies = (
+			);
+			name = CompileAssets;
+			productName = CompileAssets;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
+		A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3547DF81DFB768800E74BEF /* TextRendering.swift */; };
+		A3547DFD1DFBB08E00E74BEF /* bad-font.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */; };
+		A3547DFE1DFBB08E00E74BEF /* bad-font.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3547DFC1DFBB08E00E74BEF /* bad-font.txt */; };
 		A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA361DF630D600F79B91 /* AppDelegate.swift */; };
 		A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA381DF630D600F79B91 /* ViewController.swift */; };
 		A3BEEA3B1DF630D600F79B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */; };
 		A3BEEA3E1DF630D600F79B91 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3C1DF630D600F79B91 /* Main.storyboard */; };
 		A3BEEA461DF6312100F79B91 /* MetalWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA451DF6312100F79B91 /* MetalWorker.swift */; };
 		A3BEEA481DF6315900F79B91 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA471DF6315900F79B91 /* Shaders.metal */; };
-		A3BEEA641DF6338700F79B91 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA631DF6338700F79B91 /* Shared.swift */; };
+		A3BEEA641DF6338700F79B91 /* RenderCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA631DF6338700F79B91 /* RenderCommands.swift */; };
 		A3BEEA661DF633D800F79B91 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA651DF633D800F79B91 /* Renderer.swift */; };
-		A3BEEA681DF6351C00F79B91 /* Ship.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA671DF6351C00F79B91 /* Ship.swift */; };
-		A3BEEA6C1DF6410200F79B91 /* TypesAndMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA6B1DF6410200F79B91 /* TypesAndMath.swift */; };
-		A3BEEA6F1DF6616800F79B91 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA631DF6338700F79B91 /* Shared.swift */; };
+		A3BEEA6C1DF6410200F79B91 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA6B1DF6410200F79B91 /* Math.swift */; };
+		A3BEEA6F1DF6616800F79B91 /* RenderCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA631DF6338700F79B91 /* RenderCommands.swift */; };
+		A3EACC901DF7849200025665 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC8E1DF783D200025665 /* Entities.swift */; };
+		A3EACC961DF7B4E200025665 /* BitmapFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC921DF7B47400025665 /* BitmapFont.swift */; };
+		A3EACC981DF7CAE600025665 /* AsteroidsApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC971DF7CAE600025665 /* AsteroidsApplication.swift */; };
+		A3EACC9A1DF83D5900025665 /* InputDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC991DF83D5900025665 /* InputDevices.swift */; };
+		A3EACCA21DF909DE00025665 /* arial-24-white.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3EACC951DF7B4D300025665 /* arial-24-white.txt */; };
+		A3EACCA51DF90E6400025665 /* AssetLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCA31DF90A4F00025665 /* AssetLoader.swift */; };
+		A3EACCAA1DF917DF00025665 /* Inputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCA91DF917DF00025665 /* Inputs.swift */; };
+		A3EACCAB1DF917F000025665 /* Inputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCA91DF917DF00025665 /* Inputs.swift */; };
+		A3EACCAE1DFA392500025665 /* TypesAndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */; };
+		A3EACCAF1DFA392C00025665 /* TypesAndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */; };
+		A3EACCB11DFA3BB700025665 /* arial-24-white.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3EACCB01DFA3BB700025665 /* arial-24-white.bmp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,9 +55,35 @@
 			remoteGlobalIDString = A3BEEA581DF6325000F79B91;
 			remoteInfo = libAsteroids;
 		};
+		A3EACCA61DF9104200025665 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A3BEEA2B1DF630D600F79B91 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A3EACC9C1DF909BE00025665;
+			remoteInfo = CompileAssets;
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		A3EACCA01DF909CB00025665 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = assets;
+			dstSubfolderSpec = 16;
+			files = (
+				A3EACCB11DFA3BB700025665 /* arial-24-white.bmp in CopyFiles */,
+				A3547DFE1DFBB08E00E74BEF /* bad-font.txt in CopyFiles */,
+				A3547DFD1DFBB08E00E74BEF /* bad-font.bmp in CopyFiles */,
+				A3EACCA21DF909DE00025665 /* arial-24-white.txt in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		A3547DF81DFB768800E74BEF /* TextRendering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextRendering.swift; sourceTree = "<group>"; };
+		A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = "bad-font.bmp"; path = "../../Desktop/font/bad-font.bmp"; sourceTree = "<group>"; };
+		A3547DFC1DFBB08E00E74BEF /* bad-font.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "bad-font.txt"; path = "../../Desktop/font/bad-font.txt"; sourceTree = "<group>"; };
 		A3BEEA331DF630D600F79B91 /* Asteroids.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroids.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3BEEA361DF630D600F79B91 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3BEEA381DF630D600F79B91 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -41,10 +94,18 @@
 		A3BEEA471DF6315900F79B91 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		A3BEEA591DF6325000F79B91 /* libAsteroids.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libAsteroids.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3BEEA621DF6338700F79B91 /* libAsteroids-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "libAsteroids-Bridging-Header.h"; sourceTree = "<group>"; };
-		A3BEEA631DF6338700F79B91 /* Shared.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Shared.swift; path = Asteroids/Shared.swift; sourceTree = "<group>"; };
+		A3BEEA631DF6338700F79B91 /* RenderCommands.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RenderCommands.swift; path = Asteroids/RenderCommands.swift; sourceTree = "<group>"; };
 		A3BEEA651DF633D800F79B91 /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Renderer.swift; path = Asteroids/Renderer.swift; sourceTree = "<group>"; };
-		A3BEEA671DF6351C00F79B91 /* Ship.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ship.swift; sourceTree = "<group>"; };
-		A3BEEA6B1DF6410200F79B91 /* TypesAndMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypesAndMath.swift; sourceTree = "<group>"; };
+		A3BEEA6B1DF6410200F79B91 /* Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		A3EACC8E1DF783D200025665 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
+		A3EACC921DF7B47400025665 /* BitmapFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitmapFont.swift; sourceTree = "<group>"; };
+		A3EACC951DF7B4D300025665 /* arial-24-white.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "arial-24-white.txt"; path = "../../Desktop/arial_bitmap/arial-24-white.txt"; sourceTree = "<group>"; };
+		A3EACC971DF7CAE600025665 /* AsteroidsApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsteroidsApplication.swift; sourceTree = "<group>"; };
+		A3EACC991DF83D5900025665 /* InputDevices.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputDevices.swift; sourceTree = "<group>"; };
+		A3EACCA31DF90A4F00025665 /* AssetLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetLoader.swift; sourceTree = "<group>"; };
+		A3EACCA91DF917DF00025665 /* Inputs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Inputs.swift; sourceTree = "<group>"; };
+		A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypesAndUtils.swift; sourceTree = "<group>"; };
+		A3EACCB01DFA3BB700025665 /* arial-24-white.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = "arial-24-white.bmp"; path = "../../Desktop/arial_bitmap/arial-24-white.bmp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,7 +129,8 @@
 		A3BEEA2A1DF630D600F79B91 = {
 			isa = PBXGroup;
 			children = (
-				A3BEEA631DF6338700F79B91 /* Shared.swift */,
+				A3EACCA81DF9179900025665 /* Shared */,
+				A3EACC9B1DF9098600025665 /* Assets */,
 				A3BEEA611DF6335900F79B91 /* Asteroids */,
 				A3BEEA351DF630D600F79B91 /* AsteroidsPlatform */,
 				A3BEEA341DF630D600F79B91 /* Products */,
@@ -87,8 +149,10 @@
 		A3BEEA351DF630D600F79B91 /* AsteroidsPlatform */ = {
 			isa = PBXGroup;
 			children = (
+				A3EACC971DF7CAE600025665 /* AsteroidsApplication.swift */,
 				A3BEEA361DF630D600F79B91 /* AppDelegate.swift */,
 				A3BEEA381DF630D600F79B91 /* ViewController.swift */,
+				A3EACC991DF83D5900025665 /* InputDevices.swift */,
 				A3BEEA451DF6312100F79B91 /* MetalWorker.swift */,
 				A3BEEA471DF6315900F79B91 /* Shaders.metal */,
 				A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */,
@@ -103,11 +167,35 @@
 			isa = PBXGroup;
 			children = (
 				A3BEEA621DF6338700F79B91 /* libAsteroids-Bridging-Header.h */,
+				A3EACCA31DF90A4F00025665 /* AssetLoader.swift */,
+				A3EACC921DF7B47400025665 /* BitmapFont.swift */,
 				A3BEEA651DF633D800F79B91 /* Renderer.swift */,
-				A3BEEA671DF6351C00F79B91 /* Ship.swift */,
-				A3BEEA6B1DF6410200F79B91 /* TypesAndMath.swift */,
+				A3547DF81DFB768800E74BEF /* TextRendering.swift */,
+				A3EACC8E1DF783D200025665 /* Entities.swift */,
+				A3BEEA6B1DF6410200F79B91 /* Math.swift */,
 			);
 			name = Asteroids;
+			sourceTree = "<group>";
+		};
+		A3EACC9B1DF9098600025665 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */,
+				A3547DFC1DFBB08E00E74BEF /* bad-font.txt */,
+				A3EACCB01DFA3BB700025665 /* arial-24-white.bmp */,
+				A3EACC951DF7B4D300025665 /* arial-24-white.txt */,
+			);
+			name = Assets;
+			sourceTree = "<group>";
+		};
+		A3EACCA81DF9179900025665 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				A3BEEA631DF6338700F79B91 /* RenderCommands.swift */,
+				A3EACCA91DF917DF00025665 /* Inputs.swift */,
+				A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */,
+			);
+			name = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -152,6 +240,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A3EACCA71DF9104200025665 /* PBXTargetDependency */,
 			);
 			name = libAsteroids;
 			productName = libAsteroids;
@@ -174,6 +263,9 @@
 					A3BEEA581DF6325000F79B91 = {
 						CreatedOnToolsVersion = 7.3;
 					};
+					A3EACC9C1DF909BE00025665 = {
+						CreatedOnToolsVersion = 7.3;
+					};
 				};
 			};
 			buildConfigurationList = A3BEEA2E1DF630D600F79B91 /* Build configuration list for PBXProject "Asteroids" */;
@@ -191,6 +283,7 @@
 			targets = (
 				A3BEEA321DF630D600F79B91 /* Asteroids */,
 				A3BEEA581DF6325000F79B91 /* libAsteroids */,
+				A3EACC9C1DF909BE00025665 /* CompileAssets */,
 			);
 		};
 /* End PBXProject section */
@@ -212,11 +305,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A3BEEA6F1DF6616800F79B91 /* Shared.swift in Sources */,
+				A3EACC9A1DF83D5900025665 /* InputDevices.swift in Sources */,
+				A3EACCAF1DFA392C00025665 /* TypesAndUtils.swift in Sources */,
+				A3BEEA6F1DF6616800F79B91 /* RenderCommands.swift in Sources */,
 				A3BEEA481DF6315900F79B91 /* Shaders.metal in Sources */,
 				A3BEEA461DF6312100F79B91 /* MetalWorker.swift in Sources */,
 				A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */,
 				A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */,
+				A3EACCAA1DF917DF00025665 /* Inputs.swift in Sources */,
+				A3EACC981DF7CAE600025665 /* AsteroidsApplication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,10 +321,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3EACC901DF7849200025665 /* Entities.swift in Sources */,
 				A3BEEA661DF633D800F79B91 /* Renderer.swift in Sources */,
-				A3BEEA681DF6351C00F79B91 /* Ship.swift in Sources */,
-				A3BEEA641DF6338700F79B91 /* Shared.swift in Sources */,
-				A3BEEA6C1DF6410200F79B91 /* TypesAndMath.swift in Sources */,
+				A3EACC961DF7B4E200025665 /* BitmapFont.swift in Sources */,
+				A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */,
+				A3EACCA51DF90E6400025665 /* AssetLoader.swift in Sources */,
+				A3BEEA641DF6338700F79B91 /* RenderCommands.swift in Sources */,
+				A3BEEA6C1DF6410200F79B91 /* Math.swift in Sources */,
+				A3EACCAB1DF917F000025665 /* Inputs.swift in Sources */,
+				A3EACCAE1DFA392500025665 /* TypesAndUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +340,11 @@
 			isa = PBXTargetDependency;
 			target = A3BEEA581DF6325000F79B91 /* libAsteroids */;
 			targetProxy = A3BEEA5D1DF6325400F79B91 /* PBXContainerItemProxy */;
+		};
+		A3EACCA71DF9104200025665 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A3EACC9C1DF909BE00025665 /* CompileAssets */;
+			targetProxy = A3EACCA61DF9104200025665 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -386,6 +493,20 @@
 			};
 			name = Release;
 		};
+		A3EACC9E1DF909BE00025665 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A3EACC9F1DF909BE00025665 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -412,6 +533,15 @@
 			buildConfigurations = (
 				A3BEEA5B1DF6325000F79B91 /* Debug */,
 				A3BEEA5C1DF6325000F79B91 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A3EACC9D1DF909BE00025665 /* Build configuration list for PBXAggregateTarget "CompileAssets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A3EACC9E1DF909BE00025665 /* Debug */,
+				A3EACC9F1DF909BE00025665 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -6,139 +6,46 @@ import simd
 import IOKit
 import IOKit.hid
 
+let gameCodeLibName = "libAsteroids"
+let updateAndRenderSymbolName = "_TF12libAsteroids15updateAndRenderFTGSpCS_10GameMemory_9inputsPtrGSpCS_6Inputs_17renderCommandsPtrGSpCS_19RenderCommandBuffer__T_"
+
 let device = MTLCreateSystemDefaultDevice()!
 let commandQueue = device.newCommandQueue()
 
 var metalLayer : CAMetalLayer! = nil
 
-var pipeline : MTLRenderPipelineState! = nil
+var pipelineSimple : MTLRenderPipelineState! = nil
+var pipelineTexture : MTLRenderPipelineState! = nil
+var sampleTex : MTLTexture! = nil
 var displayLink : CVDisplayLink? = nil
 
-let libAsteroidsPath : String = ({
+let gameCodeLibPath : String = ({
     let appPath = NSBundle.mainBundle().bundlePath
     let components = appPath.characters.split("/")
     let head = components.dropLast(1).map(String.init).joinWithSeparator("/")
-    print(head)
-    return "/" + head + "/libAsteroids.dylib"
+    return "/" + head + "/\(gameCodeLibName).dylib"
 })()
 
-typealias updateAndRenderSignature = @convention(c) (Double, UnsafeMutablePointer<Void>, UnsafeMutablePointer<Void>) -> ()
+typealias updateAndRenderSignature = @convention(c) (Ptr, Ptr, Ptr) -> ()
 
-typealias dylibHandle = UnsafeMutablePointer<Void>
-var libAsteroids : dylibHandle = nil
+typealias dylibHandle = Ptr
+var gameCode : dylibHandle = nil
 var lastModTime : NSDate! = nil
-var updateAndRender : ((Double, UnsafeMutablePointer<Void>, UnsafeMutablePointer<Void>) -> ())! = nil
+var updateAndRender : ((Ptr, Ptr, Ptr) -> ())! = nil
 
-let MAX_VERTICES = 0xFFFF // 65535
-//var renderMemory : UnsafeMutablePointer<Void> = nil
-
-// Inputs
-
-struct ControllerElements {
-    var x : IOHIDElementRef! = nil
-    var y : IOHIDElementRef! = nil
-    var z : IOHIDElementRef! = nil
-    var rx : IOHIDElementRef! = nil
-    var ry : IOHIDElementRef! = nil
-    var rz : IOHIDElementRef! = nil
-    var hat : IOHIDElementRef! = nil
-    var buttons : [IOHIDElementRef!]! = nil
-    
-    init() {
-        buttons = [IOHIDElementRef!](count: 16, repeatedValue: nil)
+extension Int {
+    var kilobytes : Int {
+        return self * 1024
+    }
+    var megabytes : Int {
+        return self * 1024 * 1024
+    }
+    var gigabytes : Int {
+        return self * 1024 * 1024 * 1024
     }
 }
 
-var hidManager : IOHIDManager! = nil
-var gamepad : IOHIDDeviceRef! = nil
-var gamepadElements : ControllerElements! = nil
-
-func inputSystemInit() {
-    
-    let manager = IOHIDManagerCreate(kCFAllocatorDefault, UInt32(kIOHIDOptionsTypeNone))
-    let gamepadDictionary = [
-        kIOHIDDeviceUsagePageKey : kHIDPage_GenericDesktop,
-        kIOHIDDeviceUsageKey     : kHIDUsage_GD_GamePad,
-    ]
-    let joystickDictionary = [
-        kIOHIDDeviceUsagePageKey : kHIDPage_GenericDesktop,
-        kIOHIDDeviceUsageKey     : kHIDUsage_GD_Joystick,
-    ]
-    
-    let matchingDictionaries = [gamepadDictionary, joystickDictionary]
-    IOHIDManagerSetDeviceMatchingMultiple(manager.takeUnretainedValue(), matchingDictionaries)
-    IOHIDManagerRegisterDeviceMatchingCallback(manager.takeUnretainedValue(), deviceAdded, nil)
-    IOHIDManagerRegisterDeviceRemovalCallback(manager.takeUnretainedValue(), deviceRemoved, nil)
-    IOHIDManagerScheduleWithRunLoop(manager.takeUnretainedValue(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode)
-    IOHIDManagerOpen(manager.takeUnretainedValue(), UInt32(kIOHIDOptionsTypeNone))
-    
-    hidManager = manager.takeUnretainedValue()
-}
-
-func deviceAdded(inContext: UnsafeMutablePointer<Void>, inResult: IOReturn, inSender: UnsafeMutablePointer<Void>, inIOHIDDeviceRef: IOHIDDevice!) {
-    print("device added!")
-    
-    if gamepad == nil {
-        gamepad = inIOHIDDeviceRef
-        
-        var controllerEls = ControllerElements()
-        
-        let buttons = [kIOHIDElementUsagePageKey : kHIDPage_Button]
-        let buttonElements = IOHIDDeviceCopyMatchingElements(inIOHIDDeviceRef, buttons, UInt32(kIOHIDOptionsTypeNone))
-        
-        for buttonRef in buttonElements.takeUnretainedValue() as Array {
-            let button = buttonRef as! IOHIDElement 
-            let usage = IOHIDElementGetUsage(button)
-            if usage < 16 {
-                let idx = usage - 1
-                controllerEls.buttons![Int(idx)] = button
-            }
-        }
-        
-        let genericDesktop = [kIOHIDElementUsagePageKey : kHIDPage_GenericDesktop]
-        let genericDesktopElements = IOHIDDeviceCopyMatchingElements(inIOHIDDeviceRef, genericDesktop, UInt32(kIOHIDOptionsTypeNone))
-        
-        for gdElementRef in genericDesktopElements.takeUnretainedValue() as Array {
-            let gdElement = gdElementRef as! IOHIDElement
-            let usage = IOHIDElementGetUsage(gdElement)
-            
-            if (usage == UInt32(kHIDUsage_GD_X)) {
-                controllerEls.x = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Y)) {
-                controllerEls.y = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Z)) {
-                controllerEls.z = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Rx)) {
-                controllerEls.rx = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Ry)) {
-                controllerEls.ry = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Rz)) {
-                controllerEls.rz = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Hatswitch)) {
-                controllerEls.hat = gdElement
-            }
-        }
-        
-        gamepadElements = controllerEls
-        
-    }
-}
-
-func deviceRemoved(inContext: UnsafeMutablePointer<Void>, inResult: IOReturn, inSender: UnsafeMutablePointer<Void>, inIOHIDDeviceRef: IOHIDDevice!) {
-    
-    print("device removed!")
-    
-    if unsafeAddressOf(inIOHIDDeviceRef) == unsafeAddressOf(gamepad) {
-        gamepad = nil
-        gamepadElements = nil
-    }
-}
+var gameMemory = GameMemory()
 
 func beginRendering(hostLayer: CALayer) {
     
@@ -158,13 +65,58 @@ func beginRendering(hostLayer: CALayer) {
     pipelineDescriptor.vertexFunction = vertexShader
     pipelineDescriptor.fragmentFunction = fragmentShader
     pipelineDescriptor.colorAttachments[0].pixelFormat = .BGRA8Unorm
+    pipelineDescriptor.colorAttachments[0].blendingEnabled = true
+    pipelineDescriptor.sampleCount = 4
     
-    pipeline = try! device.newRenderPipelineStateWithDescriptor(pipelineDescriptor)
+//    // Set up multisampling for antialiasing
+    let multisampleTexDesc = MTLTextureDescriptor()
+    multisampleTexDesc.textureType = MTLTextureType.Type2DMultisample
+    multisampleTexDesc.width = Int(metalLayer.bounds.size.width)
+    multisampleTexDesc.height = Int(metalLayer.bounds.size.height)
+    multisampleTexDesc.sampleCount = 4
+    multisampleTexDesc.pixelFormat = .BGRA8Unorm
+    multisampleTexDesc.storageMode = .Private
+    multisampleTexDesc.usage = .RenderTarget
     
-    try! getLastWriteTime(libAsteroidsPath)
-    loadLibAsteroids()
+    sampleTex = device.newTextureWithDescriptor(multisampleTexDesc)
     
-//    renderMemory = malloc(MAX_VERTICES * 8 * sizeof(Float))
+    pipelineSimple = try! device.newRenderPipelineStateWithDescriptor(pipelineDescriptor)
+    
+    // Textured
+    let vertexTextureShader = library.newFunctionWithName("basic_transform_vertex_shader")
+    let fragmentTextureShader = library.newFunctionWithName("textured_shader")
+    
+    let pipelineTextureDescriptor = MTLRenderPipelineDescriptor()
+    pipelineTextureDescriptor.vertexFunction = vertexTextureShader
+    pipelineTextureDescriptor.fragmentFunction = fragmentTextureShader
+    pipelineTextureDescriptor.colorAttachments[0].pixelFormat = .BGRA8Unorm
+    pipelineTextureDescriptor.colorAttachments[0].blendingEnabled = true
+    pipelineTextureDescriptor.colorAttachments[0].rgbBlendOperation = .Add
+    pipelineTextureDescriptor.colorAttachments[0].alphaBlendOperation = .Add
+    pipelineTextureDescriptor.colorAttachments[0].sourceRGBBlendFactor = .SourceAlpha
+    pipelineTextureDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .SourceAlpha
+    pipelineTextureDescriptor.colorAttachments[0].destinationRGBBlendFactor = .OneMinusSourceAlpha
+    pipelineTextureDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .OneMinusSourceAlpha
+    pipelineTextureDescriptor.sampleCount = 4
+    
+    pipelineTexture = try! device.newRenderPipelineStateWithDescriptor(pipelineTextureDescriptor)
+    
+    try! getLastWriteTime(gameCodeLibPath)
+    loadGameCode()
+    
+    let bigAddress = Ptr(bitPattern: 8.gigabytes)
+    let permanentStorageSize = 256.megabytes
+    let transientStorageSize = 2.gigabytes
+    let totalSize = permanentStorageSize + transientStorageSize
+    
+    // TODO: Is this memory *guaranteed* to be cleared to zero?
+    //       Linux docs suggest yes, Darwin docs doesn't specify
+    //       Empirically seems to be true
+    gameMemory.permanent = mmap(bigAddress, totalSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANON, -1, 0)
+    gameMemory.transient = gameMemory.permanent + permanentStorageSize
+    
+//    var p = UnsafeMutablePointer<GameState>(gameMemory.permanent)
+//    p[0] = GameState()
     
     let displayId = CGMainDisplayID()
     CVDisplayLinkCreateWithCGDisplay(displayId, &displayLink)
@@ -172,19 +124,19 @@ func beginRendering(hostLayer: CALayer) {
     CVDisplayLinkStart(displayLink!)
 }
 
-func loadLibAsteroids() {
-    libAsteroids = dlopen(libAsteroidsPath, RTLD_LAZY|RTLD_GLOBAL)
-    let updateAndRenderSym = dlsym(libAsteroids, "_TF12libAsteroids15updateAndRenderFTSd13gamepadInputsGSpVS_13GamepadInputs_14renderCommandsGSpCS_19RenderCommandBuffer__T_")
+func loadGameCode() {
+    gameCode = dlopen(gameCodeLibPath, RTLD_LAZY|RTLD_GLOBAL)
+    let updateAndRenderSym = dlsym(gameCode, updateAndRenderSymbolName)
     updateAndRender = unsafeBitCast(updateAndRenderSym, updateAndRenderSignature.self)
-    lastModTime = try! getLastWriteTime(libAsteroidsPath)
+    lastModTime = try! getLastWriteTime(gameCodeLibPath)
 }
 
-func unloadLibAsteroids() {
+func unloadGameCode() {
     updateAndRender = nil
-    dlclose(libAsteroids)
-    dlclose(libAsteroids) // THIS IS AWFUL. But the ObjC runtime opens all opened dylibs
-                         // so you *have* to unload twice in order to get the reference count down to 0
-    libAsteroids = nil
+    dlclose(gameCode)
+    dlclose(gameCode) // THIS IS AWFUL. But the ObjC runtime opens all opened dylibs
+                      // so you *have* to unload twice in order to get the reference count down to 0
+    gameCode = nil
 }
 
 func getLastWriteTime(filePath : String) throws -> NSDate {
@@ -202,14 +154,14 @@ func drawFrame(displayLink: CVDisplayLink,
                        _ displayLinkContext: UnsafeMutablePointer<Void>) -> CVReturn {
     autoreleasepool {
         do {
-            let libAsteroidsWriteTime = try getLastWriteTime(libAsteroidsPath)
-            if libAsteroidsWriteTime.compare(lastModTime!) == .OrderedDescending {
-                unloadLibAsteroids()
-                loadLibAsteroids()
-                print("libAsteroids reloaded")
+            let gameCodeWriteTime = try getLastWriteTime(gameCodeLibPath)
+            if gameCodeWriteTime.compare(lastModTime!) == .OrderedDescending {
+                unloadGameCode()
+                loadGameCode()
+                print("Game code reloaded")
             }
         } catch {
-            print("Missed libAsteroids live reload")
+            print("Missed game code live reload")
         } // Eat the error on purpose. If we can't reload this frame, we can try again next frame.
         
         let nextFrame = inOutputTime.memory
@@ -219,7 +171,8 @@ func drawFrame(displayLink: CVDisplayLink,
             dt = Double(nextFrame.videoTime - lastFrameTime) / Double(nextFrame.videoTimeScale)
         }
         
-        var gamepadInputs = GamepadInputs()
+        var gamepadInputs  = GamepadInputs()
+        var keyboardInputs = KeyboardInputs()
         
         // Get Inputs
         if gamepad != nil {
@@ -274,9 +227,69 @@ func drawFrame(displayLink: CVDisplayLink,
             
         }
         
+        if keyboard != nil && NSApp.active {
+            if keyboardElements.leftArrow != nil {
+                var value : Unmanaged<IOHIDValue>?
+                IOHIDDeviceGetValue(keyboard, keyboardElements.leftArrow, &value)
+                if IOHIDValueGetIntegerValue(value!.takeUnretainedValue()) != 0 {
+                    keyboardInputs.leftArrow = true
+                }
+            }
+            if keyboardElements.rightArrow != nil {
+                var value : Unmanaged<IOHIDValue>?
+                IOHIDDeviceGetValue(keyboard, keyboardElements.rightArrow, &value)
+                if IOHIDValueGetIntegerValue(value!.takeUnretainedValue()) != 0 {
+                    keyboardInputs.rightArrow = true
+                }
+            }
+            if keyboardElements.upArrow != nil {
+                var value : Unmanaged<IOHIDValue>?
+                IOHIDDeviceGetValue(keyboard, keyboardElements.upArrow, &value)
+                if IOHIDValueGetIntegerValue(value!.takeUnretainedValue()) != 0 {
+                    keyboardInputs.upArrow = true
+                }
+            }
+            if keyboardElements.spacebar != nil {
+                var value : Unmanaged<IOHIDValue>?
+                IOHIDDeviceGetValue(keyboard, keyboardElements.spacebar, &value)
+                if IOHIDValueGetIntegerValue(value!.takeUnretainedValue()) != 0 {
+                    keyboardInputs.spacebar = true
+                }
+            }
+        }
+        
+        // Resolve Inputs
+        var inputs = Inputs()
+        inputs.dt = Float(dt)
+        if keyboard != nil {
+            if keyboardInputs.leftArrow && !keyboardInputs.rightArrow {
+                inputs.rotate = -1.0
+            }
+            else if keyboardInputs.rightArrow && !keyboardInputs.leftArrow {
+                inputs.rotate = 1.0
+            }
+            
+            if keyboardInputs.upArrow {
+                inputs.thrust = true
+            }
+            
+            if keyboardInputs.spacebar {
+                inputs.fire = true
+            }
+        }
+        
+        // Gamepad wins out over keyboard
+        if gamepad != nil {
+            inputs.rotate = gamepadInputs.x
+            inputs.thrust = gamepadInputs.buttons[1]
+            inputs.fire = gamepadInputs.buttons[0]
+            
+            inputs.restart = gamepadInputs.buttons[9]
+        }
+        
         var renderCommands : RenderCommandBuffer = RenderCommandBuffer()
         
-        updateAndRender(dt, &gamepadInputs, &renderCommands)
+        updateAndRender(&gameMemory, &inputs, &renderCommands)
         
         render(renderCommands)
         
@@ -293,30 +306,71 @@ func render(renderCommandBuffer : RenderCommandBuffer) {
     let drawable = metalLayer.nextDrawable()!
     
     let renderPassDescriptor = MTLRenderPassDescriptor()
-    renderPassDescriptor.colorAttachments[0].texture = drawable.texture
+    renderPassDescriptor.colorAttachments[0].texture = sampleTex
+    renderPassDescriptor.colorAttachments[0].resolveTexture = drawable.texture
     renderPassDescriptor.colorAttachments[0].loadAction = .Clear
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
+    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+    renderPassDescriptor.colorAttachments[0].storeAction = .MultisampleResolve
+    
     
     let renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor(renderPassDescriptor)
-    renderEncoder.setRenderPipelineState(pipeline)
     
     var worldTransform = float4x4(1)
     var uniformsBuffer = device.newBufferWithBytes(&worldTransform, length: 16 * sizeof(Float), options: [])
     
     for command in renderCommandBuffer.commands {
         
-        if command.type == .Uniforms {
-            worldTransform = command.transform
+        // Swift type system/module namespacing stupidness
+        // means we have to directly cast the memory.
+        // Also, this just doesn't work if RenderCommands
+        // are structs and not classes. Weird value vs.
+        // reference semantics??
+        
+        if command.type == .Options {
+            let optionsCommand : RenderCommandOptions = coldCast(command)
+            if optionsCommand.fillMode == .Fill {
+                renderEncoder.setTriangleFillMode(.Fill)
+            }
+            else {
+                renderEncoder.setTriangleFillMode(.Lines)
+            }
+        }
+        else if command.type == .Uniforms {
+            let uniformsCommand : RenderCommandUniforms = coldCast(command)
+            renderEncoder.setRenderPipelineState(pipelineSimple)
+            
+            worldTransform = uniformsCommand.transform
             uniformsBuffer = device.newBufferWithBytes(&worldTransform, length: 16 * sizeof(Float), options: [])
         }
         else if command.type == .Triangles {
-            var instanceTransform = command.transform
+            let trianglesCommand : RenderCommandTriangles = coldCast(command)
+            renderEncoder.setRenderPipelineState(pipelineSimple)
+            
+            var instanceTransform = trianglesCommand.transform
             let instanceUniformsBuffer = device.newBufferWithBytes(&instanceTransform, length: 16 * sizeof(Float), options: [])
-            let vertexBuffer = device.newBufferWithBytes(command.verts, length: command.count * sizeof(Float), options: [])
+            let vertexBuffer = device.newBufferWithBytes(trianglesCommand.verts, length: trianglesCommand.count * sizeof(Float), options: [])
             renderEncoder.setVertexBuffer(uniformsBuffer, offset: 0, atIndex: 0)
             renderEncoder.setVertexBuffer(instanceUniformsBuffer, offset: 0, atIndex: 1)
             renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, atIndex: 2)
-            renderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: command.count / 8)
+            renderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: trianglesCommand.count / 8)
+        }
+        else if command.type == .Text {
+            let textCommand : RenderCommandText = coldCast(command)
+            renderEncoder.setRenderPipelineState(pipelineTexture)
+            
+            var instanceTransform = textCommand.transform
+            let instanceUniformsBuffer = device.newBufferWithBytes(&instanceTransform, length: 16 * sizeof(Float), options: [])
+            let vertexBuffer = device.newBufferWithBytes(textCommand.quads, length: textCommand.quadCount * 4 * 8 * sizeof(Float), options: [])
+            renderEncoder.setVertexBuffer(instanceUniformsBuffer, offset: 0, atIndex: 0)
+            renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, atIndex: 1)
+            
+            let indexBuffer = device.newBufferWithBytes(textCommand.indices, length: (textCommand.quadCount * 6) * sizeof(Float), options:[])
+            
+            let textureDesc = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.BGRA8Unorm, width: textCommand.width, height: textCommand.height, mipmapped: false)
+            let texture = device.newTextureWithDescriptor(textureDesc)
+            texture.replaceRegion(MTLRegionMake2D(0, 0, textCommand.width, textCommand.height), mipmapLevel: 0, slice: 0, withBytes: textCommand.texels, bytesPerRow: 4 * textCommand.width, bytesPerImage: 4 * textCommand.width * textCommand.height)
+            renderEncoder.setFragmentTexture(texture, atIndex: 0)
+            renderEncoder.drawIndexedPrimitives(.Triangle, indexCount: (textCommand.quadCount * 6), indexType: .UInt16, indexBuffer: indexBuffer, indexBufferOffset: 0)
         }
         
     }
