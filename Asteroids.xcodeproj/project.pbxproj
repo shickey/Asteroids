@@ -24,6 +24,7 @@
 		A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3547DF81DFB768800E74BEF /* TextRendering.swift */; };
 		A3547DFD1DFBB08E00E74BEF /* bad-font.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */; };
 		A3547DFE1DFBB08E00E74BEF /* bad-font.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3547DFC1DFBB08E00E74BEF /* bad-font.txt */; };
+		A3A18E221DFFA736002F27DE /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA6B1DF6410200F79B91 /* Math.swift */; };
 		A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA361DF630D600F79B91 /* AppDelegate.swift */; };
 		A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA381DF630D600F79B91 /* ViewController.swift */; };
 		A3BEEA3B1DF630D600F79B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */; };
@@ -172,7 +173,6 @@
 				A3BEEA651DF633D800F79B91 /* Renderer.swift */,
 				A3547DF81DFB768800E74BEF /* TextRendering.swift */,
 				A3EACC8E1DF783D200025665 /* Entities.swift */,
-				A3BEEA6B1DF6410200F79B91 /* Math.swift */,
 			);
 			name = Asteroids;
 			sourceTree = "<group>";
@@ -194,6 +194,7 @@
 				A3BEEA631DF6338700F79B91 /* RenderCommands.swift */,
 				A3EACCA91DF917DF00025665 /* Inputs.swift */,
 				A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */,
+				A3BEEA6B1DF6410200F79B91 /* Math.swift */,
 			);
 			name = Shared;
 			sourceTree = "<group>";
@@ -259,9 +260,11 @@
 				TargetAttributes = {
 					A3BEEA321DF630D600F79B91 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0810;
 					};
 					A3BEEA581DF6325000F79B91 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0810;
 					};
 					A3EACC9C1DF909BE00025665 = {
 						CreatedOnToolsVersion = 7.3;
@@ -314,6 +317,7 @@
 				A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */,
 				A3EACCAA1DF917DF00025665 /* Inputs.swift in Sources */,
 				A3EACC981DF7CAE600025665 /* AsteroidsApplication.swift in Sources */,
+				A3A18E221DFFA736002F27DE /* Math.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +455,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = local.seanhickey.Asteroids;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -463,6 +468,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = local.seanhickey.Asteroids;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -477,6 +483,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "libAsteroids-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -490,6 +497,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "libAsteroids-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

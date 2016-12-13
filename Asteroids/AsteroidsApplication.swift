@@ -11,10 +11,10 @@ import Cocoa
 @objc(AsteroidsApplication)
 class AsteroidsApplication: NSApplication {
     
-    override func sendEvent(theEvent: NSEvent) {
+    override func sendEvent(_ theEvent: NSEvent) {
         
         // Suppress keyboard events since we're handling them through IOKit
-        if theEvent.type == .KeyDown || theEvent.type == .KeyUp {
+        if theEvent.type == .keyDown || theEvent.type == .keyUp {
             return
         }
         super.sendEvent(theEvent)

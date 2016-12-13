@@ -18,12 +18,12 @@ public struct BitmapFont {
         
         var bmpName : String! = nil
         
-        let lines = fontDesc.characters.split("\n")
+        let lines = fontDesc.characters.split(separator: "\n")
         for line in lines {
-            let tokens = line.split(" ")
+            let tokens = line.split(separator: " ")
             if String(tokens[0]) == "common" {
                 for token in tokens {
-                    let pairs = token.split("=")
+                    let pairs = token.split(separator: "=")
                     if String(pairs[0]) == "base" {
                         baselineHeight = Int(String(pairs[1]))!
                     }
@@ -31,17 +31,17 @@ public struct BitmapFont {
             }
             else if String(tokens[0]) == "page" {
                 for token in tokens {
-                    let pairs = token.split("=")
+                    let pairs = token.split(separator: "=")
                     if String(pairs[0]) == "file" {
                         let s = String(pairs[1])
-                        bmpName = s[s.startIndex.advancedBy(1)..<s.endIndex.predecessor()]
+                        bmpName = s[s.characters.index(s.startIndex, offsetBy: 1)..<s.characters.index(before: s.endIndex)]
                     }
                 }
             }
             else if String(tokens[0]) == "char" {
                 var c = BitmapChar()
                 for token in tokens {
-                    let props = token.split("=")
+                    let props = token.split(separator: "=")
                     switch String(props[0]) {
                     case "id":
                         c.id = Int(String(props[1]))
@@ -67,7 +67,7 @@ public struct BitmapFont {
             else if String(tokens[0]) == "kerning" {
                 var k = BitmapKerning()
                 for token in tokens {
-                    let props = token.split("=")
+                    let props = token.split(separator: "=")
                     switch String(props[0]) {
                     case "first":
                         k.first = Int(String(props[1]))

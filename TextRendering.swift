@@ -9,24 +9,24 @@
 import Darwin
 import simd
 
-func renderText(text: String, _ font: BitmapFont) -> RenderCommandText {
+func renderText(_ text: String, _ font: BitmapFont) -> RenderCommandText {
     
     var cursor : Float = 0.0
     
     let chars = text.utf8
     
-    let verts = VertexPointer.alloc(chars.count * 4 * 8)
+    let verts = VertexPointer.allocate(capacity: chars.count * 4 * 8)
     var vertsPtr = verts
-    let indices = U16Ptr.alloc(6 * chars.count)
+    let indices = U16Ptr.allocate(capacity: 6 * chars.count)
     var indicesPtr = indices
     
-    for (i, char) in chars.enumerate() {
+    for (i, char) in chars.enumerated() {
         if let bmpChar = font.chars[Int(char)] {
             
             // Kerning
             var kerning : Float = 0.0
             if i > 0 {
-                let prevChar = chars[chars.startIndex.advancedBy(i - 1)]
+                let prevChar = chars[chars.index(chars.startIndex, offsetBy: i - 1)]
                 if let kerns = font.kerns[Int(prevChar)] {
                     for kern in kerns {
                         if kern.second == Int(char) {
@@ -56,8 +56,8 @@ func renderText(text: String, _ font: BitmapFont) -> RenderCommandText {
             let idxOffset = UInt16(i * 4)
             let quadIndices : [UInt16] = [idxOffset, idxOffset + 1, idxOffset + 2, idxOffset + 1, idxOffset + 3, idxOffset + 2]
             
-            memcpy(vertsPtr, v, 4 * 8 * sizeof(Float))
-            memcpy(indicesPtr, quadIndices, 6 * sizeof(UInt16))
+            memcpy(vertsPtr, v, 4 * 8 * MemoryLayout<Float>.size)
+            memcpy(indicesPtr, quadIndices, 6 * MemoryLayout<UInt16>.size)
             
             vertsPtr += 4 * 8
             indicesPtr += 6
@@ -74,7 +74,10 @@ func renderText(text: String, _ font: BitmapFont) -> RenderCommandText {
     command.quadCount = chars.count
     command.quads = verts
     command.indices = indices
-    command.texels = U8Ptr(font.bitmap.pixels)
+    font.bitmap.pixels.withMemoryRebound(to: UInt8.self, capacity: 1) {
+        command.texels = $0
+    }
+    //command.texels = U8Ptr(font.bitmap.pixels)
     command.width = font.bitmap.width
     command.height = font.bitmap.height
     command.stride = font.bitmap.stride

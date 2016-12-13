@@ -6,7 +6,7 @@
 //  Copyright © 2016 Sean Hickey. All rights reserved.
 //
 
-public class Inputs {
+open class Inputs {
     var dt : Float = 0.0
     
     var rotate  : Float = 0.0  // Normalized between -1.0 and 1.0

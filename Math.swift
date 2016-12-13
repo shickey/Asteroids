@@ -56,35 +56,35 @@ func +(lhs: Vec2, rhs: Vec2) -> Vec2 {
     return Vec2(lhs.x + rhs.x, lhs.y + rhs.y)
 }
 
-func +=(inout lhs: Vec2, rhs: Vec2) {
+func +=(lhs: inout Vec2, rhs: Vec2) {
     lhs = lhs + rhs
 }
 
-func norm(vec: Vec2) -> Float {
+func norm(_ vec: Vec2) -> Float {
     return sqrt((vec.x * vec.x) + (vec.y * vec.y))
 }
 
-func normalize(vec: Vec2) -> Vec2 {
+func normalize(_ vec: Vec2) -> Vec2 {
     let len = norm(vec)
     return Vec2(vec.x / len, vec.y / len)
 }
 
-func normalizeToRange(val: Float, _ min: Float, _ max: Float) -> Float {
+func normalizeToRange(_ val: Float, _ min: Float, _ max: Float) -> Float {
     let width = max - min
     let offset = val - min
     
     return (offset - (floorf(offset / width) * width)) + min
 }
 
-func distanceSquared(v1: Vec2, _ v2: Vec2) -> Float {
+func distanceSquared(_ v1: Vec2, _ v2: Vec2) -> Float {
     return ((v1.x - v2.x) * (v1.x - v2.x)) + ((v1.y - v2.y) * (v1.y - v2.y))
 }
 
-func distance(v1: Vec2, _ v2: Vec2) -> Float {
+func distance(_ v1: Vec2, _ v2: Vec2) -> Float {
     return sqrt(distanceSquared(v1, v2))
 }
 
-func clamp(val: Float, _ min: Float, _ max: Float) -> Float {
+func clamp(_ val: Float, _ min: Float, _ max: Float) -> Float {
     if val < min {
         return min
     }
@@ -106,6 +106,6 @@ func randomZeroToOne() -> Float {
     return Float(drand48())
 }
 
-func randomInRange(min: Float, _ max: Float) -> Float {
+func randomInRange(_ min: Float, _ max: Float) -> Float {
     return (randomZeroToOne() * (max - min)) + min
 }

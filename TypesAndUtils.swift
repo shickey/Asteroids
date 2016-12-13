@@ -6,7 +6,7 @@
 //  Copyright © 2016 Sean Hickey. All rights reserved.
 //
 
-public typealias Ptr = UnsafeMutablePointer<Void>
+public typealias Ptr = UnsafeMutableRawPointer
 
 public typealias U8Ptr  = UnsafeMutablePointer<UInt8>
 public typealias U16Ptr = UnsafeMutablePointer<UInt16>
@@ -18,25 +18,25 @@ public typealias S16Ptr = UnsafeMutablePointer<Int16>
 public typealias S32Ptr = UnsafeMutablePointer<Int32>
 public typealias S64Ptr = UnsafeMutablePointer<Int64>
 
-public class GameMemory {
-    public var permanent : Ptr = nil
-    public var transient : Ptr = nil
+open class GameMemory {
+    open var permanent : Ptr! = nil
+    open var transient : Ptr! = nil
 }
 
 // Stuff to make memory actually usable in this god-forsaken language
 
-prefix operator ^ {}
-prefix func ^<T>(inout lhs: T) -> UnsafeMutablePointer<T> {
-    return withUnsafeMutablePointer(&lhs) {UnsafeMutablePointer<T>($0)}
+prefix operator ^
+prefix func ^<T>(lhs: inout T) -> UnsafeMutablePointer<T> {
+    return withUnsafeMutablePointer(to: &lhs) {UnsafeMutablePointer<T>($0)}
 }
 
-prefix operator * {}
+prefix operator *
 prefix func *<T>(lhs: UnsafeMutablePointer<T>) -> T {
-    return lhs.memory
+    return lhs.pointee
 }
 
-func coldCast<T>(val: Any) -> T {
+func coldCast<T>(_ val: Any) -> T {
     var v = val
-    let ptr = withUnsafeMutablePointer(&v) {UnsafeMutablePointer<Void>($0)}
-    return UnsafeMutablePointer<T>(ptr).memory
+    let ptr = withUnsafeMutablePointer(to: &v) {UnsafeMutableRawPointer($0)}
+    return ptr.bindMemory(to: T.self, capacity: 1).pointee
 }

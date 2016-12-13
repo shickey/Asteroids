@@ -25,7 +25,7 @@ class Entity : Hashable {
     var rot  : Float = 0.0
     var dRot : Float = 0.0
     
-    var verts : VertexPointer
+    var verts : VertexPointer?
     
     init() {
         id = Entity.nextId
@@ -44,14 +44,14 @@ class Ship : Entity {
     
     override init() {
         super.init()
-        let v = VertexPointer.alloc(8 * 3)
+        let v = VertexPointer.allocate(capacity: 8 * 3)
         let actualVerts : [Float] = [
             0.0,  0.7, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0,
             0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
             -0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
             ]
         
-        memcpy(v, actualVerts, actualVerts.count * sizeof(Float))
+        memcpy(v, actualVerts, actualVerts.count * MemoryLayout<Float>.size)
         verts = v
     }
 }
@@ -61,9 +61,9 @@ class Ship : Entity {
 class Asteroid : Entity {
     
     enum AsteroidSize {
-        case Small
-        case Medium
-        case Large
+        case small
+        case medium
+        case large
     }
     
     var size : AsteroidSize
@@ -78,17 +78,17 @@ class Asteroid : Entity {
         p.y = location.y
         
         var velocityScale : Float = 0.02
-        if newSize == .Medium {
+        if newSize == .medium {
             velocityScale = 0.04
         }
-        else if newSize == .Small {
+        else if newSize == .small {
             velocityScale = 0.06
         }
         
         dP.x = randomInRange(-velocityScale, velocityScale)
         dP.y = randomInRange(-velocityScale, velocityScale)
         
-        let v = UnsafeMutablePointer<Float>.alloc(8 * 3 * 6)
+        let v = UnsafeMutablePointer<Float>.allocate(capacity: 8 * 3 * 6)
         let actualVerts : [Float] = [
             0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
             1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
@@ -115,7 +115,7 @@ class Asteroid : Entity {
             1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0
         ]
         
-        memcpy(v, actualVerts, actualVerts.count * sizeof(Float))
+        memcpy(v, actualVerts, actualVerts.count * MemoryLayout<Float>.size)
         verts = v
     }
     
@@ -127,13 +127,13 @@ class Asteroid : Entity {
 
 }
 
-func scaleForAsteroidSize(size: Asteroid.AsteroidSize) -> Float {
+func scaleForAsteroidSize(_ size: Asteroid.AsteroidSize) -> Float {
     switch size {
-    case .Large:
+    case .large:
         return 2.0
-    case .Medium:
+    case .medium:
         return 1.5
-    case .Small:
+    case .small:
         return 1.0
     }
 }
@@ -153,7 +153,7 @@ class Laser : Entity {
         dP.x = sin(ship.rot) * 0.2
         dP.y = cos(ship.rot) * 0.2
         
-        let v = VertexPointer.alloc(8 * 3 * 2)
+        let v = VertexPointer.allocate(capacity: 8 * 3 * 2)
         let actualVerts : [Float] = [
             1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
            -1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
@@ -164,7 +164,7 @@ class Laser : Entity {
             1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0
         ]
         
-        memcpy(v, actualVerts, actualVerts.count * sizeof(Float))
+        memcpy(v, actualVerts, actualVerts.count * MemoryLayout<Float>.size)
         verts = v
         
     }
@@ -172,7 +172,7 @@ class Laser : Entity {
 }
 
 
-func rotateEntity(entity: Entity, _ radians: Float) {
+func rotateEntity(_ entity: Entity, _ radians: Float) {
     entity.rot += radians
     entity.rot = normalizeToRange(entity.rot, Float(-M_PI), Float(M_PI))
 }

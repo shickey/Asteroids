@@ -35,7 +35,9 @@ var font : BitmapFont! = nil
 
 var worldTransform = float4x4(1)
 
-func gameInit(inout gameState: GameState) {
+func gameInit(_ gameStatePtr: UnsafeMutablePointer<GameState>) {
+    
+    var gameState = gameStatePtr.pointee
     
     font = BitmapFont(loadTextAsset("bad-font.txt")!)
     
@@ -50,6 +52,8 @@ func gameInit(inout gameState: GameState) {
     }
     
     gameState.gameInitialized = true
+    
+    UnsafeMutableRawPointer(gameStatePtr).storeBytes(of: gameState, as: GameState.self)
 }
 
 func levelInit() {
@@ -62,8 +66,8 @@ func levelInit() {
     for _ in 0..<3 {
         var a : Asteroid
         repeat {
-            a = Asteroid(world, .Large)
-        } while distance(a.p, ship.p) < (scaleForAsteroidSize(.Large) * 2.0) // Prevent an asteroid from spawning right on top of the ship
+            a = Asteroid(world, .large)
+        } while distance(a.p, ship.p) < (scaleForAsteroidSize(.large) * 2.0) // Prevent an asteroid from spawning right on top of the ship
         asteroids.insert(a)
     }
     
@@ -72,22 +76,22 @@ func levelInit() {
 
 var restarting = false
 
-public func updateAndRender(gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandsPtr: UnsafeMutablePointer<RenderCommandBuffer>) {
+public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandsPtr: UnsafeMutablePointer<RenderCommandBuffer>) {
     
-    let gameMemory = gameMemoryPtr.memory
-    let inputs = inputsPtr.memory
-    let commandBuffer = renderCommandsPtr.memory
+    let gameMemory = gameMemoryPtr.pointee
+    let inputs = inputsPtr.pointee
+    let commandBuffer = renderCommandsPtr.pointee
     
-    let gameStatePtr = UnsafeMutablePointer<GameState>(gameMemory.permanent)
+    let gameStatePtr = gameMemory.permanent.bindMemory(to: GameState.self, capacity: 1)
     
     let options = RenderCommandOptions()
-    options.fillMode = .Fill
+    options.fillMode = .fill
     commandBuffer.push(options)
 
-    var gameState : GameState = coldCast(*gameStatePtr)
+    var gameState = gameStatePtr.pointee
     
     if !gameState.gameInitialized {
-        gameInit(&gameState)
+        gameInit(gameStatePtr)
     }
     
     if !levelInitialized || (inputs.restart && !restarting) {
@@ -142,7 +146,7 @@ public func updateAndRender(gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inp
     
 }
 
-func computeUniforms(commandBuffer: RenderCommandBuffer) {
+func computeUniforms(_ commandBuffer: RenderCommandBuffer) {
     let uniformsCommand = RenderCommandUniforms()
     uniformsCommand.transform = worldTransform
     commandBuffer.push(uniformsCommand)
@@ -150,7 +154,7 @@ func computeUniforms(commandBuffer: RenderCommandBuffer) {
 
 var laserTimeToWait : Float = 0.0
 
-func simulate(dt: Float, _ inputs: Inputs) {
+func simulate(_ dt: Float, _ inputs: Inputs) {
     
     // Simulate Ship
     rotateEntity(ship, 0.1 * inputs.rotate)
@@ -212,13 +216,13 @@ func simulate(dt: Float, _ inputs: Inputs) {
     for asteroid in asteroids {
         for laser in lasers {
             if distance(laser.p, asteroid.p) < scaleForAsteroidSize(asteroid.size)  {
-                if asteroid.size == .Large {
-                    asteroids.insert(Asteroid(asteroid.p, .Medium))
-                    asteroids.insert(Asteroid(asteroid.p, .Medium))
+                if asteroid.size == .large {
+                    asteroids.insert(Asteroid(asteroid.p, .medium))
+                    asteroids.insert(Asteroid(asteroid.p, .medium))
                 }
-                else if asteroid.size == .Medium {
-                    asteroids.insert(Asteroid(asteroid.p, .Small))
-                    asteroids.insert(Asteroid(asteroid.p, .Small))
+                else if asteroid.size == .medium {
+                    asteroids.insert(Asteroid(asteroid.p, .small))
+                    asteroids.insert(Asteroid(asteroid.p, .small))
                 }
                 
                 lasers.remove(laser)
@@ -243,10 +247,10 @@ func simulate(dt: Float, _ inputs: Inputs) {
     
 }
 
-func renderBlackBackground(commandBuffer: RenderCommandBuffer) {
+func renderBlackBackground(_ commandBuffer: RenderCommandBuffer) {
     let command = RenderCommandTriangles()
     
-    let verts = UnsafeMutablePointer<Float>.alloc(6 * 8)
+    let verts = UnsafeMutablePointer<Float>.allocate(capacity: 6 * 8)
     let vData = [
         -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
          (world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
@@ -256,7 +260,7 @@ func renderBlackBackground(commandBuffer: RenderCommandBuffer) {
         -(world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
         ]
     
-    memcpy(verts, vData, vData.count * sizeof(Float))
+    memcpy(verts, vData, vData.count * MemoryLayout<Float>.size)
     
     command.verts = verts
     command.transform = float4x4(1)
@@ -265,10 +269,10 @@ func renderBlackBackground(commandBuffer: RenderCommandBuffer) {
     commandBuffer.push(command)
 }
 
-func renderTerribleBackground(commandBuffer: RenderCommandBuffer) {
+func renderTerribleBackground(_ commandBuffer: RenderCommandBuffer) {
     let command = RenderCommandTriangles()
     
-    let verts = UnsafeMutablePointer<Float>.alloc(6 * 8)
+    let verts = UnsafeMutablePointer<Float>.allocate(capacity: 6 * 8)
     let vData = [
         -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
          (world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
@@ -278,7 +282,7 @@ func renderTerribleBackground(commandBuffer: RenderCommandBuffer) {
         -(world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
     ]
     
-    memcpy(verts, vData, vData.count * sizeof(Float))
+    memcpy(verts, vData, vData.count * MemoryLayout<Float>.size)
     
     command.verts = verts
     command.transform = float4x4(1)
@@ -287,7 +291,7 @@ func renderTerribleBackground(commandBuffer: RenderCommandBuffer) {
     commandBuffer.push(command)
 }
 
-func renderShip(commandBuffer: RenderCommandBuffer) {
+func renderShip(_ commandBuffer: RenderCommandBuffer) {
     if !ship.alive {
         return
     }
@@ -300,7 +304,7 @@ func renderShip(commandBuffer: RenderCommandBuffer) {
     commandBuffer.push(command)
 }
 
-func renderAsteroids(commandBuffer: RenderCommandBuffer) {
+func renderAsteroids(_ commandBuffer: RenderCommandBuffer) {
     
     for asteroid in asteroids {
         let command = RenderCommandTriangles()
@@ -315,7 +319,7 @@ func renderAsteroids(commandBuffer: RenderCommandBuffer) {
     }
 }
 
-func renderLasers(commandBuffer: RenderCommandBuffer) {
+func renderLasers(_ commandBuffer: RenderCommandBuffer) {
     
     for laser in lasers {
         let command = RenderCommandTriangles()
@@ -329,14 +333,14 @@ func renderLasers(commandBuffer: RenderCommandBuffer) {
     
 }
 
-func translateTransform(x: Float, _ y: Float) -> float4x4 {
+func translateTransform(_ x: Float, _ y: Float) -> float4x4 {
     var transform = float4x4(1)
     transform[3][0] = x
     transform[3][1] = y
     return transform
 }
 
-func rotateTransform(theta: Float) -> float4x4 {
+func rotateTransform(_ theta: Float) -> float4x4 {
     var transform = float4x4(1)
     transform[0][0] =  cos(theta)
     transform[0][1] = -sin(theta)
@@ -345,7 +349,7 @@ func rotateTransform(theta: Float) -> float4x4 {
     return transform
 }
 
-func scaleTransform(x: Float, _ y: Float) -> float4x4 {
+func scaleTransform(_ x: Float, _ y: Float) -> float4x4 {
     var transform = float4x4(1)
     transform[0][0] = x
     transform[1][1] = y
