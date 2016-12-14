@@ -35,6 +35,8 @@ var font : BitmapFont! = nil
 
 var worldTransform = float4x4(1)
 
+
+
 func gameInit(_ gameStatePtr: UnsafeMutablePointer<GameState>) {
     
     var gameState = gameStatePtr.pointee
@@ -76,19 +78,15 @@ func levelInit() {
 
 var restarting = false
 
-public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandsPtr: UnsafeMutablePointer<RenderCommandBuffer>) {
+public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandHeaderPtr: UnsafeMutablePointer<RenderCommandBufferHeader>) {
     
     let gameMemory = gameMemoryPtr.pointee
     let inputs = inputsPtr.pointee
-    let commandBuffer = renderCommandsPtr.pointee
     
     let gameStatePtr = gameMemory.permanent.bindMemory(to: GameState.self, capacity: 1)
-    
-    let options = RenderCommandOptions()
-    options.fillMode = .fill
-    commandBuffer.push(options)
 
-    var gameState = gameStatePtr.pointee
+
+    let gameState = gameStatePtr.pointee
     
     if !gameState.gameInitialized {
         gameInit(gameStatePtr)
@@ -104,56 +102,88 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     }
     
     
+    // Simulate
+    
     simulate(inputs.dt, inputs)
     
-    computeUniforms(commandBuffer)
+    
+    // Render
+    let renderBuffer = UnsafeMutableRawPointer(renderCommandHeaderPtr)
+
+    var options = RenderCommandOptions()
+    options.fillMode = .fill
+    pushCommand(renderBuffer, options)
+    
+    
+    var uniforms = RenderCommandUniforms()
+    uniforms.transform = worldTransform
+    pushCommand(renderBuffer, uniforms)
+    
+    
     if DEBUG.BACKGROUND {
-        renderTerribleBackground(commandBuffer)
+        renderTerribleBackground(renderBuffer)
     }
     else {
-        renderBlackBackground(commandBuffer)
+        renderBlackBackground(renderBuffer)
     }
-    renderAsteroids(commandBuffer)
-    renderShip(commandBuffer)
-    renderLasers(commandBuffer)
+    renderAsteroids(renderBuffer)
+    renderShip(renderBuffer)
+    renderLasers(renderBuffer)
     
-    let command = renderText("(Hello, world!)?", font)
-    commandBuffer.push(command)
-    
-    // TEXT TEST
-//    let textCommand = RenderCommandText()
-//    textCommand.texels = U8Ptr(tex!.pixels)
-//    textCommand.width  = Int(tex!.biWidth)
-//    textCommand.height = Int(tex!.biHeight)
-//    textCommand.stride = Int(tex!.biBitCount)
-//    
-//    let verts = UnsafeMutablePointer<Float>.alloc(6 * 8)
-//    let vData : [Float] = [
-//        -0.5,  0.5, 0.0, 1.0,   0.0,   0.0, 0.0,   0.0,
-//         0.5,  0.5, 0.0, 1.0, 128.0,   0.0, 0.0,   0.0,
-//         0.5, -0.5, 0.0, 1.0, 128.0, 512.0, 0.0,   0.0,
-//        -0.5,  0.5, 0.0, 1.0,   0.0,   0.0, 0.0,   0.0,
-//         0.5, -0.5, 0.0, 1.0, 128.0, 512.0, 0.0,   0.0,
-//        -0.5, -0.5, 0.0, 1.0,   0.0, 512.0, 0.0,   0.0,
-//    ]
-//    
-//    memcpy(verts, vData, vData.count * sizeof(Float))
-//    
-//    textCommand.verts = verts
-//    textCommand.count = vData.count
-//    
-//    commandBuffer.push(textCommand)
+    let command = renderText(renderBuffer, "(Hello, world!)?", font)
+    pushCommand(renderBuffer, command)
     
 }
 
-func computeUniforms(_ commandBuffer: RenderCommandBuffer) {
-    let uniformsCommand = RenderCommandUniforms()
-    uniformsCommand.transform = worldTransform
-    commandBuffer.push(uniformsCommand)
+func pushCommand<T: RenderCommand>(_ renderBufferBase: RawPtr, _ command: T) {
+    
+    // Get the buffer header
+    var header = renderBufferBase.bindMemory(to: RenderCommandBufferHeader.self, capacity: 1).pointee
+    
+    var pushCommandPtr = renderBufferBase
+    if header.commandCount == 0 {
+        
+        // Find the first open memory, align, and store the pointer in the header
+        pushCommandPtr = renderBufferBase + MemoryLayout.stride(ofValue: header)
+        if Int(bitPattern: pushCommandPtr) % MemoryLayout.alignment(ofValue: command) != 0 {
+            pushCommandPtr += MemoryLayout.alignment(ofValue: command) - (Int(bitPattern: pushCommandPtr) % MemoryLayout.alignment(ofValue: command))
+        }
+        
+        header.firstCommandBase = pushCommandPtr
+    }
+    else {
+        
+        // Get the top of the queue, align to alignment of pushing command
+        pushCommandPtr = header.lastCommandHead!
+        if Int(bitPattern: pushCommandPtr) % MemoryLayout.alignment(ofValue: command) != 0 {
+            pushCommandPtr += MemoryLayout.alignment(ofValue: command) - (Int(bitPattern: pushCommandPtr) % MemoryLayout.alignment(ofValue: command))
+        }
+        
+        // View the last command as a header structure,
+        // set the `next` pointer, and store it back in the buffer
+        var commandHeader = header.lastCommandBase!.bindMemory(to: RenderCommandHeader.self, capacity: 1).pointee
+        commandHeader.next = pushCommandPtr
+        header.lastCommandBase!.storeBytes(of: commandHeader, as: RenderCommandHeader.self)
+        
+    }
+    
+    // Push the new command
+    pushCommandPtr.storeBytes(of: command, as: T.self)
+    
+    // Update pointers
+    header.lastCommandBase = pushCommandPtr
+    header.lastCommandHead = pushCommandPtr + MemoryLayout.stride(ofValue: command)
+
+    header.commandCount += 1
+    renderBufferBase.storeBytes(of: header, as: RenderCommandBufferHeader.self)
+    
 }
+
 
 var laserTimeToWait : Float = 0.0
 
+
+// TODO: Rewrite completely. Needs to be dependent on dt otherwise will change speed depending on framerate
 func simulate(_ dt: Float, _ inputs: Inputs) {
     
     // Simulate Ship
@@ -247,8 +277,8 @@ func simulate(_ dt: Float, _ inputs: Inputs) {
     
 }
 
-func renderBlackBackground(_ commandBuffer: RenderCommandBuffer) {
-    let command = RenderCommandTriangles()
+func renderBlackBackground(_ renderBuffer: RawPtr) {
+    var command = RenderCommandTriangles()
     
     let verts = UnsafeMutablePointer<Float>.allocate(capacity: 6 * 8)
     let vData = [
@@ -266,11 +296,11 @@ func renderBlackBackground(_ commandBuffer: RenderCommandBuffer) {
     command.transform = float4x4(1)
     command.count = 8 * 6
     
-    commandBuffer.push(command)
+    pushCommand(renderBuffer, command)
 }
 
-func renderTerribleBackground(_ commandBuffer: RenderCommandBuffer) {
-    let command = RenderCommandTriangles()
+func renderTerribleBackground(_ renderBuffer: RawPtr) {
+    var command = RenderCommandTriangles()
     
     let verts = UnsafeMutablePointer<Float>.allocate(capacity: 6 * 8)
     let vData = [
@@ -288,26 +318,26 @@ func renderTerribleBackground(_ commandBuffer: RenderCommandBuffer) {
     command.transform = float4x4(1)
     command.count = 8 * 6
     
-    commandBuffer.push(command)
+    pushCommand(renderBuffer, command)
 }
 
-func renderShip(_ commandBuffer: RenderCommandBuffer) {
+func renderShip(_ renderBuffer: RawPtr) {
     if !ship.alive {
         return
     }
-    let command = RenderCommandTriangles()
+    var command = RenderCommandTriangles()
     
     command.verts = ship.verts
     command.transform = translateTransform(ship.p.x, ship.p.y) * rotateTransform(ship.rot)
     command.count = 8 * 3
     
-    commandBuffer.push(command)
+    pushCommand(renderBuffer, command)
 }
 
-func renderAsteroids(_ commandBuffer: RenderCommandBuffer) {
+func renderAsteroids(_ renderBuffer: RawPtr) {
     
     for asteroid in asteroids {
-        let command = RenderCommandTriangles()
+        var command = RenderCommandTriangles()
         
         let scale : Float = scaleForAsteroidSize(asteroid.size)
         
@@ -315,20 +345,20 @@ func renderAsteroids(_ commandBuffer: RenderCommandBuffer) {
         command.transform = translateTransform(asteroid.p.x, asteroid.p.y) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
         command.count = 8 * 3 * 6
         
-        commandBuffer.push(command)
+        pushCommand(renderBuffer, command)
     }
 }
 
-func renderLasers(_ commandBuffer: RenderCommandBuffer) {
+func renderLasers(_ renderBuffer: RawPtr) {
     
     for laser in lasers {
-        let command = RenderCommandTriangles()
+        var command = RenderCommandTriangles()
         
         command.verts = laser.verts
         command.transform = translateTransform(laser.p.x, laser.p.y) * scaleTransform(laser.scale, laser.scale)
         command.count = 8 * 3 * 2
         
-        commandBuffer.push(command)
+        pushCommand(renderBuffer, command)
     }
     
 }

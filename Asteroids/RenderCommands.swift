@@ -8,9 +8,15 @@
 
 import simd
 
-public typealias VertexPointer = UnsafeMutablePointer<Float>
+public struct RenderCommandBufferHeader {
+    var commandCount : U32 = 0
+    var firstCommandBase : RawPtr? = nil
+    var lastCommandBase : RawPtr? = nil
+    var lastCommandHead : RawPtr? = nil
+}
 
 public enum RenderCommandType {
+    case header
     case options
     case uniforms
     case triangles
@@ -18,53 +24,59 @@ public enum RenderCommandType {
 }
 
 public protocol RenderCommand {
-    
     var type : RenderCommandType { get }
+    var next : RawPtr? { get set }
 }
 
-open class RenderCommandOptions : RenderCommand {
-    open let type = RenderCommandType.options
+// Memory layout compatible struct for determining
+// type of command, next pointer, etc.
+public struct RenderCommandHeader {
+    public let type = RenderCommandType.options
+    public var next : RawPtr? = nil
+}
+
+public struct RenderCommandOptions : RenderCommand {
+    public let type = RenderCommandType.options
+    public var next : RawPtr? = nil
     
     public enum FillModes {
         case fill
         case wireframe
     }
     
-    open var fillMode = FillModes.fill
+    public var fillMode = FillModes.fill
 }
 
-open class RenderCommandUniforms : RenderCommand {
-    open let type = RenderCommandType.uniforms
-    open var transform = float4x4(1)
-}
-
-open class RenderCommandTriangles : RenderCommand {
-    open let type = RenderCommandType.triangles
-    open var transform = float4x4(1)
-    open var verts : VertexPointer! = nil
-    open var count : Int = 0
-}
-
-open class RenderCommandText : RenderCommand {
-    open let type = RenderCommandType.text
-    open var transform = float4x4(1)
+public struct RenderCommandUniforms : RenderCommand {
+    public let type = RenderCommandType.uniforms
+    public var next : RawPtr? = nil
     
-    open var quadCount : Int = 0
-    open var quads : VertexPointer! = nil
-    open var indices : U16Ptr! = nil
-    
-    open var texels : U8Ptr! = nil
-    open var width : Int = 0
-    open var height : Int = 0
-    open var stride : Int = 0
+    public var transform = float4x4(1)
 }
 
-
-open class RenderCommandBuffer {
-    open var commands : [RenderCommand] = []
+public struct RenderCommandTriangles : RenderCommand {
+    public let type = RenderCommandType.triangles
+    public var next : RawPtr? = nil
     
-    open func push(_ command: RenderCommand) {
-        commands.append(command)
-    }
+    public var transform = float4x4(1)
+    public var verts : VertexPointer! = nil
+    public var count : Int = 0
 }
+
+public struct RenderCommandText : RenderCommand {
+    public let type = RenderCommandType.text
+    public var next : RawPtr? = nil
+    
+    public var transform = float4x4(1)
+    
+    public var quadCount : Int = 0
+    public var quads : VertexPointer! = nil
+    public var indices : U16Ptr! = nil
+    
+    public var texels : U8Ptr! = nil
+    public var width : Int = 0
+    public var height : Int = 0
+    public var stride : Int = 0
+}
+
 

@@ -103,17 +103,17 @@ class Bitmap {
 func loadBitmap(_ filename: String) -> Bitmap? {
     let fileOpt = readFile(assetPath(filename))
     if let file = fileOpt {
-        let typeHeaderPtr = Ptr(file.bytes).bindMemory(to: BitmapTypeHeader.self, capacity: 1)
+        let typeHeaderPtr = RawPtr(file.bytes).bindMemory(to: BitmapTypeHeader.self, capacity: 1)
         let typeHeader = typeHeaderPtr.pointee
         
-        let headerPtr = Ptr(file.bytes.advanced(by: 2)).bindMemory(to: BitmapHeader.self, capacity: 1)
+        let headerPtr = RawPtr(file.bytes.advanced(by: 2)).bindMemory(to: BitmapHeader.self, capacity: 1)
         let header = headerPtr.pointee
         
         let bitmap = Bitmap()
         bitmap.width = Int(header.width)
         bitmap.height = Int(header.height)
         bitmap.stride = Int(header.bitCount) * bitmap.width
-        bitmap.pixels = Ptr(file.bytes.advanced(by: Int(header.offBits))).bindMemory(to: UInt32.self, capacity: bitmap.width * bitmap.height)
+        bitmap.pixels = RawPtr(file.bytes.advanced(by: Int(header.offBits))).bindMemory(to: UInt32.self, capacity: bitmap.width * bitmap.height)
         
         let redShift   = findLeastSignificantSetBit(header.redMask)
         let greenShift = findLeastSignificantSetBit(header.greenMask)

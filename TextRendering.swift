@@ -9,7 +9,8 @@
 import Darwin
 import simd
 
-func renderText(_ text: String, _ font: BitmapFont) -> RenderCommandText {
+
+func renderText(_ renderBuffer: RawPtr, _ text: String, _ font: BitmapFont) -> RenderCommandText {
     
     var cursor : Float = 0.0
     
@@ -69,7 +70,7 @@ func renderText(_ text: String, _ font: BitmapFont) -> RenderCommandText {
         }
     }
     
-    let command = RenderCommandText()
+    var command = RenderCommandText()
     command.transform = translateTransform(-0.5, 0.0) * scaleTransform(1.0 / 250.0, 1.0 / 250.0)
     command.quadCount = chars.count
     command.quads = verts
@@ -77,7 +78,6 @@ func renderText(_ text: String, _ font: BitmapFont) -> RenderCommandText {
     font.bitmap.pixels.withMemoryRebound(to: UInt8.self, capacity: 1) {
         command.texels = $0
     }
-    //command.texels = U8Ptr(font.bitmap.pixels)
     command.width = font.bitmap.width
     command.height = font.bitmap.height
     command.stride = font.bitmap.stride
@@ -85,4 +85,3 @@ func renderText(_ text: String, _ font: BitmapFont) -> RenderCommandText {
     return command
     
 }
-

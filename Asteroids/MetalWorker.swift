@@ -7,7 +7,7 @@ import IOKit
 import IOKit.hid
 
 let gameCodeLibName = "libAsteroids"
-let updateAndRenderSymbolName = "_TF12libAsteroids15updateAndRenderFTGSpCS_10GameMemory_9inputsPtrGSpCS_6Inputs_17renderCommandsPtrGSpCS_19RenderCommandBuffer__T_"
+let updateAndRenderSymbolName = "_TF12libAsteroids15updateAndRenderFTGSpCS_10GameMemory_9inputsPtrGSpCS_6Inputs_22renderCommandHeaderPtrGSpVS_25RenderCommandBufferHeader__T_"
 
 let device = MTLCreateSystemDefaultDevice()!
 let commandQueue = device.makeCommandQueue()
@@ -26,12 +26,12 @@ let gameCodeLibPath : String = ({
     return "/" + head + "/\(gameCodeLibName).dylib"
 })()
 
-typealias updateAndRenderSignature = @convention(c) (Ptr, Ptr, Ptr) -> ()
+typealias updateAndRenderSignature = @convention(c) (RawPtr, RawPtr, RawPtr) -> ()
 
-typealias dylibHandle = Ptr
+typealias dylibHandle = RawPtr
 var gameCode : dylibHandle? = nil
 var lastModTime : Date! = nil
-var updateAndRender : ((Ptr, Ptr, Ptr) -> ())! = nil
+var updateAndRender : ((RawPtr, RawPtr, RawPtr) -> ())! = nil
 
 extension Int {
     var kilobytes : Int {
@@ -46,6 +46,7 @@ extension Int {
 }
 
 var gameMemory = GameMemory()
+var renderCommandBufferBase : RawPtr! = nil
 
 func beginRendering(_ hostLayer: CALayer) {
     
@@ -103,16 +104,19 @@ func beginRendering(_ hostLayer: CALayer) {
     
     loadGameCode()
     
-    let bigAddress = Ptr(bitPattern: 8.gigabytes)
+    let bigAddress = RawPtr(bitPattern: 8.gigabytes)
     let permanentStorageSize = 256.megabytes
     let transientStorageSize = 2.gigabytes
-    let totalSize = permanentStorageSize + transientStorageSize
+    let commandBufferSize = 256.megabytes
+    let totalSize = permanentStorageSize + transientStorageSize + commandBufferSize
     
     // TODO: Is this memory *guaranteed* to be cleared to zero?
     //       Linux docs suggest yes, Darwin docs doesn't specify
     //       Empirically seems to be true
     gameMemory.permanent = mmap(bigAddress, totalSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANON, -1, 0)
     gameMemory.transient = gameMemory.permanent + permanentStorageSize
+    renderCommandBufferBase = gameMemory.transient + transientStorageSize
+    
     
     let displayId = CGMainDisplayID()
     CVDisplayLinkCreateWithCGDisplay(displayId, &displayLink)
@@ -211,12 +215,13 @@ func drawFrame(_ displayLink: CVDisplayLink,
             inputs.fire = fire
         }
         
+        // Clear the buffer by reseting the count
+        let header = RenderCommandBufferHeader()
+        renderCommandBufferBase.storeBytes(of: header, as: RenderCommandBufferHeader.self)
         
-        var renderCommands : RenderCommandBuffer = RenderCommandBuffer()
+        updateAndRender(&gameMemory, &inputs, renderCommandBufferBase)
         
-        updateAndRender(&gameMemory, &inputs, &renderCommands)
-        
-        render(renderCommands)
+        render()
         
         lastFrameTime = nextFrame.videoTime
     }
@@ -224,7 +229,7 @@ func drawFrame(_ displayLink: CVDisplayLink,
     return kCVReturnSuccess
 }
 
-func render(_ renderCommandBuffer : RenderCommandBuffer) {
+func render() {
     
     let commandBuffer = commandQueue.makeCommandBuffer()
     
@@ -243,7 +248,14 @@ func render(_ renderCommandBuffer : RenderCommandBuffer) {
     var worldTransform = float4x4(1)
     var uniformsBuffer = device.makeBuffer(bytes: &worldTransform, length: 16 * MemoryLayout<Float>.size, options: [])
     
-    for command in renderCommandBuffer.commands {
+    let headerPtr = renderCommandBufferBase.bindMemory(to: RenderCommandBufferHeader.self, capacity: 1)
+    let header = headerPtr.pointee
+    
+    var commandPtr : RawPtr = header.firstCommandBase!
+    
+    for i in 0..<header.commandCount {
+        
+        let command = commandPtr.bindMemory(to: RenderCommandHeader.self, capacity: 1).pointee
         
         // Swift type system/module namespacing stupidness
         // means we have to directly cast the memory.
@@ -252,7 +264,7 @@ func render(_ renderCommandBuffer : RenderCommandBuffer) {
         // reference semantics??
         
         if command.type == .options {
-            let optionsCommand : RenderCommandOptions = coldCast(command)
+            let optionsCommand = commandPtr.bindMemory(to: RenderCommandOptions.self, capacity: 1).pointee
             if optionsCommand.fillMode == .fill {
                 renderEncoder.setTriangleFillMode(.fill)
             }
@@ -261,14 +273,14 @@ func render(_ renderCommandBuffer : RenderCommandBuffer) {
             }
         }
         else if command.type == .uniforms {
-            let uniformsCommand : RenderCommandUniforms = coldCast(command)
+            let uniformsCommand = commandPtr.bindMemory(to: RenderCommandUniforms.self, capacity: 1).pointee
             renderEncoder.setRenderPipelineState(pipelineSimple)
             
             worldTransform = uniformsCommand.transform
             uniformsBuffer = device.makeBuffer(bytes: &worldTransform, length: 16 * MemoryLayout<Float>.size, options: [])
         }
         else if command.type == .triangles {
-            let trianglesCommand : RenderCommandTriangles = coldCast(command)
+            let trianglesCommand = commandPtr.bindMemory(to: RenderCommandTriangles.self, capacity: 1).pointee
             renderEncoder.setRenderPipelineState(pipelineSimple)
             
             var instanceTransform = trianglesCommand.transform
@@ -280,7 +292,7 @@ func render(_ renderCommandBuffer : RenderCommandBuffer) {
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: trianglesCommand.count / 8)
         }
         else if command.type == .text {
-            let textCommand : RenderCommandText = coldCast(command)
+            let textCommand = commandPtr.bindMemory(to: RenderCommandText.self, capacity: 1).pointee
             renderEncoder.setRenderPipelineState(pipelineTexture)
             
             var instanceTransform = textCommand.transform
@@ -296,6 +308,10 @@ func render(_ renderCommandBuffer : RenderCommandBuffer) {
             texture.replace(region: MTLRegionMake2D(0, 0, textCommand.width, textCommand.height), mipmapLevel: 0, slice: 0, withBytes: textCommand.texels, bytesPerRow: 4 * textCommand.width, bytesPerImage: 4 * textCommand.width * textCommand.height)
             renderEncoder.setFragmentTexture(texture, at: 0)
             renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: (textCommand.quadCount * 6), indexType: .uint16, indexBuffer: indexBuffer, indexBufferOffset: 0)
+        }
+        
+        if let nextCommandPtr = command.next {
+            commandPtr = nextCommandPtr
         }
         
     }
