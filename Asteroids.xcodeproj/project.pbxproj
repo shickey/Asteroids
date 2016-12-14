@@ -25,6 +25,7 @@
 		A3547DFD1DFBB08E00E74BEF /* bad-font.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */; };
 		A3547DFE1DFBB08E00E74BEF /* bad-font.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3547DFC1DFBB08E00E74BEF /* bad-font.txt */; };
 		A3A18E221DFFA736002F27DE /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA6B1DF6410200F79B91 /* Math.swift */; };
+		A3A18E251E01010E002F27DE /* MemoryZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A18E231E010055002F27DE /* MemoryZone.swift */; };
 		A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA361DF630D600F79B91 /* AppDelegate.swift */; };
 		A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA381DF630D600F79B91 /* ViewController.swift */; };
 		A3BEEA3B1DF630D600F79B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */; };
@@ -85,6 +86,7 @@
 		A3547DF81DFB768800E74BEF /* TextRendering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextRendering.swift; sourceTree = "<group>"; };
 		A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = "bad-font.bmp"; path = "../../Desktop/font/bad-font.bmp"; sourceTree = "<group>"; };
 		A3547DFC1DFBB08E00E74BEF /* bad-font.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "bad-font.txt"; path = "../../Desktop/font/bad-font.txt"; sourceTree = "<group>"; };
+		A3A18E231E010055002F27DE /* MemoryZone.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryZone.swift; sourceTree = "<group>"; };
 		A3BEEA331DF630D600F79B91 /* Asteroids.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroids.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3BEEA361DF630D600F79B91 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3BEEA381DF630D600F79B91 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				A3BEEA651DF633D800F79B91 /* Renderer.swift */,
 				A3547DF81DFB768800E74BEF /* TextRendering.swift */,
 				A3EACC8E1DF783D200025665 /* Entities.swift */,
+				A3A18E231E010055002F27DE /* MemoryZone.swift */,
 			);
 			name = Asteroids;
 			sourceTree = "<group>";
@@ -327,6 +330,7 @@
 			files = (
 				A3EACC901DF7849200025665 /* Entities.swift in Sources */,
 				A3BEEA661DF633D800F79B91 /* Renderer.swift in Sources */,
+				A3A18E251E01010E002F27DE /* MemoryZone.swift in Sources */,
 				A3EACC961DF7B4E200025665 /* BitmapFont.swift in Sources */,
 				A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */,
 				A3EACCA51DF90E6400025665 /* AssetLoader.swift in Sources */,

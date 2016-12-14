@@ -33,18 +33,6 @@ var gameCode : dylibHandle? = nil
 var lastModTime : Date! = nil
 var updateAndRender : ((RawPtr, RawPtr, RawPtr) -> ())! = nil
 
-extension Int {
-    var kilobytes : Int {
-        return self * 1024
-    }
-    var megabytes : Int {
-        return self * 1024 * 1024
-    }
-    var gigabytes : Int {
-        return self * 1024 * 1024 * 1024
-    }
-}
-
 var gameMemory = GameMemory()
 var renderCommandBufferBase : RawPtr! = nil
 
@@ -114,7 +102,9 @@ func beginRendering(_ hostLayer: CALayer) {
     //       Linux docs suggest yes, Darwin docs doesn't specify
     //       Empirically seems to be true
     gameMemory.permanent = mmap(bigAddress, totalSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANON, -1, 0)
+    gameMemory.permanentSize = permanentStorageSize
     gameMemory.transient = gameMemory.permanent + permanentStorageSize
+    gameMemory.transientSize = transientStorageSize
     renderCommandBufferBase = gameMemory.transient + transientStorageSize
     
     
