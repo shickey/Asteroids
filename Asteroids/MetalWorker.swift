@@ -229,7 +229,7 @@ func render() {
     renderPassDescriptor.colorAttachments[0].texture = sampleTex
     renderPassDescriptor.colorAttachments[0].resolveTexture = drawable.texture
     renderPassDescriptor.colorAttachments[0].loadAction = .clear
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.0)
     renderPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
     
     
@@ -243,7 +243,7 @@ func render() {
     
     var commandPtr : RawPtr = header.firstCommandBase!
     
-    for i in 0..<header.commandCount {
+    for _ in 0..<header.commandCount {
         
         let command = commandPtr.bindMemory(to: RenderCommandHeader.self, capacity: 1).pointee
         

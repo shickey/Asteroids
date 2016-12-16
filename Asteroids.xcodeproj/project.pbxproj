@@ -36,6 +36,7 @@
 		A3BEEA661DF633D800F79B91 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA651DF633D800F79B91 /* Renderer.swift */; };
 		A3BEEA6C1DF6410200F79B91 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA6B1DF6410200F79B91 /* Math.swift */; };
 		A3BEEA6F1DF6616800F79B91 /* RenderCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA631DF6338700F79B91 /* RenderCommands.swift */; };
+		A3E789811E01D1D200050B19 /* DataStructures.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E7897F1E01D13800050B19 /* DataStructures.swift */; };
 		A3EACC901DF7849200025665 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC8E1DF783D200025665 /* Entities.swift */; };
 		A3EACC961DF7B4E200025665 /* BitmapFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC921DF7B47400025665 /* BitmapFont.swift */; };
 		A3EACC981DF7CAE600025665 /* AsteroidsApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC971DF7CAE600025665 /* AsteroidsApplication.swift */; };
@@ -47,6 +48,7 @@
 		A3EACCAE1DFA392500025665 /* TypesAndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */; };
 		A3EACCAF1DFA392C00025665 /* TypesAndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */; };
 		A3EACCB11DFA3BB700025665 /* arial-24-white.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3EACCB01DFA3BB700025665 /* arial-24-white.bmp */; };
+		A3FB171A1E039247006DB7F6 /* RefStructs_GENERATED.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +102,7 @@
 		A3BEEA631DF6338700F79B91 /* RenderCommands.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RenderCommands.swift; path = Asteroids/RenderCommands.swift; sourceTree = "<group>"; };
 		A3BEEA651DF633D800F79B91 /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Renderer.swift; path = Asteroids/Renderer.swift; sourceTree = "<group>"; };
 		A3BEEA6B1DF6410200F79B91 /* Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		A3E7897F1E01D13800050B19 /* DataStructures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStructures.swift; sourceTree = "<group>"; };
 		A3EACC8E1DF783D200025665 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
 		A3EACC921DF7B47400025665 /* BitmapFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitmapFont.swift; sourceTree = "<group>"; };
 		A3EACC951DF7B4D300025665 /* arial-24-white.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "arial-24-white.txt"; path = "../../Desktop/arial_bitmap/arial-24-white.txt"; sourceTree = "<group>"; };
@@ -109,6 +112,7 @@
 		A3EACCA91DF917DF00025665 /* Inputs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Inputs.swift; sourceTree = "<group>"; };
 		A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypesAndUtils.swift; sourceTree = "<group>"; };
 		A3EACCB01DFA3BB700025665 /* arial-24-white.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = "arial-24-white.bmp"; path = "../../Desktop/arial_bitmap/arial-24-white.bmp"; sourceTree = "<group>"; };
+		A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefStructs_GENERATED.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +180,8 @@
 				A3547DF81DFB768800E74BEF /* TextRendering.swift */,
 				A3EACC8E1DF783D200025665 /* Entities.swift */,
 				A3A18E231E010055002F27DE /* MemoryZone.swift */,
+				A3E7897F1E01D13800050B19 /* DataStructures.swift */,
+				A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */,
 			);
 			name = Asteroids;
 			sourceTree = "<group>";
@@ -237,6 +243,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A3BEEA5A1DF6325000F79B91 /* Build configuration list for PBXNativeTarget "libAsteroids" */;
 			buildPhases = (
+				A3FB17181E039162006DB7F6 /* ShellScript */,
 				A3BEEA551DF6325000F79B91 /* Sources */,
 				A3BEEA561DF6325000F79B91 /* Frameworks */,
 				A3BEEA571DF6325000F79B91 /* Headers */,
@@ -257,7 +264,7 @@
 		A3BEEA2B1DF630D600F79B91 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0730;
+				LastSwiftUpdateCheck = 0810;
 				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Sean Hickey";
 				TargetAttributes = {
@@ -306,6 +313,25 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		A3FB17181E039162006DB7F6 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Entities.swift",
+				"$(SRCROOT)/Asteroids/Renderer.swift",
+			);
+			outputPaths = (
+				"$(SRCROOT)/RefStructs_GENERATED.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/usr/bin/env xcrun --sdk macosx swift";
+			shellScript = "import Foundation\n\n\nextension String {\n    subscript(range: NSRange) -> String {\n        get {\n            let start = self.index(self.startIndex, offsetBy: range.location)\n            let end = self.index(start, offsetBy: range.length)\n            return self.substring(with: start..<end)\n        }\n    }\n}\n\nfunc preprocessStructs(_ source: String) -> String {\n    \n    let structRegex = try! NSRegularExpression(pattern: \"/\\\\*=\\\\s*BEGIN_REFSTRUCT\\\\s*=\\\\*/\\\\s*(.*?)\\\\s*/\\\\*=\\\\s*END_REFSTRUCT\\\\s*=\\\\*/\", options: [.dotMatchesLineSeparators, .allowCommentsAndWhitespace])\n    \n    let declRegex = try! NSRegularExpression(pattern: \"^\\\\s*struct\\\\s+([\\\\w]+)\\\\s*(:\\\\s*(\\\\w+)\\\\s*)?\\\\{\\\\s*$\", options: [.anchorsMatchLines, .useUnixLineSeparators])\n    \n    let propertyRegex = try! NSRegularExpression(pattern: \"^(\\\\s+var\\\\s+(\\\\w+)\\\\s+:\\\\s+([\\\\w<>\\\\.]+))\\\\s+/\\\\*=\\\\s(GETSET|GET|SET)\\\\s=\\\\*/$\", options: [.anchorsMatchLines, .useUnixLineSeparators])\n    \n    var output = \"\"\n    structRegex.enumerateMatches(in: source, options: [], range: NSMakeRange(0, source.characters.count), using: { (result, flags, stopPtr) in\n        \n        let range = result!.rangeAt(1)\n        let structString = source[range]\n        \n        declRegex.enumerateMatches(in: structString, options: [], range: NSMakeRange(0, structString.characters.count), using: { (result, flags, stopPtr) in\n            \n            let typeName = structString[result!.rangeAt(1)]\n            \n            var structRefDecl = \"struct \\(typeName)Ref : \"\n            \n            if result!.rangeAt(3).location != NSNotFound {\n                let inheritedTypeName = structString[result!.rangeAt(3)]\n                structRefDecl += inheritedTypeName\n            }\n            \n            structRefDecl += \"Ref {\\n    var ptr : Ptr<\\(typeName)>\\n\\n\"\n            \n            propertyRegex.enumerateMatches(in: structString, options: [], range: NSMakeRange(0, structString.characters.count), using: { (result, flags, stopPtr) in\n                \n                let varName = structString[result!.rangeAt(2)]\n                let varType = structString[result!.rangeAt(3)]\n                let accessorType = structString[result!.rangeAt(4)]\n                \n                var propDecl = \"    var \\(varName) : \\(varType) { \"\n                \n                if accessorType == \"GET\" || accessorType == \"GETSET\" {\n                    propDecl += \"get { return ptr.pointee.\\(varName) } \"\n                }\n                if accessorType == \"SET\" || accessorType == \"GETSET\" {\n                    propDecl += \"set(val) { ptr.pointee.\\(varName) = val } \"\n                }\n                propDecl += \"}\\n\"\n                \n                structRefDecl += propDecl\n            })\n            \n            output += structRefDecl + \"}\\n\\n\"\n        })\n        \n    })\n    \n    return output\n}\n\nvar outputString = \"/***************************************************\\n* ReferenceStructs.swift\\n*\\n* THIS FILE IS AUTOGENERATED WITH EACH BUILD.\\n* DON'T WRITE ANYTHING IMPORTANT IN HERE!\\n****************************************************/\\n\\nprotocol Ref {\\n    associatedtype T\\n    var ptr : Ptr<T> { get set }\\n}\\n\\n\"\n\nlet env = ProcessInfo.processInfo.environment\n\nif let numInputsStr = env[\"SCRIPT_INPUT_FILE_COUNT\"] {\n    let numInputs = Int(numInputsStr)!\n    \n    for i in 0..<numInputs {\n        if let inputPath = env[\"SCRIPT_INPUT_FILE_\\(i)\"] {\n            var source = try! String(contentsOfFile: inputPath)\n            outputString += preprocessStructs(source) + \"\\n\\n\"\n        }\n    }\n    \n}\n\nif let outputPath = env[\"SCRIPT_OUTPUT_FILE_0\"] {\n    try! outputString.write(toFile: outputPath, atomically: true, encoding: .utf8)\n}\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		A3BEEA2F1DF630D600F79B91 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -332,7 +358,9 @@
 				A3BEEA661DF633D800F79B91 /* Renderer.swift in Sources */,
 				A3A18E251E01010E002F27DE /* MemoryZone.swift in Sources */,
 				A3EACC961DF7B4E200025665 /* BitmapFont.swift in Sources */,
+				A3FB171A1E039247006DB7F6 /* RefStructs_GENERATED.swift in Sources */,
 				A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */,
+				A3E789811E01D1D200050B19 /* DataStructures.swift in Sources */,
 				A3EACCA51DF90E6400025665 /* AssetLoader.swift in Sources */,
 				A3BEEA641DF6338700F79B91 /* RenderCommands.swift in Sources */,
 				A3BEEA6C1DF6410200F79B91 /* Math.swift in Sources */,

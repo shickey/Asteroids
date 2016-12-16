@@ -104,7 +104,6 @@ func loadBitmap(_ filename: String) -> Bitmap? {
     let fileOpt = readFile(assetPath(filename))
     if let file = fileOpt {
         let typeHeaderPtr = RawPtr(file.bytes).bindMemory(to: BitmapTypeHeader.self, capacity: 1)
-        let typeHeader = typeHeaderPtr.pointee
         
         let headerPtr = RawPtr(file.bytes.advanced(by: 2)).bindMemory(to: BitmapHeader.self, capacity: 1)
         let header = headerPtr.pointee

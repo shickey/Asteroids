@@ -8,15 +8,12 @@
 
 import Darwin
 
+
+/****************************************
+ * Entity Base
+ ****************************************/
+
 protocol Entity {
-//    static var nextId = 0
-    
-//    var id : Int
-    
-//    var hashValue : Int {
-//        return id
-//    }
-    
     // Position and Velocity
     var p  : Vec2 { get set }
     var dP : Vec2 { get set }
@@ -26,15 +23,9 @@ protocol Entity {
     var dRot : Float { get set }
     
     var verts : VertexPointer? { get set }
-    
-//    init() {
-//        id = Entity.nextId
-//        Entity.nextId += 1
-//        verts = nil
-//    }
 }
 
-protocol EntityRef {
+protocol EntityRef : Ref {
     associatedtype T : Entity
     var ptr : Ptr<T> { get set }
     
@@ -59,57 +50,23 @@ extension EntityRef {
 }
 
 
+/****************************************
+ * Ship
+ ****************************************/
 
-//func ==(lhs: Entity, rhs: Entity) -> Bool {
-//    return lhs.id == rhs.id
-//}
-
+/*= BEGIN_REFSTRUCT =*/
 struct Ship : Entity {
-    
     // Entity
     var p  : Vec2 = Vec2()
     var dP : Vec2 = Vec2()
-    
-    // Rotation and Angular Velocity
-    var rot  : Float = 0.0
-    var dRot : Float = 0.0
-    
+    var rot  : Float
+    var dRot : Float
     var verts : VertexPointer?
     
-    
-    var alive : Bool
-    
-//    override init() {
-//        super.init()
-//        let v = VertexPointer.allocate(capacity: 8 * 3)
-//        let actualVerts : [Float] = [
-//            0.0,  0.7, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0,
-//            0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
-//            -0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
-//            ]
-//        
-//        memcpy(v, actualVerts, actualVerts.count * MemoryLayout<Float>.size)
-//        verts = v
-//    }
+    // Ship
+    var alive : Bool /*= GETSET =*/
 }
-
-struct ShipRef : EntityRef {
-    typealias T = Ship
-    var ptr : Ptr<T>
-    
-//    var p  : Vec2 { get{ return ref.pointee.p } set(val){ ref.pointee.p = val } }
-//    var dP : Vec2 { get{ return ref.pointee.dP } set(val){ ref.pointee.dP = val } }
-//    var rot  : Float { get{ return ref.pointee.rot } set(val){ ref.pointee.rot = val } }
-//    var dRot : Float { get{ return ref.pointee.dRot } set(val){ ref.pointee.dRot = val } }
-//    var verts : VertexPointer?{ get{ return ref.pointee.verts } set(val){ ref.pointee.verts = val } }
-    var alive : Bool { get{ return Ptr<Ship>(ptr).pointee.alive } set(val){ Ptr<Ship>(ptr).pointee.alive = val } }
-    
-}
-
-func createWorld(_ zone: MemoryZoneRef) -> WorldRef {
-    let worldPtr = allocateTypeFromZone(zone, World.self)
-    return WorldRef(ptr: worldPtr)
-}
+/*= END_REFSTRUCT =*/
 
 func createShip(_ zone: MemoryZoneRef) -> ShipRef {
     let shipPtr = allocateTypeFromZone(zone, Ship.self)
@@ -122,125 +79,172 @@ func createShip(_ zone: MemoryZoneRef) -> ShipRef {
         0.0,  0.7, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0,
         0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
         -0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
-    ]
+        ]
     vertPtr.initializeMemory(as: Float.self, from: verts)
     ship.verts = <-vertPtr
     return ship
 }
 
 
-//class Asteroid : Entity {
-//    
-//    enum AsteroidSize {
-//        case small
-//        case medium
-//        case large
-//    }
-//    
-//    var size : AsteroidSize
-//    
-//    init(_ location: Vec2, _ newSize: AsteroidSize) {
-//        size = newSize
-//        super.init()
-//        rot = randomInRange(-FLOAT_PI, FLOAT_PI)
-//        dRot = FLOAT_TWO_PI / 800.0
-//        
-//        p.x = location.x
-//        p.y = location.y
-//        
-//        var velocityScale : Float = 0.02
-//        if newSize == .medium {
-//            velocityScale = 0.04
-//        }
-//        else if newSize == .small {
-//            velocityScale = 0.06
-//        }
-//        
-//        dP.x = randomInRange(-velocityScale, velocityScale)
-//        dP.y = randomInRange(-velocityScale, velocityScale)
-//        
-//        let v = UnsafeMutablePointer<Float>.allocate(capacity: 8 * 3 * 6)
-//        let actualVerts : [Float] = [
-//            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            cos((FLOAT_TWO_PI) / 6.0), sin((FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            
-//            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            cos((FLOAT_TWO_PI) / 6.0), sin((FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            cos(2.0 * (FLOAT_TWO_PI) / 6.0), sin(2.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            
-//            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            cos(2.0 * (FLOAT_TWO_PI) / 6.0), sin(2.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            -1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            
-//            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            -1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            cos(4.0 * (FLOAT_TWO_PI) / 6.0), sin(4.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            
-//            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            cos(4.0 * (FLOAT_TWO_PI) / 6.0), sin(4.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            
-//            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-//            1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0
-//        ]
-//        
-//        memcpy(v, actualVerts, actualVerts.count * MemoryLayout<Float>.size)
-//        verts = v
-//    }
-//    
-//    convenience init(_ world: World, _ newSize: AsteroidSize) {
-//        let x = randomInRange(-world.size.w / 2.0, world.size.w / 2.0)
-//        let y = randomInRange(-world.size.w / 2.0, world.size.w / 2.0)
-//        self.init(Vec2(x, y), newSize)
-//    }
-//
-//}
-//
-//func scaleForAsteroidSize(_ size: Asteroid.AsteroidSize) -> Float {
-//    switch size {
-//    case .large:
-//        return 2.0
-//    case .medium:
-//        return 1.5
-//    case .small:
-//        return 1.0
-//    }
-//}
-//
-//class Laser : Entity {
-//    
-//    var timeAlive : Float = 0.0 // seconds
-//    let lifetime  : Float = 1.0
-//    
-//    let scale : Float = 0.05
-//    
-//    init(_ ship: Ship) {
-//        super.init()
-//        p.x = ship.p.x
-//        p.y = ship.p.y
-//        
-//        dP.x = sin(ship.rot) * 0.2
-//        dP.y = cos(ship.rot) * 0.2
-//        
-//        let v = VertexPointer.allocate(capacity: 8 * 3 * 2)
-//        let actualVerts : [Float] = [
-//            1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-//           -1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-//           -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-//           
-//            1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-//           -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-//            1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0
-//        ]
-//        
-//        memcpy(v, actualVerts, actualVerts.count * MemoryLayout<Float>.size)
-//        verts = v
-//        
-//    }
-//    
-//}
+/****************************************
+ * World
+ ****************************************/
+
+func createWorld(_ zone: MemoryZoneRef) -> WorldRef {
+    let worldPtr = allocateTypeFromZone(zone, World.self)
+    return WorldRef(ptr: worldPtr)
+}
+
+
+/****************************************
+ * Asteroid
+ ****************************************/
+
+/*= BEGIN_REFSTRUCT =*/
+struct Asteroid : Entity {
+    // Entity
+    var p  : Vec2 = Vec2()
+    var dP : Vec2 = Vec2()
+    var rot  : Float
+    var dRot : Float
+    var verts : VertexPointer?
+    
+    // Asteroid
+    enum AsteroidSize {
+        case small
+        case medium
+        case large
+    }
+    var size : Asteroid.AsteroidSize /*= GETSET =*/
+    var alive : Bool /*= GETSET =*/
+}
+/*= END_REFSTRUCT =*/
+
+func createAsteroid(_ zone: MemoryZoneRef, _ size: Asteroid.AsteroidSize) -> AsteroidRef {
+    let asteroidPtr = allocateTypeFromZone(zone, Asteroid.self)
+    var asteroid = AsteroidRef(ptr: asteroidPtr)
+    asteroid.alive = true
+    asteroid.size = size
+    
+    let vertPtr = allocateFromZone(zone, 8 * 3 * 6 * MemoryLayout<Float>.size)
+    let verts : [Float] = [
+        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        cos((FLOAT_TWO_PI) / 6.0), sin((FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+
+        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        cos((FLOAT_TWO_PI) / 6.0), sin((FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        cos(2.0 * (FLOAT_TWO_PI) / 6.0), sin(2.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+
+        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        cos(2.0 * (FLOAT_TWO_PI) / 6.0), sin(2.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        -1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+
+        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        -1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        cos(4.0 * (FLOAT_TWO_PI) / 6.0), sin(4.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+
+        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        cos(4.0 * (FLOAT_TWO_PI) / 6.0), sin(4.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+
+        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+        1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0
+    ]
+    vertPtr.initializeMemory(as: Float.self, from: verts)
+    asteroid.verts = <-vertPtr
+    
+    return asteroid
+}
+
+func scaleForAsteroidSize(_ size: Asteroid.AsteroidSize) -> Float {
+    switch size {
+    case .large:
+        return 2.0
+    case .medium:
+        return 1.5
+    case .small:
+        return 1.0
+    }
+}
+
+func randomizeAsteroidLocationInWorld(_ asteroidRef: AsteroidRef, _ world: WorldRef) {
+    var asteroid = asteroidRef
+    
+    var location = Vec2()
+    repeat {
+        location.x = randomInRange(-world.size.w / 2.0, world.size.w / 2.0)
+        location.y = randomInRange(-world.size.w / 2.0, world.size.w / 2.0)
+    } while distance(location, world.ship.p) < (scaleForAsteroidSize(.large) * 2.0) // Prevent an asteroid from spawning right on top of the ship
+    asteroid.p = location
+}
+
+func randomizeAsteroidRotationAndVelocity(_ asteroidRef: AsteroidRef) {
+    var asteroid = asteroidRef
+    asteroid.rot = randomInRange(-FLOAT_PI, FLOAT_PI)
+    asteroid.dRot = randomInRange(FLOAT_TWO_PI / 900.0, FLOAT_TWO_PI / 700.0)
+    var velocityScale : Float = 0.02
+    if asteroid.size == .medium {
+        velocityScale = 0.04
+    }
+    else if asteroid.size == .small {
+        velocityScale = 0.06
+    }
+    asteroid.dP.x = randomInRange(-velocityScale, velocityScale)
+    asteroid.dP.y = randomInRange(-velocityScale, velocityScale)
+}
+
+
+/****************************************
+ * Laser
+ ****************************************/
+
+/*= BEGIN_REFSTRUCT =*/
+struct Laser : Entity {
+    // Entity
+    var p  : Vec2 = Vec2()
+    var dP : Vec2 = Vec2()
+    var rot  : Float
+    var dRot : Float
+    var verts : VertexPointer?
+    
+    // Laser
+    var timeAlive : Float /*= GETSET =*/
+    var lifetime : Float /*= GETSET =*/
+    var alive : Bool /*= GETSET =*/
+    
+}
+/*= END_REFSTRUCT =*/
+
+func createLaser(_ zone: MemoryZoneRef, _ ship: ShipRef) -> LaserRef {
+    let laserPtr = allocateTypeFromZone(zone, Laser.self)
+    var laser = LaserRef(ptr: laserPtr)
+    
+    laser.p = ship.p
+
+    laser.dP.x = sin(ship.rot) * 0.2
+    laser.dP.y = cos(ship.rot) * 0.2
+    
+    laser.timeAlive = 0.0
+    laser.lifetime = 1.0
+    laser.alive = true
+    
+    let vertPtr = allocateFromZone(zone, 8 * 3 * 2 * MemoryLayout<Float>.size)
+    let verts : [Float] = [
+        1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+       -1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+       -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+
+        1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+       -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+        1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0
+    ]
+    vertPtr.initializeMemory(as: Float.self, from: verts)
+    laser.verts = <-vertPtr
+    return laser
+}
+
 
 
 func rotateEntity<T : EntityRef>(_ entity: T, _ radians: Float) {

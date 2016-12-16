@@ -16,55 +16,28 @@ struct DEBUG_STRUCT {
 
 let DEBUG = DEBUG_STRUCT()
 
+/*= BEGIN_REFSTRUCT =*/
 struct GameState {
-    var gameInitialized : Bool
-    var world : WorldRef
+    var gameInitialized : Bool /*= GETSET =*/
+    var world : WorldRef /*= GETSET =*/
 
-    var zoneZone : MemoryZone
-    var entityZone : MemoryZoneRef
+    var zoneZone : MemoryZone /*= GETSET =*/
+    var entityZone : MemoryZoneRef /*= GETSET =*/
 }
+/*= END_REFSTRUCT =*/
 
-struct GameStateRef {
-    let ptr : Ptr<GameState>
-    var gameInitialized : Bool { get { return ptr.pointee.gameInitialized } set(val) { ptr.pointee.gameInitialized = val }}
-    var world : WorldRef { get { return ptr.pointee.world } set(val) { ptr.pointee.world = val }}
-    
-    var zoneZone : MemoryZone { get { return ptr.pointee.zoneZone } set(val) {ptr.pointee.zoneZone = val} }
-    var entityZone : MemoryZoneRef { get { return ptr.pointee.entityZone } set(val) { ptr.pointee.entityZone = val }}
-}
 
+/*= BEGIN_REFSTRUCT =*/
 struct World {
-    var size : Size
-    var ship : ShipRef
+    var size : Size /*= GETSET =*/
+    var ship : ShipRef /*= GETSET =*/
+    var asteroids : StaticArrayRef<AsteroidRef> /*= GETSET =*/
+    var lasers : CircularBufferRef<LaserRef> /*= GETSET =*/
 }
-
-struct WorldRef {
-    let ptr : Ptr<World>
-    var size : Size { get { return ptr.pointee.size } set(val) {ptr.pointee.size = val} }
-    var ship : ShipRef { get { return ptr.pointee.ship } set(val) {ptr.pointee.ship = val} }
-}
+/*= END_REFSTRUCT =*/
 
 
-
-//func levelInit() {
-//
-////    world = World()
-////    ship = Ship()
-////    asteroids = Set<Asteroid>()
-////    lasers = Set<Laser>()
-//    
-//    for _ in 0..<3 {
-//        var a : Asteroid
-//        repeat {
-//            a = Asteroid(world, .large)
-//        } while distance(a.p, ship.p) < (scaleForAsteroidSize(.large) * 2.0) // Prevent an asteroid from spawning right on top of the ship
-//        asteroids.insert(a)
-//    }
-//    
-//    levelInitialized = true
-//}
-
-//var restarting = false
+var restarting = false
 
 public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandHeaderPtr: UnsafeMutablePointer<RenderCommandBufferHeader>) {
     
@@ -85,9 +58,32 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         var world = createWorld(gameState.entityZone)
         world.size = Size(20.0, 20.0)
         world.ship = ship
+        
+        let MAX_ASTEROIDS = 3 + (3 * 2) + (3 * 2 * 2) // Every asteroid can split twice
+        let asteroids = createStaticArray(gameState.entityZone, type: AsteroidRef.self, count: MAX_ASTEROIDS)
+        for _ in 0..<3 {
+            let asteroid = createAsteroid(gameState.entityZone, .large)
+            randomizeAsteroidLocationInWorld(asteroid, world)
+            randomizeAsteroidRotationAndVelocity(asteroid)
+            staticArrayPush(asteroids, asteroid)
+        }
+        
+        let MAX_LASERS = 12
+        world.lasers = createCircularBuffer(gameState.entityZone, type: LaserRef.self, count: MAX_LASERS) 
+        
+        world.asteroids = asteroids
+        
         gameState.world = world
         
         gameState.gameInitialized = true
+    }
+    
+    if !restarting && inputs.restart {
+        restarting = true
+        restartGame(gameState)
+    }
+    else if restarting && !inputs.restart {
+        restarting = false
     }
     
     
@@ -123,13 +119,30 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     else {
         renderBlackBackground(gameState, renderBuffer)
     }
-//    renderAsteroids(renderBuffer)
+    renderAsteroids(gameState, renderBuffer)
     renderShip(gameState, renderBuffer)
-//    renderLasers(renderBuffer)
+    renderLasers(gameState, renderBuffer)
     
 //    let command = renderText(renderBuffer, "(Hello, world!)?", font)
 //    pushCommand(renderBuffer, command)
     
+}
+
+func restartGame(_ gameState: GameStateRef) {
+    var game = gameState
+    
+    // Reset ship
+    game.world.ship = createShip(game.entityZone)
+    
+    // Reset asteroids
+    let asteroids = game.world.asteroids
+    clearStaticArray(asteroids)
+    for _ in 0..<3 {
+        let asteroid = createAsteroid(game.entityZone, .large)
+        randomizeAsteroidLocationInWorld(asteroid, game.world)
+        randomizeAsteroidRotationAndVelocity(asteroid)
+        staticArrayPush(asteroids, asteroid)
+    }
 }
 
 func pushCommand<T: RenderCommand>(_ renderBufferBase: RawPtr, _ command: T) {
@@ -200,81 +213,129 @@ func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
         ship.dP.y = clamp(ship.dP.y, -maxVelocity, maxVelocity)
     }
     
-    ship.p.x += ship.dP.x
-    ship.p.y += ship.dP.y
+    ship.p += ship.dP
     
     ship.p.x = normalizeToRange(ship.p.x, -world.size.w / 2.0, world.size.w / 2.0)
     ship.p.y = normalizeToRange(ship.p.y, -world.size.h / 2.0, world.size.h / 2.0)
     
     
     // Simulate Asteroids
-//    for asteroid in asteroids {
-//        asteroid.rot += asteroid.dRot
-//        asteroid.rot = normalizeToRange(asteroid.rot, -FLOAT_PI, FLOAT_PI)
-//        
-//        asteroid.p.x += asteroid.dP.x
-//        asteroid.p.y += asteroid.dP.y
-//        
-//        asteroid.p.x = normalizeToRange(asteroid.p.x, -world.size.w / 2.0, world.size.w / 2.0)
-//        asteroid.p.y = normalizeToRange(asteroid.p.y, -world.size.h / 2.0, world.size.h / 2.0)
-//    }
+    for asteroidRef in game.world.asteroids {
+        var asteroid = asteroidRef
+        if !asteroid.alive {
+            continue
+        }
+        asteroid.rot += asteroid.dRot
+        asteroid.rot = normalizeToRange(asteroid.rot, -FLOAT_PI, FLOAT_PI)
+        
+        asteroid.p.x += asteroid.dP.x
+        asteroid.p.y += asteroid.dP.y
+        
+        asteroid.p.x = normalizeToRange(asteroid.p.x, -world.size.w / 2.0, world.size.w / 2.0)
+        asteroid.p.y = normalizeToRange(asteroid.p.y, -world.size.h / 2.0, world.size.h / 2.0)
+    }
     
     // Simulate Lasers
-//    laserTimeToWait -= dt
-//    if laserTimeToWait < 0.0 {
-//        laserTimeToWait = 0.0
-//    }
-//    
-//    if inputs.fire {
-//        if laserTimeToWait <= 0.0 {
-//            lasers.insert(Laser(ship))
-//            laserTimeToWait = 0.25
-//        }
-//    }
-//    
-//    for laser in lasers {
-//        laser.timeAlive += dt
-//        if laser.timeAlive > laser.lifetime {
-//            lasers.remove(laser)
-//            continue
-//        }
-//        laser.p += laser.dP
-//        laser.p.x = normalizeToRange(laser.p.x, -world.size.w / 2.0, world.size.w / 2.0)
-//        laser.p.y = normalizeToRange(laser.p.y, -world.size.h / 2.0, world.size.h / 2.0)
-//    }
+    let lasers = game.world.lasers
+    laserTimeToWait -= dt
+    if laserTimeToWait < 0.0 {
+        laserTimeToWait = 0.0
+    }
+    
+    if inputs.fire {
+        if laserTimeToWait <= 0.0 {
+            let laser = createLaser(game.entityZone, game.world.ship)
+            circularBufferPush(lasers, laser)
+            laserTimeToWait = 0.25
+        }
+    }
+    
+    
+    for laserRef in game.world.lasers {
+        var laser = laserRef
+        if !laser.alive {
+            continue
+        }
+        laser.timeAlive += dt
+        if laser.timeAlive > laser.lifetime {
+            laser.alive = false
+            continue
+        }
+        laser.p += laser.dP
+        laser.p.x = normalizeToRange(laser.p.x, -world.size.w / 2.0, world.size.w / 2.0)
+        laser.p.y = normalizeToRange(laser.p.y, -world.size.h / 2.0, world.size.h / 2.0)
+    }
     
     // Collision Detection - Laser to Asteroid
-//    for asteroid in asteroids {
-//        for laser in lasers {
-//            if distance(laser.p, asteroid.p) < scaleForAsteroidSize(asteroid.size)  {
-//                if asteroid.size == .large {
-//                    asteroids.insert(Asteroid(asteroid.p, .medium))
-//                    asteroids.insert(Asteroid(asteroid.p, .medium))
-//                }
-//                else if asteroid.size == .medium {
-//                    asteroids.insert(Asteroid(asteroid.p, .small))
-//                    asteroids.insert(Asteroid(asteroid.p, .small))
-//                }
-//                
-//                lasers.remove(laser)
-//                asteroids.remove(asteroid)
-//            }
-//        }
-//    }
+    asteroidLaserCollision: for asteroidRef in game.world.asteroids {
+        var asteroid = asteroidRef
+        if !asteroid.alive {
+            continue
+        }
+        
+        for laserRef in lasers {
+            var laser = laserRef
+            
+            if !laser.alive {
+                continue
+            }
+            
+            if distance(laser.p, asteroid.p) < scaleForAsteroidSize(asteroid.size)  {
+                if asteroid.size != .small {
+                    var newSize : Asteroid.AsteroidSize = .large
+                    if asteroid.size == .large {
+                        newSize = .medium
+                    }
+                    else if asteroid.size == .medium {
+                        newSize = .small
+                    }
+                    
+                    for _ in 0..<2 {
+                        var newAsteroid = createAsteroid(game.entityZone, newSize)
+                        newAsteroid.p = asteroid.p
+                        
+                        var velocityScale : Float = 0.02
+                        if newSize == .medium {
+                            velocityScale = 0.04
+                        }
+                        else if newSize == .small {
+                            velocityScale = 0.06
+                        }
+                        
+                        newAsteroid.dP.x = randomInRange(-velocityScale, velocityScale)
+                        newAsteroid.dP.y = randomInRange(-velocityScale, velocityScale)
+                        
+                        randomizeAsteroidRotationAndVelocity(newAsteroid)
+                        
+                        staticArrayPush(game.world.asteroids, newAsteroid)
+                    }
+                }
+                
+                
+                laser.alive = false
+                asteroid.alive = false
+                
+                break asteroidLaserCollision
+            }
+        }
+    }
     
     // Collision Detection - Ship to Asteroid
-//    let p1 = ship.p + Vec2(0.0, 0.7)
-//    let p2 = ship.p + Vec2(0.5, -0.7)
-//    let p3 = ship.p + Vec2(-0.5, -0.7)
-//    
-//    for asteroid in asteroids {
-//        if distance(asteroid.p, p1) < scaleForAsteroidSize(asteroid.size)
-//        || distance(asteroid.p, p2) < scaleForAsteroidSize(asteroid.size)
-//        || distance(asteroid.p, p3) < scaleForAsteroidSize(asteroid.size) {
-//            ship.alive = false
-//            break
-//        }
-//    }
+    let p1 = ship.p + Vec2(0.0, 0.7)
+    let p2 = ship.p + Vec2(0.5, -0.7)
+    let p3 = ship.p + Vec2(-0.5, -0.7)
+    
+    for asteroid in game.world.asteroids {
+        if !asteroid.alive {
+            continue
+        }
+        if distance(asteroid.p, p1) < scaleForAsteroidSize(asteroid.size)
+        || distance(asteroid.p, p2) < scaleForAsteroidSize(asteroid.size)
+        || distance(asteroid.p, p3) < scaleForAsteroidSize(asteroid.size) {
+            ship.alive = false
+            break
+        }
+    }
     
 }
 
@@ -338,34 +399,42 @@ func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
     pushCommand(renderBuffer, command)
 }
 
-//func renderAsteroids(_ renderBuffer: RawPtr) {
-//    
-//    for asteroid in asteroids {
-//        var command = RenderCommandTriangles()
-//        
-//        let scale : Float = scaleForAsteroidSize(asteroid.size)
-//        
-//        command.verts = asteroid.verts
-//        command.transform = translateTransform(asteroid.p.x, asteroid.p.y) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
-//        command.count = 8 * 3 * 6
-//        
-//        pushCommand(renderBuffer, command)
-//    }
-//}
+func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
+    let asteroids = game.world.asteroids
+    for asteroid in asteroids {
+        if !asteroid.alive {
+            continue
+        }
+        
+        var command = RenderCommandTriangles()
+        
+        let scale : Float = scaleForAsteroidSize(asteroid.size)
+        
+        command.verts = asteroid.verts
+        command.transform = translateTransform(asteroid.p.x, asteroid.p.y) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+        command.count = 8 * 3 * 6
+        
+        pushCommand(renderBuffer, command)
+    }
+}
 
-//func renderLasers(_ renderBuffer: RawPtr) {
-//    
-//    for laser in lasers {
-//        var command = RenderCommandTriangles()
-//        
-//        command.verts = laser.verts
-//        command.transform = translateTransform(laser.p.x, laser.p.y) * scaleTransform(laser.scale, laser.scale)
-//        command.count = 8 * 3 * 2
-//        
-//        pushCommand(renderBuffer, command)
-//    }
-//    
-//}
+func renderLasers(_ game: GameStateRef, _ renderBuffer: RawPtr) {
+    let lasers = game.world.lasers
+    for laser in lasers {
+        if !laser.alive {
+            continue
+        }
+        
+        var command = RenderCommandTriangles()
+        
+        command.verts = laser.verts
+        command.transform = translateTransform(laser.p.x, laser.p.y) * scaleTransform(0.03, 0.03)
+        command.count = 8 * 3 * 2
+        
+        pushCommand(renderBuffer, command)
+    }
+    
+}
 
 func translateTransform(_ x: Float, _ y: Float) -> float4x4 {
     var transform = float4x4(1)
