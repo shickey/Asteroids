@@ -9,6 +9,11 @@
 import Darwin
 import simd
 
+prefix operator ^
+prefix func ^<T : Ref>(_ ref : T) -> T.T {
+        return ref.ptr.pointee
+}
+
 struct DEBUG_STRUCT {
     let ZOOM_OUT = false
     let BACKGROUND = false

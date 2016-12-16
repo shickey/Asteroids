@@ -10,6 +10,10 @@ protocol Ref {
     var ptr : Ptr<T> { get set }
 }
 
+/************************
+ * Entities.swift
+ ************************/
+
 struct ShipRef : EntityRef {
     var ptr : Ptr<Ship>
 
@@ -33,6 +37,10 @@ struct LaserRef : EntityRef {
 
 
 
+/************************
+ * Renderer.swift
+ ************************/
+
 struct GameStateRef : Ref {
     var ptr : Ptr<GameState>
 
@@ -49,6 +57,29 @@ struct WorldRef : Ref {
     var ship : ShipRef { get { return ptr.pointee.ship } set(val) { ptr.pointee.ship = val } }
     var asteroids : StaticArrayRef<AsteroidRef> { get { return ptr.pointee.asteroids } set(val) { ptr.pointee.asteroids = val } }
     var lasers : CircularBufferRef<LaserRef> { get { return ptr.pointee.lasers } set(val) { ptr.pointee.lasers = val } }
+}
+
+
+
+/************************
+ * DataStructures.swift
+ ************************/
+
+struct StaticArrayRef<T> : Ref {
+    var ptr : Ptr<StaticArray<T>>
+
+    var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
+    var maxCount : Int { get { return ptr.pointee.maxCount } set(val) { ptr.pointee.maxCount = val } }
+    var count : Int { get { return ptr.pointee.count } set(val) { ptr.pointee.count = val } }
+}
+
+struct CircularBufferRef<T> : Ref {
+    var ptr : Ptr<CircularBuffer<T>>
+
+    var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
+    var maxCount : Int { get { return ptr.pointee.maxCount } set(val) { ptr.pointee.maxCount = val } }
+    var count : Int { get { return ptr.pointee.count } set(val) { ptr.pointee.count = val } }
+    var nextIndex : Int { get { return ptr.pointee.nextIndex } set(val) { ptr.pointee.nextIndex = val } }
 }
 
 

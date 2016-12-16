@@ -16,19 +16,15 @@ import Darwin
  *
  **********************************************/
 
+/*= BEGIN_REFSTRUCT =*/
 struct StaticArray<T> {
-    var storage : Ptr<T>
-    var maxCount : Int
-    var count : Int
+    var storage : Ptr<T> /*= GETSET =*/
+    var maxCount : Int /*= GETSET =*/
+    var count : Int /*= GETSET =*/
 }
+/*= END_REFSTRUCT =*/
 
-struct StaticArrayRef<T> {
-    var ptr : Ptr<StaticArray<T>>
-    
-    var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
-    var maxCount : Int { get { return ptr.pointee.maxCount } set(val){ ptr.pointee.maxCount = val } }
-    var count : Int { get { return ptr.pointee.count } set(val){ ptr.pointee.count = val } }
-    
+extension StaticArrayRef {
     subscript(index: Int) -> T {
         get {
             return storage[index]
@@ -97,22 +93,16 @@ struct StaticArrayIterator<T> : IteratorProtocol {
  *
  **********************************************/
 
-
+/*= BEGIN_REFSTRUCT =*/
 struct CircularBuffer<T> {
-    var storage : Ptr<T>
-    var maxCount : Int
-    var count : Int
-    var nextIndex : Int
+    var storage : Ptr<T> /*= GETSET =*/
+    var maxCount : Int /*= GETSET =*/
+    var count : Int /*= GETSET =*/
+    var nextIndex : Int /*= GETSET =*/
 }
+/*= END_REFSTRUCT =*/
 
-struct CircularBufferRef<T> {
-    var ptr : Ptr<CircularBuffer<T>>
-    
-    var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
-    var maxCount : Int { get { return ptr.pointee.maxCount } set(val){ ptr.pointee.maxCount = val } }
-    var count : Int { get { return ptr.pointee.count } set(val){ ptr.pointee.count = val } }
-    var nextIndex : Int { get { return ptr.pointee.nextIndex } set(val){ ptr.pointee.nextIndex = val } }
-    
+extension CircularBufferRef {
     subscript(index: Int) -> T {
         get {
             return storage[index]
