@@ -84,6 +84,18 @@ func distance(_ v1: Vec2, _ v2: Vec2) -> Float {
     return sqrt(distanceSquared(v1, v2))
 }
 
+func torusDistance(_ torusSize: Size, _ v1: Vec2, _ v2: Vec2) -> Float {
+    var xDiff = abs(v1.x - v2.x)
+    if xDiff > (torusSize.width / 2.0) {
+        xDiff = torusSize.width - xDiff
+    }
+    var yDiff = abs(v1.y - v2.y)
+    if yDiff > (torusSize.height / 2.0) {
+        yDiff = torusSize.height - yDiff
+    }
+    return sqrt((xDiff * xDiff) + (yDiff * yDiff))
+}
+
 func clamp(_ val: Float, _ min: Float, _ max: Float) -> Float {
     if val < min {
         return min

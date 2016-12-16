@@ -21,6 +21,8 @@ struct DEBUG_STRUCT {
 
 let DEBUG = DEBUG_STRUCT()
 
+let NUM_ASTEROIDS = 3
+
 /*= BEGIN_REFSTRUCT =*/
 struct GameState {
     var gameInitialized : Bool /*= GETSET =*/
@@ -63,10 +65,10 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         var world = createWorld(gameState.entityZone)
         world.size = Size(20.0, 20.0)
         world.ship = ship
-        
+
         let MAX_ASTEROIDS = 3 + (3 * 2) + (3 * 2 * 2) // Every asteroid can split twice
         let asteroids = createStaticArray(gameState.entityZone, type: AsteroidRef.self, count: MAX_ASTEROIDS)
-        for _ in 0..<3 {
+        for _ in 0..<NUM_ASTEROIDS {
             let asteroid = createAsteroid(gameState.entityZone, .large)
             randomizeAsteroidLocationInWorld(asteroid, world)
             randomizeAsteroidRotationAndVelocity(asteroid)
@@ -142,7 +144,7 @@ func restartGame(_ gameState: GameStateRef) {
     // Reset asteroids
     let asteroids = game.world.asteroids
     clearStaticArray(asteroids)
-    for _ in 0..<3 {
+    for _ in 0..<NUM_ASTEROIDS {
         let asteroid = createAsteroid(game.entityZone, .large)
         randomizeAsteroidLocationInWorld(asteroid, game.world)
         randomizeAsteroidRotationAndVelocity(asteroid)
@@ -233,8 +235,7 @@ func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
         asteroid.rot += asteroid.dRot
         asteroid.rot = normalizeToRange(asteroid.rot, -FLOAT_PI, FLOAT_PI)
         
-        asteroid.p.x += asteroid.dP.x
-        asteroid.p.y += asteroid.dP.y
+        asteroid.p += asteroid.dP
         
         asteroid.p.x = normalizeToRange(asteroid.p.x, -world.size.w / 2.0, world.size.w / 2.0)
         asteroid.p.y = normalizeToRange(asteroid.p.y, -world.size.h / 2.0, world.size.h / 2.0)
@@ -285,7 +286,10 @@ func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
                 continue
             }
             
-            if distance(laser.p, asteroid.p) < scaleForAsteroidSize(asteroid.size)  {
+            let d = torusDistance(game.world.size, laser.p, asteroid.p)
+            print(d)
+            
+            if d < scaleForAsteroidSize(asteroid.size)  {
                 if asteroid.size != .small {
                     var newSize : Asteroid.AsteroidSize = .large
                     if asteroid.size == .large {
@@ -395,13 +399,84 @@ func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
     if !ship.alive {
         return
     }
-    var command = RenderCommandTriangles()
     
+    let shipInstanceThreshold : Float = 1.0
+    
+    let shipX = ship.p.x
+    let shipY = ship.p.y
+    
+    var command = RenderCommandTriangles()
     command.verts = ship.verts
     command.transform = translateTransform(ship.p.x, ship.p.y) * rotateTransform(ship.rot)
     command.count = 8 * 3
-    
     pushCommand(renderBuffer, command)
+    
+    let worldWidth = game.world.size.width
+    let worldHeight = game.world.size.height
+    
+    if shipX < (-worldWidth / 2.0) + shipInstanceThreshold {
+        
+        var command = RenderCommandTriangles()
+        command.verts = ship.verts
+        command.transform = translateTransform(shipX + worldWidth, shipY) * rotateTransform(ship.rot)
+        command.count = 8 * 3 * 6
+        pushCommand(renderBuffer, command)
+        
+        if shipY < (-worldHeight / 2.0) + shipInstanceThreshold {
+            var command = RenderCommandTriangles()
+            command.verts = ship.verts
+            command.transform = translateTransform(shipX + worldWidth, shipY + worldHeight) * rotateTransform(ship.rot)
+            command.count = 8 * 3 * 6
+            pushCommand(renderBuffer, command)
+        }
+        else if shipY > (worldHeight / 2.0) - shipInstanceThreshold {
+            var command = RenderCommandTriangles()
+            command.verts = ship.verts
+            command.transform = translateTransform(shipX + worldWidth, shipY - worldHeight) * rotateTransform(ship.rot)
+            command.count = 8 * 3 * 6
+            pushCommand(renderBuffer, command)
+        }
+        
+    }
+    else if shipX > (worldWidth / 2.0) - shipInstanceThreshold {
+        
+        var command = RenderCommandTriangles()
+        command.verts = ship.verts
+        command.transform = translateTransform(shipX - worldWidth, shipY) * rotateTransform(ship.rot)
+        command.count = 8 * 3 * 6
+        pushCommand(renderBuffer, command)
+        
+        if shipY < (-worldHeight / 2.0) + shipInstanceThreshold {
+            var command = RenderCommandTriangles()
+            command.verts = ship.verts
+            command.transform = translateTransform(shipX - worldWidth, shipY + worldHeight) * rotateTransform(ship.rot)
+            command.count = 8 * 3 * 6
+            pushCommand(renderBuffer, command)
+        }
+        else if shipY > (worldHeight / 2.0) - shipInstanceThreshold {
+            var command = RenderCommandTriangles()
+            command.verts = ship.verts
+            command.transform = translateTransform(shipX - worldWidth, shipY - worldHeight) * rotateTransform(ship.rot)
+            command.count = 8 * 3 * 6
+            pushCommand(renderBuffer, command)
+        }
+        
+    }
+    
+    if shipY < (-worldHeight / 2.0) + shipInstanceThreshold {
+        var command = RenderCommandTriangles()
+        command.verts = ship.verts
+        command.transform = translateTransform(shipX, shipY + worldHeight) * rotateTransform(ship.rot)
+        command.count = 8 * 3 * 6
+        pushCommand(renderBuffer, command)
+    }
+    else if shipY > (worldHeight / 2.0) - shipInstanceThreshold {
+        var command = RenderCommandTriangles()
+        command.verts = ship.verts
+        command.transform = translateTransform(shipX, shipY - worldHeight) * rotateTransform(ship.rot)
+        command.count = 8 * 3 * 6
+        pushCommand(renderBuffer, command)
+    }
 }
 
 func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
@@ -411,15 +486,84 @@ func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
             continue
         }
         
-        var command = RenderCommandTriangles()
-        
         let scale : Float = scaleForAsteroidSize(asteroid.size)
         
-        command.verts = asteroid.verts
-        command.transform = translateTransform(asteroid.p.x, asteroid.p.y) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
-        command.count = 8 * 3 * 6
+        let asteroidX = asteroid.p.x
+        let asteroidY = asteroid.p.y
         
+        var command = RenderCommandTriangles()
+        command.verts = asteroid.verts
+        command.transform = translateTransform(asteroidX, asteroidY) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+        command.count = 8 * 3 * 6
         pushCommand(renderBuffer, command)
+        
+        let worldWidth = game.world.size.width
+        let worldHeight = game.world.size.height
+        
+        if asteroidX < (-worldWidth / 2.0) + scale {
+            
+            var command = RenderCommandTriangles()
+            command.verts = asteroid.verts
+            command.transform = translateTransform(asteroidX + worldWidth, asteroidY) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+            command.count = 8 * 3 * 6
+            pushCommand(renderBuffer, command)
+            
+            if asteroidY < (-worldHeight / 2.0) + scale {
+                var command = RenderCommandTriangles()
+                command.verts = asteroid.verts
+                command.transform = translateTransform(asteroidX + worldWidth, asteroidY + worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+                command.count = 8 * 3 * 6
+                pushCommand(renderBuffer, command)
+            }
+            else if asteroidY > (worldHeight / 2.0) - scale {
+                var command = RenderCommandTriangles()
+                command.verts = asteroid.verts
+                command.transform = translateTransform(asteroidX + worldWidth, asteroidY - worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+                command.count = 8 * 3 * 6
+                pushCommand(renderBuffer, command)
+            }
+            
+        }
+        else if asteroidX > (worldWidth / 2.0) - scale {
+            
+            var command = RenderCommandTriangles()
+            command.verts = asteroid.verts
+            command.transform = translateTransform(asteroidX - worldWidth, asteroidY) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+            command.count = 8 * 3 * 6
+            pushCommand(renderBuffer, command)
+            
+            if asteroidY < (-worldHeight / 2.0) + scale {
+                var command = RenderCommandTriangles()
+                command.verts = asteroid.verts
+                command.transform = translateTransform(asteroidX - worldWidth, asteroidY + worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+                command.count = 8 * 3 * 6
+                pushCommand(renderBuffer, command)
+            }
+            else if asteroidY > (worldHeight / 2.0) - scale {
+                var command = RenderCommandTriangles()
+                command.verts = asteroid.verts
+                command.transform = translateTransform(asteroidX - worldWidth, asteroidY - worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+                command.count = 8 * 3 * 6
+                pushCommand(renderBuffer, command)
+            }
+            
+        }
+        
+        if asteroidY < (-worldHeight / 2.0) + scale {
+            var command = RenderCommandTriangles()
+            command.verts = asteroid.verts
+            command.transform = translateTransform(asteroidX, asteroidY + worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+            command.count = 8 * 3 * 6
+            pushCommand(renderBuffer, command)
+        }
+        else if asteroidY > (worldHeight / 2.0) - scale {
+            var command = RenderCommandTriangles()
+            command.verts = asteroid.verts
+            command.transform = translateTransform(asteroidX, asteroidY - worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
+            command.count = 8 * 3 * 6
+            pushCommand(renderBuffer, command)
+        }
+        
     }
 }
 
