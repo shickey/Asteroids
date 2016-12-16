@@ -66,7 +66,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         world.size = Size(20.0, 20.0)
         world.ship = ship
 
-        let MAX_ASTEROIDS = 3 + (3 * 2) + (3 * 2 * 2) // Every asteroid can split twice
+        let MAX_ASTEROIDS = 7 * NUM_ASTEROIDS // Every asteroid can split twice so x + 2x + 4x = 7x
         let asteroids = createStaticArray(gameState.entityZone, type: AsteroidRef.self, count: MAX_ASTEROIDS)
         for _ in 0..<NUM_ASTEROIDS {
             let asteroid = createAsteroid(gameState.entityZone, .large)
@@ -338,9 +338,9 @@ func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
         if !asteroid.alive {
             continue
         }
-        if distance(asteroid.p, p1) < scaleForAsteroidSize(asteroid.size)
-        || distance(asteroid.p, p2) < scaleForAsteroidSize(asteroid.size)
-        || distance(asteroid.p, p3) < scaleForAsteroidSize(asteroid.size) {
+        if torusDistance(game.world.size, asteroid.p, p1) < scaleForAsteroidSize(asteroid.size)
+        || torusDistance(game.world.size, asteroid.p, p2) < scaleForAsteroidSize(asteroid.size)
+        || torusDistance(game.world.size, asteroid.p, p3) < scaleForAsteroidSize(asteroid.size) {
             ship.alive = false
             break
         }
