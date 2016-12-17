@@ -286,10 +286,7 @@ func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
                 continue
             }
             
-            let d = torusDistance(game.world.size, laser.p, asteroid.p)
-            print(d)
-            
-            if d < scaleForAsteroidSize(asteroid.size)  {
+            if torusDistance(game.world.size, laser.p, asteroid.p) < scaleForAsteroidSize(asteroid.size)  {
                 if asteroid.size != .small {
                     var newSize : Asteroid.AsteroidSize = .large
                     if asteroid.size == .large {

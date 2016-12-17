@@ -164,38 +164,42 @@ func drawFrame(_ displayLink: CVDisplayLink,
         var inputs = Inputs()
         inputs.dt = dt
         
-        let controllers = readControllers()
+//        let controllers = readControllers()
         
         // Gamepads win out over keyboards
-        if controllers.gamepads.count > 0 {
-            let gamepad = controllers.gamepads[0]
-            inputs.rotate = gamepad.x
-            inputs.thrust = gamepad.buttons[1]
-            inputs.fire = gamepad.buttons[0]
-            
-            inputs.restart = gamepad.buttons[9]
+        if let gamepad = controllers.gamepads[0] {
+            if let x = gamepad.x {
+                inputs.rotate = x
+            }
+            if let button1 = gamepad.buttons[2] {
+                inputs.thrust = button1
+            }
+            if let button0 = gamepad.buttons[1] {
+                inputs.fire = button0
+            }
+            if let button9 = gamepad.buttons[10] {
+                inputs.restart = button9
+            }
         }
-        else if controllers.keyboards.count > 0 && NSApp.isActive {
+        else if NSApp.isActive { // Only accept keyboard events if the app is in the foreground
             var rotate : Float = 0.0
             var thrust = false
             var fire = false
+
+            let keyboard = controllers.keyboard
+            if keyboard.leftArrow && !keyboard.rightArrow {
+                rotate += -1.0
+            }
+            else if keyboard.rightArrow && !keyboard.leftArrow {
+                rotate += 1.0
+            }
             
-            // Try to combine keyboard input as much as possible
-            for keyboard in controllers.keyboards {
-                if keyboard.leftArrow && !keyboard.rightArrow {
-                    rotate += -1.0
-                }
-                else if keyboard.rightArrow && !keyboard.leftArrow {
-                    rotate += 1.0
-                }
-                
-                if keyboard.upArrow {
-                    thrust = true
-                }
-                
-                if keyboard.spacebar {
-                    fire = true
-                }
+            if keyboard.upArrow {
+                thrust = true
+            }
+            
+            if keyboard.spacebar {
+                fire = true
             }
             
             rotate = clamp(rotate, -1.0, 1.0)

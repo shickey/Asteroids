@@ -9,145 +9,210 @@
 import IOKit
 import IOKit.hid
 
+typealias HIDUsage = U32
+
 var hidManager : IOHIDManager! = nil
 
 let MAX_CONTROLLERS = 4
-var controllers = Controllers()
-
+let controllers = Controllers()
 
 class Controllers {
     var gamepads = [Gamepad?](repeating: nil, count: MAX_CONTROLLERS)
-    var keyboards = [Keyboard?](repeating: nil, count: MAX_CONTROLLERS)
-}
-
-class ControllerValues {
-    var gamepads : [GamepadValues] = []
-    var keyboards : [KeyboardValues] = []
+    var keyboard = Keyboard()
 }
 
 class Gamepad {
-    class Elements {
-        var x : IOHIDElement! = nil
-        var y : IOHIDElement! = nil
-        var z : IOHIDElement! = nil
-        var rx : IOHIDElement! = nil
-        var ry : IOHIDElement! = nil
-        var rz : IOHIDElement! = nil
-        var hat : IOHIDElement! = nil
-        var buttons = [IOHIDElement?](repeating: nil, count: 16)
-    }
-    
     var device : IOHIDDevice
-    var elements = Elements()
+    
+    var buttons : [HIDUsage : Bool] = [:]
+    var continuous : [HIDUsage : Float] = [:]
+    
+    var x   : Float? { return continuous[HIDUsage(kHIDUsage_GD_X)] }
+    var y   : Float? { return continuous[HIDUsage(kHIDUsage_GD_Y)] }
+    var z   : Float? { return continuous[HIDUsage(kHIDUsage_GD_Z)] }
+    var rx  : Float? { return continuous[HIDUsage(kHIDUsage_GD_Rx)] }
+    var ry  : Float? { return continuous[HIDUsage(kHIDUsage_GD_Ry)] }
+    var rz  : Float? { return continuous[HIDUsage(kHIDUsage_GD_Rz)] }
+    var hat : Float? { return continuous[HIDUsage(kHIDUsage_GD_Hatswitch)] }
     
     init(_ newDevice: IOHIDDevice) {
         device = newDevice
     }
 }
 
-class GamepadValues {
-    var x : Float = 0.0
-    var y : Float = 0.0
-    var z : Float = 0.0
-    var rx : Float = 0.0
-    var ry : Float = 0.0
-    var rz : Float = 0.0
-    var hat : Float = 0.0
-    var buttons : [Bool] = [Bool](repeating: false, count: 16)
-}
 
 class Keyboard {
-    class Elements {
-        var a : IOHIDElement! = nil
-        var b : IOHIDElement! = nil
-        var c : IOHIDElement! = nil
-        var d : IOHIDElement! = nil
-        var e : IOHIDElement! = nil
-        var f : IOHIDElement! = nil
-        var g : IOHIDElement! = nil
-        var h : IOHIDElement! = nil
-        var i : IOHIDElement! = nil
-        var j : IOHIDElement! = nil
-        var k : IOHIDElement! = nil
-        var l : IOHIDElement! = nil
-        var m : IOHIDElement! = nil
-        var n : IOHIDElement! = nil
-        var o : IOHIDElement! = nil
-        var p : IOHIDElement! = nil
-        var q : IOHIDElement! = nil
-        var r : IOHIDElement! = nil
-        var s : IOHIDElement! = nil
-        var t : IOHIDElement! = nil
-        var u : IOHIDElement! = nil
-        var v : IOHIDElement! = nil
-        var w : IOHIDElement! = nil
-        var x : IOHIDElement! = nil
-        var y : IOHIDElement! = nil
-        var z : IOHIDElement! = nil
-        var spacebar : IOHIDElement! = nil
-        var rightArrow : IOHIDElement! = nil
-        var leftArrow : IOHIDElement! = nil
-        var downArrow : IOHIDElement! = nil
-        var upArrow : IOHIDElement! = nil
-        var leftControl : IOHIDElement! = nil
-        var leftShift : IOHIDElement! = nil
-        var leftAlt : IOHIDElement! = nil
-        var leftGUI : IOHIDElement! = nil
-        var rightControl : IOHIDElement! = nil
-        var rightShift : IOHIDElement! = nil
-        var rightAlt : IOHIDElement! = nil
-        var rightGUI : IOHIDElement! = nil
-    }
+    var keys : [HIDUsage : Bool] = [:]
     
-    
-    var device : IOHIDDevice
-    var elements = Elements()
-    
-    init(_ newDevice: IOHIDDevice) {
-        device = newDevice
-    }
-}
-
-class KeyboardValues {
-    var a : Bool = false
-    var b : Bool = false
-    var c : Bool = false
-    var d : Bool = false
-    var e : Bool = false
-    var f : Bool = false
-    var g : Bool = false
-    var h : Bool = false
-    var i : Bool = false
-    var j : Bool = false
-    var k : Bool = false
-    var l : Bool = false
-    var m : Bool = false
-    var n : Bool = false
-    var o : Bool = false
-    var p : Bool = false
-    var q : Bool = false
-    var r : Bool = false
-    var s : Bool = false
-    var t : Bool = false
-    var u : Bool = false
-    var v : Bool = false
-    var w : Bool = false
-    var x : Bool = false
-    var y : Bool = false
-    var z : Bool = false
-    var spacebar : Bool = false
-    var rightArrow : Bool = false
-    var leftArrow : Bool = false
-    var downArrow : Bool = false
-    var upArrow : Bool = false
-    var leftControl : Bool = false
-    var leftShift : Bool = false
-    var leftAlt : Bool = false
-    var leftGUI : Bool = false
-    var rightControl : Bool = false
-    var rightShift : Bool = false
-    var rightAlt : Bool = false
-    var rightGUI : Bool = false
+    var a : Bool { return keys[HIDUsage(kHIDUsage_KeyboardA)] ?? false }
+    var b : Bool { return keys[HIDUsage(kHIDUsage_KeyboardB)] ?? false }
+    var c : Bool { return keys[HIDUsage(kHIDUsage_KeyboardC)] ?? false }
+    var d : Bool { return keys[HIDUsage(kHIDUsage_KeyboardD)] ?? false }
+    var e : Bool { return keys[HIDUsage(kHIDUsage_KeyboardE)] ?? false }
+    var f : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF)] ?? false }
+    var g : Bool { return keys[HIDUsage(kHIDUsage_KeyboardG)] ?? false }
+    var h : Bool { return keys[HIDUsage(kHIDUsage_KeyboardH)] ?? false }
+    var i : Bool { return keys[HIDUsage(kHIDUsage_KeyboardI)] ?? false }
+    var j : Bool { return keys[HIDUsage(kHIDUsage_KeyboardJ)] ?? false }
+    var k : Bool { return keys[HIDUsage(kHIDUsage_KeyboardK)] ?? false }
+    var l : Bool { return keys[HIDUsage(kHIDUsage_KeyboardL)] ?? false }
+    var m : Bool { return keys[HIDUsage(kHIDUsage_KeyboardM)] ?? false }
+    var n : Bool { return keys[HIDUsage(kHIDUsage_KeyboardN)] ?? false }
+    var o : Bool { return keys[HIDUsage(kHIDUsage_KeyboardO)] ?? false }
+    var p : Bool { return keys[HIDUsage(kHIDUsage_KeyboardP)] ?? false }
+    var q : Bool { return keys[HIDUsage(kHIDUsage_KeyboardQ)] ?? false }
+    var r : Bool { return keys[HIDUsage(kHIDUsage_KeyboardR)] ?? false }
+    var s : Bool { return keys[HIDUsage(kHIDUsage_KeyboardS)] ?? false }
+    var t : Bool { return keys[HIDUsage(kHIDUsage_KeyboardT)] ?? false }
+    var u : Bool { return keys[HIDUsage(kHIDUsage_KeyboardU)] ?? false }
+    var v : Bool { return keys[HIDUsage(kHIDUsage_KeyboardV)] ?? false }
+    var w : Bool { return keys[HIDUsage(kHIDUsage_KeyboardW)] ?? false }
+    var x : Bool { return keys[HIDUsage(kHIDUsage_KeyboardX)] ?? false }
+    var y : Bool { return keys[HIDUsage(kHIDUsage_KeyboardY)] ?? false }
+    var z : Bool { return keys[HIDUsage(kHIDUsage_KeyboardZ)] ?? false }
+    var keyboard1 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard1)] ?? false }
+    var keyboard2 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard2)] ?? false }
+    var keyboard3 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard3)] ?? false }
+    var keyboard4 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard4)] ?? false }
+    var keyboard5 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard5)] ?? false }
+    var keyboard6 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard6)] ?? false }
+    var keyboard7 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard7)] ?? false }
+    var keyboard8 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard8)] ?? false }
+    var keyboard9 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard9)] ?? false }
+    var keyboard0 : Bool { return keys[HIDUsage(kHIDUsage_Keyboard0)] ?? false }
+    var returnOrEnter : Bool { return keys[HIDUsage(kHIDUsage_KeyboardReturnOrEnter)] ?? false }
+    var escape : Bool { return keys[HIDUsage(kHIDUsage_KeyboardEscape)] ?? false }
+    var deleteOrBackspace : Bool { return keys[HIDUsage(kHIDUsage_KeyboardDeleteOrBackspace)] ?? false }
+    var tab : Bool { return keys[HIDUsage(kHIDUsage_KeyboardTab)] ?? false }
+    var spacebar : Bool { return keys[HIDUsage(kHIDUsage_KeyboardSpacebar)] ?? false }
+    var hyphen : Bool { return keys[HIDUsage(kHIDUsage_KeyboardHyphen)] ?? false }
+    var equalSign : Bool { return keys[HIDUsage(kHIDUsage_KeyboardEqualSign)] ?? false }
+    var openBracket : Bool { return keys[HIDUsage(kHIDUsage_KeyboardOpenBracket)] ?? false }
+    var closeBracket : Bool { return keys[HIDUsage(kHIDUsage_KeyboardCloseBracket)] ?? false }
+    var backslash : Bool { return keys[HIDUsage(kHIDUsage_KeyboardBackslash)] ?? false }
+    var nonUSPound : Bool { return keys[HIDUsage(kHIDUsage_KeyboardNonUSPound)] ?? false }
+    var semicolon : Bool { return keys[HIDUsage(kHIDUsage_KeyboardSemicolon)] ?? false }
+    var quote : Bool { return keys[HIDUsage(kHIDUsage_KeyboardQuote)] ?? false }
+    var graveAccentAndTilde : Bool { return keys[HIDUsage(kHIDUsage_KeyboardGraveAccentAndTilde)] ?? false }
+    var comma : Bool { return keys[HIDUsage(kHIDUsage_KeyboardComma)] ?? false }
+    var period : Bool { return keys[HIDUsage(kHIDUsage_KeyboardPeriod)] ?? false }
+    var slash : Bool { return keys[HIDUsage(kHIDUsage_KeyboardSlash)] ?? false }
+    var capsLock : Bool { return keys[HIDUsage(kHIDUsage_KeyboardCapsLock)] ?? false }
+    var f1 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF1)] ?? false }
+    var f2 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF2)] ?? false }
+    var f3 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF3)] ?? false }
+    var f4 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF4)] ?? false }
+    var f5 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF5)] ?? false }
+    var f6 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF6)] ?? false }
+    var f7 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF7)] ?? false }
+    var f8 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF8)] ?? false }
+    var f9 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF9)] ?? false }
+    var f10 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF10)] ?? false }
+    var f11 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF11)] ?? false }
+    var f12 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF12)] ?? false }
+    var printScreen : Bool { return keys[HIDUsage(kHIDUsage_KeyboardPrintScreen)] ?? false }
+    var scrollLock : Bool { return keys[HIDUsage(kHIDUsage_KeyboardScrollLock)] ?? false }
+    var pause : Bool { return keys[HIDUsage(kHIDUsage_KeyboardPause)] ?? false }
+    var insert : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInsert)] ?? false }
+    var home : Bool { return keys[HIDUsage(kHIDUsage_KeyboardHome)] ?? false }
+    var pageUp : Bool { return keys[HIDUsage(kHIDUsage_KeyboardPageUp)] ?? false }
+    var deleteForward : Bool { return keys[HIDUsage(kHIDUsage_KeyboardDeleteForward)] ?? false }
+    var end : Bool { return keys[HIDUsage(kHIDUsage_KeyboardEnd)] ?? false }
+    var pageDown : Bool { return keys[HIDUsage(kHIDUsage_KeyboardPageDown)] ?? false }
+    var rightArrow : Bool { return keys[HIDUsage(kHIDUsage_KeyboardRightArrow)] ?? false }
+    var leftArrow : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLeftArrow)] ?? false }
+    var downArrow : Bool { return keys[HIDUsage(kHIDUsage_KeyboardDownArrow)] ?? false }
+    var upArrow : Bool { return keys[HIDUsage(kHIDUsage_KeyboardUpArrow)] ?? false }
+    var keypadNumLock : Bool { return keys[HIDUsage(kHIDUsage_KeypadNumLock)] ?? false }
+    var keypadSlash : Bool { return keys[HIDUsage(kHIDUsage_KeypadSlash)] ?? false }
+    var keypadAsterisk : Bool { return keys[HIDUsage(kHIDUsage_KeypadAsterisk)] ?? false }
+    var keypadHyphen : Bool { return keys[HIDUsage(kHIDUsage_KeypadHyphen)] ?? false }
+    var keypadPlus : Bool { return keys[HIDUsage(kHIDUsage_KeypadPlus)] ?? false }
+    var keypadEnter : Bool { return keys[HIDUsage(kHIDUsage_KeypadEnter)] ?? false }
+    var keypad1 : Bool { return keys[HIDUsage(kHIDUsage_Keypad1)] ?? false }
+    var keypad2 : Bool { return keys[HIDUsage(kHIDUsage_Keypad2)] ?? false }
+    var keypad3 : Bool { return keys[HIDUsage(kHIDUsage_Keypad3)] ?? false }
+    var keypad4 : Bool { return keys[HIDUsage(kHIDUsage_Keypad4)] ?? false }
+    var keypad5 : Bool { return keys[HIDUsage(kHIDUsage_Keypad5)] ?? false }
+    var keypad6 : Bool { return keys[HIDUsage(kHIDUsage_Keypad6)] ?? false }
+    var keypad7 : Bool { return keys[HIDUsage(kHIDUsage_Keypad7)] ?? false }
+    var keypad8 : Bool { return keys[HIDUsage(kHIDUsage_Keypad8)] ?? false }
+    var keypad9 : Bool { return keys[HIDUsage(kHIDUsage_Keypad9)] ?? false }
+    var keypad0 : Bool { return keys[HIDUsage(kHIDUsage_Keypad0)] ?? false }
+    var keypadPeriod : Bool { return keys[HIDUsage(kHIDUsage_KeypadPeriod)] ?? false }
+    var nonUSBackslash : Bool { return keys[HIDUsage(kHIDUsage_KeyboardNonUSBackslash)] ?? false }
+    var application : Bool { return keys[HIDUsage(kHIDUsage_KeyboardApplication)] ?? false }
+    var power : Bool { return keys[HIDUsage(kHIDUsage_KeyboardPower)] ?? false }
+    var keypadEqualSign : Bool { return keys[HIDUsage(kHIDUsage_KeypadEqualSign)] ?? false }
+    var f13 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF13)] ?? false }
+    var f14 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF14)] ?? false }
+    var f15 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF15)] ?? false }
+    var f16 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF16)] ?? false }
+    var f17 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF17)] ?? false }
+    var f18 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF18)] ?? false }
+    var f19 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF19)] ?? false }
+    var f20 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF20)] ?? false }
+    var f21 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF21)] ?? false }
+    var f22 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF22)] ?? false }
+    var f23 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF23)] ?? false }
+    var f24 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardF24)] ?? false }
+    var execute : Bool { return keys[HIDUsage(kHIDUsage_KeyboardExecute)] ?? false }
+    var help : Bool { return keys[HIDUsage(kHIDUsage_KeyboardHelp)] ?? false }
+    var menu : Bool { return keys[HIDUsage(kHIDUsage_KeyboardMenu)] ?? false }
+    var select : Bool { return keys[HIDUsage(kHIDUsage_KeyboardSelect)] ?? false }
+    var stop : Bool { return keys[HIDUsage(kHIDUsage_KeyboardStop)] ?? false }
+    var again : Bool { return keys[HIDUsage(kHIDUsage_KeyboardAgain)] ?? false }
+    var undo : Bool { return keys[HIDUsage(kHIDUsage_KeyboardUndo)] ?? false }
+    var cut : Bool { return keys[HIDUsage(kHIDUsage_KeyboardCut)] ?? false }
+    var copy : Bool { return keys[HIDUsage(kHIDUsage_KeyboardCopy)] ?? false }
+    var paste : Bool { return keys[HIDUsage(kHIDUsage_KeyboardPaste)] ?? false }
+    var find : Bool { return keys[HIDUsage(kHIDUsage_KeyboardFind)] ?? false }
+    var mute : Bool { return keys[HIDUsage(kHIDUsage_KeyboardMute)] ?? false }
+    var volumeUp : Bool { return keys[HIDUsage(kHIDUsage_KeyboardVolumeUp)] ?? false }
+    var volumeDown : Bool { return keys[HIDUsage(kHIDUsage_KeyboardVolumeDown)] ?? false }
+    var lockingCapsLock : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLockingCapsLock)] ?? false }
+    var lockingNumLock : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLockingNumLock)] ?? false }
+    var lockingScrollLock : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLockingScrollLock)] ?? false }
+    var keypadComma : Bool { return keys[HIDUsage(kHIDUsage_KeypadComma)] ?? false }
+    var keypadEqualSignAS400 : Bool { return keys[HIDUsage(kHIDUsage_KeypadEqualSignAS400)] ?? false }
+    var international1 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational1)] ?? false }
+    var international2 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational2)] ?? false }
+    var international3 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational3)] ?? false }
+    var international4 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational4)] ?? false }
+    var international5 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational5)] ?? false }
+    var international6 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational6)] ?? false }
+    var international7 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational7)] ?? false }
+    var international8 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational8)] ?? false }
+    var international9 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardInternational9)] ?? false }
+    var LANG1 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG1)] ?? false }
+    var LANG2 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG2)] ?? false }
+    var LANG3 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG3)] ?? false }
+    var LANG4 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG4)] ?? false }
+    var LANG5 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG5)] ?? false }
+    var LANG6 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG6)] ?? false }
+    var LANG7 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG7)] ?? false }
+    var LANG8 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG8)] ?? false }
+    var LANG9 : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLANG9)] ?? false }
+    var alternateErase : Bool { return keys[HIDUsage(kHIDUsage_KeyboardAlternateErase)] ?? false }
+    var sysReqOrAttention : Bool { return keys[HIDUsage(kHIDUsage_KeyboardSysReqOrAttention)] ?? false }
+    var cancel : Bool { return keys[HIDUsage(kHIDUsage_KeyboardCancel)] ?? false }
+    var clear : Bool { return keys[HIDUsage(kHIDUsage_KeyboardClear)] ?? false }
+    var prior : Bool { return keys[HIDUsage(kHIDUsage_KeyboardPrior)] ?? false }
+    var returnKey : Bool { return keys[HIDUsage(kHIDUsage_KeyboardReturn)] ?? false }
+    var separator : Bool { return keys[HIDUsage(kHIDUsage_KeyboardSeparator)] ?? false }
+    var out : Bool { return keys[HIDUsage(kHIDUsage_KeyboardOut)] ?? false }
+    var oper : Bool { return keys[HIDUsage(kHIDUsage_KeyboardOper)] ?? false }
+    var clearOrAgain : Bool { return keys[HIDUsage(kHIDUsage_KeyboardClearOrAgain)] ?? false }
+    var crSelOrProps : Bool { return keys[HIDUsage(kHIDUsage_KeyboardCrSelOrProps)] ?? false }
+    var exSel : Bool { return keys[HIDUsage(kHIDUsage_KeyboardExSel)] ?? false }
+    var leftControl : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLeftControl)] ?? false }
+    var leftShift : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLeftShift)] ?? false }
+    var leftAlt : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLeftAlt)] ?? false }
+    var leftGUI : Bool { return keys[HIDUsage(kHIDUsage_KeyboardLeftGUI)] ?? false }
+    var rightControl : Bool { return keys[HIDUsage(kHIDUsage_KeyboardRightControl)] ?? false }
+    var rightShift : Bool { return keys[HIDUsage(kHIDUsage_KeyboardRightShift)] ?? false }
+    var rightAlt : Bool { return keys[HIDUsage(kHIDUsage_KeyboardRightAlt)] ?? false }
+    var rightGUI : Bool { return keys[HIDUsage(kHIDUsage_KeyboardRightGUI)] ?? false }
 }
 
 
@@ -179,53 +244,57 @@ func inputSystemInit() {
     hidManager = manager
 }
 
+
+let DEADZONE_THRESHOLD = 0.06
+
+func gamepadEvent(_ context: UnsafeMutableRawPointer?, _ result: IOReturn, _ sender: UnsafeMutableRawPointer?, _ value: IOHIDValue) {
+    let gamepad = context!.bindMemory(to: Gamepad.self, capacity: 1).pointee
+    let element = IOHIDValueGetElement(value)
+    let elementType = IOHIDElementGetType(element)
+    let usage = IOHIDElementGetUsage(element)
+    
+    if elementType == kIOHIDElementTypeInput_Button {
+        let pressed = (IOHIDValueGetIntegerValue(value) != 0)
+        gamepad.buttons[usage] = pressed
+    }
+    else if elementType == kIOHIDElementTypeInput_Axis || elementType == kIOHIDElementTypeInput_Misc {
+        
+        let min = F64(IOHIDElementGetPhysicalMin(element))
+        let max = F64(IOHIDElementGetPhysicalMax(element))
+        let val = IOHIDValueGetScaledValue(value, U32(kIOHIDValueScaleTypePhysical))
+        
+        let numerator = val - min
+        let denominator = max - min
+        var scaledValue = (( numerator / denominator ) * 2.0) - 1.0
+        if fabs(scaledValue) < DEADZONE_THRESHOLD {
+            scaledValue = 0.0
+        }
+        
+        gamepad.continuous[usage] = Float(scaledValue)
+    }
+    
+    // TODO: Handle hatswitches correctly
+    
+}
+
+func keyboardEvent(_ context: UnsafeMutableRawPointer?, _ result: IOReturn, _ sender: UnsafeMutableRawPointer?, _ value: IOHIDValue) {
+    let element = IOHIDValueGetElement(value)
+    let usage = IOHIDElementGetUsage(element)
+    if usage < U32(kHIDUsage_KeyboardA) || usage > U32(kHIDUsage_KeyboardRightGUI) {
+        return
+    }
+    
+    let pressed = (IOHIDValueGetIntegerValue(value) != 0)
+    controllers.keyboard.keys[usage] = pressed
+}
+
 func deviceAdded(_ inContext: UnsafeMutableRawPointer?, inResult: IOReturn, inSender: UnsafeMutableRawPointer?, deviceRef: IOHIDDevice!) {
     
     if IOHIDDeviceConformsTo(deviceRef, UInt32(kHIDPage_GenericDesktop), UInt32(kHIDUsage_GD_GamePad)) || IOHIDDeviceConformsTo(deviceRef, UInt32(kHIDPage_GenericDesktop), UInt32(kHIDUsage_GD_Joystick)) {
         
         print("gamepad added!")
-
+        
         let gamepad = Gamepad(deviceRef)
-        
-        let buttons = [kIOHIDElementUsagePageKey : kHIDPage_Button]
-        let buttonElements = IOHIDDeviceCopyMatchingElements(deviceRef, buttons as CFDictionary, UInt32(kIOHIDOptionsTypeNone)) as! Array<IOHIDElement>
-        
-        for button in buttonElements {
-            let usage = IOHIDElementGetUsage(button)
-            if usage < 16 {
-                let idx = usage - 1
-                gamepad.elements.buttons[Int(idx)] = button
-            }
-        }
-        
-        let genericDesktop = [kIOHIDElementUsagePageKey : kHIDPage_GenericDesktop]
-        let genericDesktopElements = IOHIDDeviceCopyMatchingElements(deviceRef, genericDesktop as CFDictionary, UInt32(kIOHIDOptionsTypeNone)) as! Array<IOHIDElement>
-        
-        for gdElement in genericDesktopElements {
-            let usage = IOHIDElementGetUsage(gdElement)
-            
-            if (usage == UInt32(kHIDUsage_GD_X)) {
-                gamepad.elements.x = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Y)) {
-                gamepad.elements.y = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Z)) {
-                gamepad.elements.z = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Rx)) {
-                gamepad.elements.rx = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Ry)) {
-                gamepad.elements.ry = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Rz)) {
-                gamepad.elements.rz = gdElement
-            }
-            else if (usage == UInt32(kHIDUsage_GD_Hatswitch)) {
-                gamepad.elements.hat = gdElement
-            }
-        }
         
         // Insert gamepad at first available slot,
         // If no slots available, ignore!
@@ -238,111 +307,14 @@ func deviceAdded(_ inContext: UnsafeMutableRawPointer?, inResult: IOReturn, inSe
             idx += 1
         }
         
+        IOHIDDeviceRegisterInputValueCallback(deviceRef, gamepadEvent, &controllers.gamepads[idx])
+        
     }
     else if IOHIDDeviceConformsTo(deviceRef, UInt32(kHIDPage_GenericDesktop), UInt32(kHIDUsage_GD_Keyboard)) || IOHIDDeviceConformsTo(deviceRef, UInt32(kHIDPage_GenericDesktop), UInt32(kHIDUsage_GD_Keypad)) {
         
         print("keyboard added!")
         
-        let keyboard = Keyboard(deviceRef)
-
-        let genericDesktopElements = IOHIDDeviceCopyMatchingElements(deviceRef, nil, UInt32(kIOHIDOptionsTypeNone)) as! Array<IOHIDElement>
-        
-        for gdElement in genericDesktopElements {
-            let usage = Int(IOHIDElementGetUsage(gdElement))
-            
-            switch usage {
-            case kHIDUsage_KeyboardA:
-                keyboard.elements.a = gdElement
-            case kHIDUsage_KeyboardB:
-                keyboard.elements.b = gdElement
-            case kHIDUsage_KeyboardC:
-                keyboard.elements.c = gdElement
-            case kHIDUsage_KeyboardD:
-                keyboard.elements.d = gdElement
-            case kHIDUsage_KeyboardE:
-                keyboard.elements.e = gdElement
-            case kHIDUsage_KeyboardF:
-                keyboard.elements.f = gdElement
-            case kHIDUsage_KeyboardG:
-                keyboard.elements.g = gdElement
-            case kHIDUsage_KeyboardH:
-                keyboard.elements.h = gdElement
-            case kHIDUsage_KeyboardI:
-                keyboard.elements.i = gdElement
-            case kHIDUsage_KeyboardJ:
-                keyboard.elements.j = gdElement
-            case kHIDUsage_KeyboardK:
-                keyboard.elements.k = gdElement
-            case kHIDUsage_KeyboardL:
-                keyboard.elements.l = gdElement
-            case kHIDUsage_KeyboardM:
-                keyboard.elements.m = gdElement
-            case kHIDUsage_KeyboardN:
-                keyboard.elements.n = gdElement
-            case kHIDUsage_KeyboardO:
-                keyboard.elements.o = gdElement
-            case kHIDUsage_KeyboardP:
-                keyboard.elements.p = gdElement
-            case kHIDUsage_KeyboardQ:
-                keyboard.elements.q = gdElement
-            case kHIDUsage_KeyboardR:
-                keyboard.elements.r = gdElement
-            case kHIDUsage_KeyboardS:
-                keyboard.elements.s = gdElement
-            case kHIDUsage_KeyboardT:
-                keyboard.elements.t = gdElement
-            case kHIDUsage_KeyboardU:
-                keyboard.elements.u = gdElement
-            case kHIDUsage_KeyboardV:
-                keyboard.elements.v = gdElement
-            case kHIDUsage_KeyboardW:
-                keyboard.elements.w = gdElement
-            case kHIDUsage_KeyboardX:
-                keyboard.elements.x = gdElement
-            case kHIDUsage_KeyboardY:
-                keyboard.elements.y = gdElement
-            case kHIDUsage_KeyboardZ:
-                keyboard.elements.z = gdElement
-            case kHIDUsage_KeyboardSpacebar:
-                keyboard.elements.spacebar = gdElement
-            case kHIDUsage_KeyboardRightArrow:
-                keyboard.elements.rightArrow = gdElement
-            case kHIDUsage_KeyboardLeftArrow:
-                keyboard.elements.leftArrow = gdElement
-            case kHIDUsage_KeyboardDownArrow:
-                keyboard.elements.downArrow = gdElement
-            case kHIDUsage_KeyboardUpArrow:
-                keyboard.elements.upArrow = gdElement
-            case kHIDUsage_KeyboardLeftControl:
-                keyboard.elements.leftControl = gdElement
-            case kHIDUsage_KeyboardLeftShift:
-                keyboard.elements.leftShift = gdElement
-            case kHIDUsage_KeyboardLeftAlt:
-                keyboard.elements.leftAlt = gdElement
-            case kHIDUsage_KeyboardLeftGUI:
-                keyboard.elements.leftGUI = gdElement
-            case kHIDUsage_KeyboardRightControl:
-                keyboard.elements.rightControl = gdElement
-            case kHIDUsage_KeyboardRightShift:
-                keyboard.elements.rightShift = gdElement
-            case kHIDUsage_KeyboardRightAlt:
-                keyboard.elements.rightAlt = gdElement
-            case kHIDUsage_KeyboardRightGUI:
-                keyboard.elements.rightGUI = gdElement
-            default: break
-            }
-        }
-        
-        // Insert keyboard at first available slot,
-        // If no slots available, ignore!
-        var idx = 0
-        for kb in controllers.keyboards {
-            if kb == nil {
-                controllers.keyboards[idx] = keyboard
-                break
-            }
-            idx += 1
-        }
+        IOHIDDeviceRegisterInputValueCallback(deviceRef, keyboardEvent, nil)
 
     }
     else {
@@ -362,344 +334,12 @@ func deviceRemoved(_ inContext: UnsafeMutableRawPointer?, inResult: IOReturn, in
         if Unmanaged.passUnretained(inIOHIDDeviceRef!).toOpaque() == Unmanaged.passUnretained(gamepad.device).toOpaque() {
             controllers.gamepads[gpIdx] = nil
             print("gamepad removed!")
-            return
+            break
         }
         gpIdx += 1
     }
+        
+    // Unregister value callback
+    IOHIDDeviceRegisterInputValueCallback(inIOHIDDeviceRef, nil, nil)
     
-    var kbIdx = 0
-    for kb in controllers.keyboards {
-        if kb == nil {
-            continue
-        }
-        let keyboard = kb!
-        if Unmanaged.passUnretained(inIOHIDDeviceRef!).toOpaque() == Unmanaged.passUnretained(keyboard.device).toOpaque() {
-            controllers.gamepads[kbIdx] = nil
-            print("keyboard removed!")
-            return
-        }
-        kbIdx += 1
-    }
-}
-
-
-// TODO: Fetch this with the HID API?
-let DEADZONE_THRESHOLD : Float = 0.06
-
-
-// TODO: The returned value objects don't necessarily match up index-wise with the controllers object 
-func readControllers() -> ControllerValues {
-    
-    let controllerValues = ControllerValues()
-    
-    for gamepadOpt in controllers.gamepads {
-        
-        if gamepadOpt == nil {
-            continue
-        }
-        
-        let gamepad = gamepadOpt!
-        
-        let gamepadValues = GamepadValues()
-        
-        var value = Unmanaged<IOHIDValue>.passUnretained(IOHIDValueCreateWithIntegerValue(nil, IOHIDElementCreateWithDictionary(nil, [:] as CFDictionary), 0, 0))
-        
-        var idx = 0
-        for button in gamepad.elements.buttons {
-            if button != nil {
-                IOHIDDeviceGetValue(gamepad.device, button!, &value)
-                if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                    gamepadValues.buttons[idx] = true
-                }
-            }
-            idx += 1
-        }
-        
-        if gamepad.elements.x != nil {
-            let min = IOHIDElementGetLogicalMin(gamepad.elements.x)
-            let max = IOHIDElementGetLogicalMax(gamepad.elements.x)
-            IOHIDDeviceGetValue(gamepad.device, gamepad.elements.x, &value)
-            let val = IOHIDValueGetIntegerValue(value.takeUnretainedValue())
-            let numerator = Float(val - min)
-            let denominator = Float(max - min)
-            let scaledValue = (( numerator / denominator ) * 2.0) - 1.0;
-            if (fabs(scaledValue) > DEADZONE_THRESHOLD) {
-                gamepadValues.x = scaledValue
-            }
-            else {
-                gamepadValues.x = 0.0
-            }
-        }
-        
-        if gamepad.elements.y != nil {
-            let min = IOHIDElementGetLogicalMin(gamepad.elements.y)
-            let max = IOHIDElementGetLogicalMax(gamepad.elements.y)
-            IOHIDDeviceGetValue(gamepad.device, gamepad.elements.y, &value)
-            let val = IOHIDValueGetIntegerValue(value.takeUnretainedValue())
-            let numerator = Float(val - min)
-            let denominator = Float(max - min)
-            let scaledValue = (( numerator / denominator ) * 2.0) - 1.0;
-            if (fabs(scaledValue) > DEADZONE_THRESHOLD) {
-                gamepadValues.y = scaledValue
-            }
-            else {
-                gamepadValues.y = 0.0
-            }
-        }
-        
-        controllerValues.gamepads.append(gamepadValues)
-    }
-    
-    for keyboardOpt in controllers.keyboards {
-        
-        if keyboardOpt == nil {
-            continue
-        }
-        
-        let keyboard = keyboardOpt!
-        
-        let keyboardValues = KeyboardValues()
-        
-        var value = Unmanaged<IOHIDValue>.passUnretained(IOHIDValueCreateWithIntegerValue(nil, IOHIDElementCreateWithDictionary(nil, [:] as CFDictionary), 0, 0))
-        
-        if keyboard.elements.a != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.a, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.a = true
-            }
-        }
-        if keyboard.elements.b != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.b, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.b = true
-            }
-        }
-        if keyboard.elements.c != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.c, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.c = true
-            }
-        }
-        if keyboard.elements.d != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.d, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.d = true
-            }
-        }
-        if keyboard.elements.e != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.e, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.e = true
-            }
-        }
-        if keyboard.elements.f != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.f, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.f = true
-            }
-        }
-        if keyboard.elements.g != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.g, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.g = true
-            }
-        }
-        if keyboard.elements.h != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.h, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.h = true
-            }
-        }
-        if keyboard.elements.i != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.i, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.i = true
-            }
-        }
-        if keyboard.elements.j != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.j, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.j = true
-            }
-        }
-        if keyboard.elements.k != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.k, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.k = true
-            }
-        }
-        if keyboard.elements.l != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.l, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.l = true
-            }
-        }
-        if keyboard.elements.m != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.m, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.m = true
-            }
-        }
-        if keyboard.elements.n != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.n, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.n = true
-            }
-        }
-        if keyboard.elements.o != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.o, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.o = true
-            }
-        }
-        if keyboard.elements.p != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.p, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.p = true
-            }
-        }
-        if keyboard.elements.q != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.q, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.q = true
-            }
-        }
-        if keyboard.elements.r != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.r, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.r = true
-            }
-        }
-        if keyboard.elements.s != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.s, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.s = true
-            }
-        }
-        if keyboard.elements.t != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.t, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.t = true
-            }
-        }
-        if keyboard.elements.u != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.u, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.u = true
-            }
-        }
-        if keyboard.elements.v != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.v, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.v = true
-            }
-        }
-        if keyboard.elements.w != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.w, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.w = true
-            }
-        }
-        if keyboard.elements.x != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.x, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.x = true
-            }
-        }
-        if keyboard.elements.y != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.y, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.y = true
-            }
-        }
-        if keyboard.elements.z != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.z, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.z = true
-            }
-        }
-        if keyboard.elements.spacebar != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.spacebar, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.spacebar = true
-            }
-        }
-        if keyboard.elements.rightArrow != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.rightArrow, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.rightArrow = true
-            }
-        }
-        if keyboard.elements.leftArrow != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.leftArrow, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.leftArrow = true
-            }
-        }
-        if keyboard.elements.downArrow != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.downArrow, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.downArrow = true
-            }
-        }
-        if keyboard.elements.upArrow != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.upArrow, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.upArrow = true
-            }
-        }
-        if keyboard.elements.leftControl != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.leftControl, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.leftControl = true
-            }
-        }
-        if keyboard.elements.leftShift != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.leftShift, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.leftShift = true
-            }
-        }
-        if keyboard.elements.leftAlt != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.leftAlt, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.leftAlt = true
-            }
-        }
-        if keyboard.elements.leftGUI != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.leftGUI, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.leftGUI = true
-            }
-        }
-        if keyboard.elements.rightControl != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.rightControl, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.rightControl = true
-            }
-        }
-        if keyboard.elements.rightShift != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.rightShift, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.rightShift = true
-            }
-        }
-        if keyboard.elements.rightAlt != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.rightAlt, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.rightAlt = true
-            }
-        }
-        if keyboard.elements.rightGUI != nil {
-            IOHIDDeviceGetValue(keyboard.device, keyboard.elements.rightGUI, &value)
-            if IOHIDValueGetIntegerValue(value.takeUnretainedValue()) != 0 {
-                keyboardValues.rightGUI = true
-            }
-        }
-        
-        controllerValues.keyboards.append(keyboardValues)
-    }
-    
-    return controllerValues
-
 }
