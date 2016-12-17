@@ -27,13 +27,13 @@ class Gamepad {
     var buttons : [HIDUsage : Bool] = [:]
     var continuous : [HIDUsage : Float] = [:]
     
-    var x   : Float? { return continuous[HIDUsage(kHIDUsage_GD_X)] }
-    var y   : Float? { return continuous[HIDUsage(kHIDUsage_GD_Y)] }
-    var z   : Float? { return continuous[HIDUsage(kHIDUsage_GD_Z)] }
-    var rx  : Float? { return continuous[HIDUsage(kHIDUsage_GD_Rx)] }
-    var ry  : Float? { return continuous[HIDUsage(kHIDUsage_GD_Ry)] }
-    var rz  : Float? { return continuous[HIDUsage(kHIDUsage_GD_Rz)] }
-    var hat : Float? { return continuous[HIDUsage(kHIDUsage_GD_Hatswitch)] }
+    var x   : Float { return continuous[HIDUsage(kHIDUsage_GD_X)] ?? 0.0 }
+    var y   : Float { return continuous[HIDUsage(kHIDUsage_GD_Y)] ?? 0.0 }
+    var z   : Float { return continuous[HIDUsage(kHIDUsage_GD_Z)] ?? 0.0 }
+    var rx  : Float { return continuous[HIDUsage(kHIDUsage_GD_Rx)] ?? 0.0 }
+    var ry  : Float { return continuous[HIDUsage(kHIDUsage_GD_Ry)] ?? 0.0 }
+    var rz  : Float { return continuous[HIDUsage(kHIDUsage_GD_Rz)] ?? 0.0 }
+    var hat : Float { return continuous[HIDUsage(kHIDUsage_GD_Hatswitch)] ?? 0.0 }
     
     init(_ newDevice: IOHIDDevice) {
         device = newDevice

@@ -164,21 +164,17 @@ func drawFrame(_ displayLink: CVDisplayLink,
         var inputs = Inputs()
         inputs.dt = dt
         
-//        let controllers = readControllers()
-        
         // Gamepads win out over keyboards
         if let gamepad = controllers.gamepads[0] {
-            if let x = gamepad.x {
-                inputs.rotate = x
+            inputs.rotate = gamepad.x
+            if let button2 = gamepad.buttons[2] {
+                inputs.thrust = button2
             }
-            if let button1 = gamepad.buttons[2] {
-                inputs.thrust = button1
+            if let button1 = gamepad.buttons[1] {
+                inputs.fire = button1
             }
-            if let button0 = gamepad.buttons[1] {
-                inputs.fire = button0
-            }
-            if let button9 = gamepad.buttons[10] {
-                inputs.restart = button9
+            if let button10 = gamepad.buttons[10] {
+                inputs.restart = button10
             }
         }
         else if NSApp.isActive { // Only accept keyboard events if the app is in the foreground
