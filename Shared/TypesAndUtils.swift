@@ -48,14 +48,6 @@ extension Int {
     }
 }
 
-open class GameMemory {
-    open var permanentSize : Int = 0
-    open var permanent : RawPtr! = nil
-    
-    open var transientSize : Int = 0
-    open var transient : RawPtr! = nil
-}
-
 /*
  * Memory Manipulation Operators and Functions
  *
