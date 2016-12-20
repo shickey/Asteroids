@@ -59,7 +59,7 @@ public struct RenderCommandTriangles : RenderCommand {
     public var next : RawPtr? = nil
     
     public var transform = float4x4(1)
-    public var verts : VertexPointer! = nil
+    public var vertexBuffer : RawPtr! = nil
     public var count : Int = 0
 }
 

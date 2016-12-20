@@ -40,6 +40,8 @@ struct World {
     var ship : ShipRef /*= GETSET =*/
     var asteroids : StaticArrayRef<AsteroidRef> /*= GETSET =*/
     var lasers : CircularBufferRef<LaserRef> /*= GETSET =*/
+    
+    static var backgroundVertexBuffer : RawPtr?
 }
 /*= END_REFSTRUCT =*/
 
@@ -60,7 +62,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         
         gameState.entityZone = createZone(&gameState.zoneZone, gameState.zoneZone.base + gameState.zoneZone.size, gameMemory.permanentSize - (MemoryLayout<GameState>.size + gameState.zoneZone.size))
         
-        let ship = createShip(gameState.entityZone)
+        let ship = createShip(gameMemory, gameState.entityZone)
         
         var world = createWorld(gameState.entityZone)
         world.size = Size(20.0, 20.0)
@@ -69,7 +71,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         let MAX_ASTEROIDS = 7 * NUM_ASTEROIDS // Every asteroid can split twice so x + 2x + 4x = 7x
         let asteroids = createStaticArray(gameState.entityZone, type: AsteroidRef.self, count: MAX_ASTEROIDS)
         for _ in 0..<NUM_ASTEROIDS {
-            let asteroid = createAsteroid(gameState.entityZone, .large)
+            let asteroid = createAsteroid(gameMemory, gameState.entityZone, .large)
             randomizeAsteroidLocationInWorld(asteroid, world)
             randomizeAsteroidRotationAndVelocity(asteroid)
             staticArrayPush(asteroids, asteroid)
@@ -87,7 +89,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     
     if !restarting && inputs.restart {
         restarting = true
-        restartGame(gameState)
+        restartGame(gameMemory, gameState)
     }
     else if restarting && !inputs.restart {
         restarting = false
@@ -95,7 +97,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     
     
     // Simulate
-    simulate(gameState, inputs.dt, inputs)
+    simulate(gameMemory, gameState, inputs.dt, inputs)
     
     // Render
     let renderBuffer = Ptr(renderCommandHeaderPtr)
@@ -121,10 +123,10 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     
     
     if DEBUG.BACKGROUND {
-        renderTerribleBackground(gameState, renderBuffer)
+        renderTerribleBackground(gameMemory, gameState, renderBuffer)
     }
     else {
-        renderBlackBackground(gameState, renderBuffer)
+        renderBlackBackground(gameMemory, gameState, renderBuffer)
     }
     renderAsteroids(gameState, renderBuffer)
     renderShip(gameState, renderBuffer)
@@ -135,17 +137,17 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     
 }
 
-func restartGame(_ gameState: GameStateRef) {
+func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef) {
     var game = gameState
     
     // Reset ship
-    game.world.ship = createShip(game.entityZone)
+    game.world.ship = createShip(gameMemory, game.entityZone)
     
     // Reset asteroids
     let asteroids = game.world.asteroids
     clearStaticArray(asteroids)
     for _ in 0..<NUM_ASTEROIDS {
-        let asteroid = createAsteroid(game.entityZone, .large)
+        let asteroid = createAsteroid(gameMemory, game.entityZone, .large)
         randomizeAsteroidLocationInWorld(asteroid, game.world)
         randomizeAsteroidRotationAndVelocity(asteroid)
         staticArrayPush(asteroids, asteroid)
@@ -201,7 +203,7 @@ var laserTimeToWait : Float = 0.0
 
 
 // TODO: Rewrite completely. Needs to be dependent on dt otherwise will change speed depending on framerate
-func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
+func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
     
     var world = game.world
     var ship = game.world.ship
@@ -250,7 +252,7 @@ func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
     
     if inputs.fire {
         if laserTimeToWait <= 0.0 {
-            let laser = createLaser(game.entityZone, game.world.ship)
+            let laser = createLaser(gameMemory, game.entityZone, game.world.ship)
             circularBufferPush(lasers, laser)
             laserTimeToWait = 0.25
         }
@@ -297,7 +299,7 @@ func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
                     }
                     
                     for _ in 0..<2 {
-                        var newAsteroid = createAsteroid(game.entityZone, newSize)
+                        var newAsteroid = createAsteroid(gameMemory, game.entityZone, newSize)
                         newAsteroid.p = asteroid.p
                         
                         var velocityScale : Float = 0.02
@@ -345,46 +347,46 @@ func simulate(_ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
     
 }
 
-func renderBlackBackground(_ game: GameStateRef, _ renderBuffer: RawPtr) {
+func renderBlackBackground(_ gameMemory: GameMemory, _ game: GameStateRef, _ renderBuffer: RawPtr) {
     var command = RenderCommandTriangles()
     
     let world = game.world
-    let verts = UnsafeMutablePointer<Float>.allocate(capacity: 6 * 8)
-    let vData = [
-        -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-         (world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-         (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-        -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-         (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-        -(world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+    if World.backgroundVertexBuffer == nil {
+        let verts = [
+            -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+            (world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+            (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+            -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+            (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+            -(world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
         ]
+        World.backgroundVertexBuffer = gameMemory.platformCreateVertexBuffer(verts)
+    }
     
-    memcpy(verts, vData, vData.count * MemoryLayout<Float>.size)
     
-    command.verts = verts
+    command.vertexBuffer = World.backgroundVertexBuffer!
     command.transform = float4x4(1)
     command.count = 8 * 6
     
     pushCommand(renderBuffer, command)
 }
 
-func renderTerribleBackground(_ game: GameStateRef, _ renderBuffer: RawPtr) {
+func renderTerribleBackground(_ gameMemory: GameMemory, _ game: GameStateRef, _ renderBuffer: RawPtr) {
     var command = RenderCommandTriangles()
     
     let world = game.world
-    let verts = UnsafeMutablePointer<Float>.allocate(capacity: 6 * 8)
-    let vData = [
-        -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
-         (world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
-         (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
-         (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        -(world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
-    ]
+    if World.backgroundVertexBuffer == nil {
+        let verts = [
+            -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
+             (world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
+             (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
+             (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            -(world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
+        ]
+        World.backgroundVertexBuffer = gameMemory.platformCreateVertexBuffer(verts)
+    }
     
-    memcpy(verts, vData, vData.count * MemoryLayout<Float>.size)
-    
-    command.verts = verts
     command.transform = float4x4(1)
     command.count = 8 * 6
     
@@ -403,7 +405,7 @@ func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
     let shipY = ship.p.y
     
     var command = RenderCommandTriangles()
-    command.verts = ship.verts
+    command.vertexBuffer = Ship.vertexBuffer
     command.transform = translateTransform(ship.p.x, ship.p.y) * rotateTransform(ship.rot)
     command.count = 8 * 3
     pushCommand(renderBuffer, command)
@@ -414,21 +416,21 @@ func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
     if shipX < (-worldWidth / 2.0) + shipInstanceThreshold {
         
         var command = RenderCommandTriangles()
-        command.verts = ship.verts
+        command.vertexBuffer = Ship.vertexBuffer
         command.transform = translateTransform(shipX + worldWidth, shipY) * rotateTransform(ship.rot)
         command.count = 8 * 3 * 6
         pushCommand(renderBuffer, command)
         
         if shipY < (-worldHeight / 2.0) + shipInstanceThreshold {
             var command = RenderCommandTriangles()
-            command.verts = ship.verts
+            command.vertexBuffer = Ship.vertexBuffer
             command.transform = translateTransform(shipX + worldWidth, shipY + worldHeight) * rotateTransform(ship.rot)
             command.count = 8 * 3 * 6
             pushCommand(renderBuffer, command)
         }
         else if shipY > (worldHeight / 2.0) - shipInstanceThreshold {
             var command = RenderCommandTriangles()
-            command.verts = ship.verts
+            command.vertexBuffer = Ship.vertexBuffer
             command.transform = translateTransform(shipX + worldWidth, shipY - worldHeight) * rotateTransform(ship.rot)
             command.count = 8 * 3 * 6
             pushCommand(renderBuffer, command)
@@ -438,21 +440,21 @@ func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
     else if shipX > (worldWidth / 2.0) - shipInstanceThreshold {
         
         var command = RenderCommandTriangles()
-        command.verts = ship.verts
+        command.vertexBuffer = Ship.vertexBuffer
         command.transform = translateTransform(shipX - worldWidth, shipY) * rotateTransform(ship.rot)
         command.count = 8 * 3 * 6
         pushCommand(renderBuffer, command)
         
         if shipY < (-worldHeight / 2.0) + shipInstanceThreshold {
             var command = RenderCommandTriangles()
-            command.verts = ship.verts
+            command.vertexBuffer = Ship.vertexBuffer
             command.transform = translateTransform(shipX - worldWidth, shipY + worldHeight) * rotateTransform(ship.rot)
             command.count = 8 * 3 * 6
             pushCommand(renderBuffer, command)
         }
         else if shipY > (worldHeight / 2.0) - shipInstanceThreshold {
             var command = RenderCommandTriangles()
-            command.verts = ship.verts
+            command.vertexBuffer = Ship.vertexBuffer
             command.transform = translateTransform(shipX - worldWidth, shipY - worldHeight) * rotateTransform(ship.rot)
             command.count = 8 * 3 * 6
             pushCommand(renderBuffer, command)
@@ -462,14 +464,14 @@ func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
     
     if shipY < (-worldHeight / 2.0) + shipInstanceThreshold {
         var command = RenderCommandTriangles()
-        command.verts = ship.verts
+        command.vertexBuffer = Ship.vertexBuffer
         command.transform = translateTransform(shipX, shipY + worldHeight) * rotateTransform(ship.rot)
         command.count = 8 * 3 * 6
         pushCommand(renderBuffer, command)
     }
     else if shipY > (worldHeight / 2.0) - shipInstanceThreshold {
         var command = RenderCommandTriangles()
-        command.verts = ship.verts
+        command.vertexBuffer = Ship.vertexBuffer
         command.transform = translateTransform(shipX, shipY - worldHeight) * rotateTransform(ship.rot)
         command.count = 8 * 3 * 6
         pushCommand(renderBuffer, command)
@@ -489,7 +491,7 @@ func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
         let asteroidY = asteroid.p.y
         
         var command = RenderCommandTriangles()
-        command.verts = asteroid.verts
+        command.vertexBuffer = Asteroid.vertexBuffer
         command.transform = translateTransform(asteroidX, asteroidY) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
         command.count = 8 * 3 * 6
         pushCommand(renderBuffer, command)
@@ -500,21 +502,21 @@ func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
         if asteroidX < (-worldWidth / 2.0) + scale {
             
             var command = RenderCommandTriangles()
-            command.verts = asteroid.verts
+            command.vertexBuffer = Asteroid.vertexBuffer
             command.transform = translateTransform(asteroidX + worldWidth, asteroidY) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
             command.count = 8 * 3 * 6
             pushCommand(renderBuffer, command)
             
             if asteroidY < (-worldHeight / 2.0) + scale {
                 var command = RenderCommandTriangles()
-                command.verts = asteroid.verts
+                command.vertexBuffer = Asteroid.vertexBuffer
                 command.transform = translateTransform(asteroidX + worldWidth, asteroidY + worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
                 command.count = 8 * 3 * 6
                 pushCommand(renderBuffer, command)
             }
             else if asteroidY > (worldHeight / 2.0) - scale {
                 var command = RenderCommandTriangles()
-                command.verts = asteroid.verts
+                command.vertexBuffer = Asteroid.vertexBuffer
                 command.transform = translateTransform(asteroidX + worldWidth, asteroidY - worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
                 command.count = 8 * 3 * 6
                 pushCommand(renderBuffer, command)
@@ -524,21 +526,21 @@ func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
         else if asteroidX > (worldWidth / 2.0) - scale {
             
             var command = RenderCommandTriangles()
-            command.verts = asteroid.verts
+            command.vertexBuffer = Asteroid.vertexBuffer
             command.transform = translateTransform(asteroidX - worldWidth, asteroidY) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
             command.count = 8 * 3 * 6
             pushCommand(renderBuffer, command)
             
             if asteroidY < (-worldHeight / 2.0) + scale {
                 var command = RenderCommandTriangles()
-                command.verts = asteroid.verts
+                command.vertexBuffer = Asteroid.vertexBuffer
                 command.transform = translateTransform(asteroidX - worldWidth, asteroidY + worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
                 command.count = 8 * 3 * 6
                 pushCommand(renderBuffer, command)
             }
             else if asteroidY > (worldHeight / 2.0) - scale {
                 var command = RenderCommandTriangles()
-                command.verts = asteroid.verts
+                command.vertexBuffer = Asteroid.vertexBuffer
                 command.transform = translateTransform(asteroidX - worldWidth, asteroidY - worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
                 command.count = 8 * 3 * 6
                 pushCommand(renderBuffer, command)
@@ -548,14 +550,14 @@ func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
         
         if asteroidY < (-worldHeight / 2.0) + scale {
             var command = RenderCommandTriangles()
-            command.verts = asteroid.verts
+            command.vertexBuffer = Asteroid.vertexBuffer
             command.transform = translateTransform(asteroidX, asteroidY + worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
             command.count = 8 * 3 * 6
             pushCommand(renderBuffer, command)
         }
         else if asteroidY > (worldHeight / 2.0) - scale {
             var command = RenderCommandTriangles()
-            command.verts = asteroid.verts
+            command.vertexBuffer = Asteroid.vertexBuffer
             command.transform = translateTransform(asteroidX, asteroidY - worldHeight) * rotateTransform(asteroid.rot) * scaleTransform(scale, scale)
             command.count = 8 * 3 * 6
             pushCommand(renderBuffer, command)
@@ -573,7 +575,8 @@ func renderLasers(_ game: GameStateRef, _ renderBuffer: RawPtr) {
         
         var command = RenderCommandTriangles()
         
-        command.verts = laser.verts
+//        command.verts = laser.verts
+        command.vertexBuffer = Laser.vertexBuffer
         command.transform = translateTransform(laser.p.x, laser.p.y) * scaleTransform(0.03, 0.03)
         command.count = 8 * 3 * 2
         

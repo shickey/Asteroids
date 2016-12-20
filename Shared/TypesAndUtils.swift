@@ -35,6 +35,7 @@ public typealias S32Ptr = UnsafeMutablePointer<Int32>
 public typealias S64Ptr = UnsafeMutablePointer<Int64>
 
 public typealias VertexPointer = UnsafeMutablePointer<Float>
+public typealias VertexArray = [Float]
 
 extension Int {
     var kilobytes : Int {

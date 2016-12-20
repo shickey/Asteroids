@@ -22,7 +22,8 @@ protocol Entity {
     var rot  : Float { get set }
     var dRot : Float { get set }
     
-    var verts : VertexPointer? { get set }
+//    var verts : VertexPointer? { get set }
+    static var vertexBuffer : RawPtr? { get set }
 }
 
 protocol EntityRef : Ref {
@@ -36,7 +37,8 @@ protocol EntityRef : Ref {
     var rot  : Float { get set }
     var dRot : Float { get set }
     
-    var verts : VertexPointer? { get set }
+//    var verts : VertexPointer? { get set }
+    static var vertexBuffer : RawPtr? { get set }
 }
 
 extension EntityRef {
@@ -46,7 +48,8 @@ extension EntityRef {
     var rot  : Float { get { return ptr.pointee.rot } set(val) {ptr.pointee.rot = val} }
     var dRot : Float { get { return ptr.pointee.dRot } set(val) {ptr.pointee.dRot = val} }
     
-    var verts : VertexPointer? { get { return ptr.pointee.verts } set(val) {ptr.pointee.verts = val} }
+//    var verts : VertexPointer? { get { return ptr.pointee.verts } set(val) {ptr.pointee.verts = val} }
+    static var vertexBuffer : RawPtr? { get { return T.vertexBuffer } set(val) {T.vertexBuffer = val} }
 }
 
 
@@ -61,27 +64,29 @@ struct Ship : Entity {
     var dP : Vec2 = Vec2()
     var rot  : Float
     var dRot : Float
-    var verts : VertexPointer?
+//    var verts : VertexPointer?
+    static var vertexBuffer : RawPtr?
     
     // Ship
     var alive : Bool /*= GETSET =*/
 }
 /*= END_REFSTRUCT =*/
 
-func createShip(_ zone: MemoryZoneRef) -> ShipRef {
+func createShip(_ gameMemory: GameMemory, _ zone: MemoryZoneRef) -> ShipRef {
     let shipPtr = allocateTypeFromZone(zone, Ship.self)
     var ship = ShipRef(ptr: shipPtr)
     
     ship.alive = true
     
-    let vertPtr = allocateFromZone(zone, 3 * 8 * MemoryLayout<Float>.size)
-    let verts : [Float] = [
-        0.0,  0.7, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0,
-        0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
-        -0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
-        ]
-    vertPtr.initializeMemory(as: Float.self, from: verts)
-    ship.verts = <-vertPtr
+    if Ship.vertexBuffer == nil {
+        let verts : [Float] = [
+            0.0,  0.7, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0,
+            0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
+            -0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
+            ]
+        Ship.vertexBuffer = gameMemory.platformCreateVertexBuffer!(verts)
+    }
+    
     return ship
 }
 
@@ -107,7 +112,8 @@ struct Asteroid : Entity {
     var dP : Vec2 = Vec2()
     var rot  : Float
     var dRot : Float
-    var verts : VertexPointer?
+//    var verts : VertexPointer?
+    static var vertexBuffer : RawPtr?
     
     // Asteroid
     enum AsteroidSize {
@@ -115,45 +121,48 @@ struct Asteroid : Entity {
         case medium
         case large
     }
+    
+//    var vertexBuffer : RawPtr /*= GETSET =*/
+    
     var size : Asteroid.AsteroidSize /*= GETSET =*/
     var alive : Bool /*= GETSET =*/
 }
 /*= END_REFSTRUCT =*/
 
-func createAsteroid(_ zone: MemoryZoneRef, _ size: Asteroid.AsteroidSize) -> AsteroidRef {
+func createAsteroid(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ size: Asteroid.AsteroidSize) -> AsteroidRef {
     let asteroidPtr = allocateTypeFromZone(zone, Asteroid.self)
     var asteroid = AsteroidRef(ptr: asteroidPtr)
     asteroid.alive = true
     asteroid.size = size
     
-    let vertPtr = allocateFromZone(zone, 8 * 3 * 6 * MemoryLayout<Float>.size)
-    let verts : [Float] = [
-        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        cos((FLOAT_TWO_PI) / 6.0), sin((FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-
-        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        cos((FLOAT_TWO_PI) / 6.0), sin((FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        cos(2.0 * (FLOAT_TWO_PI) / 6.0), sin(2.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-
-        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        cos(2.0 * (FLOAT_TWO_PI) / 6.0), sin(2.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        -1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-
-        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        -1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        cos(4.0 * (FLOAT_TWO_PI) / 6.0), sin(4.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-
-        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        cos(4.0 * (FLOAT_TWO_PI) / 6.0), sin(4.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-
-        0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
-        1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0
-    ]
-    vertPtr.initializeMemory(as: Float.self, from: verts)
-    asteroid.verts = <-vertPtr
+    if Asteroid.vertexBuffer == nil {
+        let verts : [Float] = [
+            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            cos((FLOAT_TWO_PI) / 6.0), sin((FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            
+            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            cos((FLOAT_TWO_PI) / 6.0), sin((FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            cos(2.0 * (FLOAT_TWO_PI) / 6.0), sin(2.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            
+            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            cos(2.0 * (FLOAT_TWO_PI) / 6.0), sin(2.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            -1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            
+            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            -1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            cos(4.0 * (FLOAT_TWO_PI) / 6.0), sin(4.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            
+            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            cos(4.0 * (FLOAT_TWO_PI) / 6.0), sin(4.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            
+            0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+            1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0
+        ]
+        Asteroid.vertexBuffer = gameMemory.platformCreateVertexBuffer!(verts)
+    }
     
     return asteroid
 }
@@ -207,7 +216,8 @@ struct Laser : Entity {
     var dP : Vec2 = Vec2()
     var rot  : Float
     var dRot : Float
-    var verts : VertexPointer?
+//    var verts : VertexPointer?
+    static var vertexBuffer : RawPtr? = nil
     
     // Laser
     var timeAlive : Float /*= GETSET =*/
@@ -217,7 +227,7 @@ struct Laser : Entity {
 }
 /*= END_REFSTRUCT =*/
 
-func createLaser(_ zone: MemoryZoneRef, _ ship: ShipRef) -> LaserRef {
+func createLaser(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ ship: ShipRef) -> LaserRef {
     let laserPtr = allocateTypeFromZone(zone, Laser.self)
     var laser = LaserRef(ptr: laserPtr)
     
@@ -230,18 +240,19 @@ func createLaser(_ zone: MemoryZoneRef, _ ship: ShipRef) -> LaserRef {
     laser.lifetime = 1.0
     laser.alive = true
     
-    let vertPtr = allocateFromZone(zone, 8 * 3 * 2 * MemoryLayout<Float>.size)
-    let verts : [Float] = [
-        1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-       -1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-       -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-        1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-       -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-        1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0
-    ]
-    vertPtr.initializeMemory(as: Float.self, from: verts)
-    laser.verts = <-vertPtr
+    if Laser.vertexBuffer == nil {
+        let verts : [Float] = [
+            1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            -1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            
+            1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0
+        ]
+        Laser.vertexBuffer = gameMemory.platformCreateVertexBuffer!(verts)
+    }
+    
     return laser
 }
 

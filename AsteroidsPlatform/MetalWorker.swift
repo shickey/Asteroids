@@ -107,11 +107,21 @@ func beginRendering(_ hostLayer: CALayer) {
     gameMemory.transientSize = transientStorageSize
     renderCommandBufferBase = gameMemory.transient + transientStorageSize
     
+    // Platform API
+    gameMemory.platformCreateVertexBuffer = createVertexBuffer
+    
     
     let displayId = CGMainDisplayID()
     CVDisplayLinkCreateWithCGDisplay(displayId, &displayLink)
     CVDisplayLinkSetOutputCallback(displayLink!, drawFrame, nil)
     CVDisplayLinkStart(displayLink!)
+}
+
+var buffers : [MTLBuffer] = []
+
+func createVertexBuffer(_ vertices: VertexArray) -> RawPtr {
+    let buffer = device.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Float>.size, options: [])
+    return RawPtr(Unmanaged.passRetained(buffer).toOpaque())
 }
 
 func loadGameCode() {
@@ -247,12 +257,6 @@ func render() {
         
         let command = commandPtr.bindMemory(to: RenderCommandHeader.self, capacity: 1).pointee
         
-        // Swift type system/module namespacing stupidness
-        // means we have to directly cast the memory.
-        // Also, this just doesn't work if RenderCommands
-        // are structs and not classes. Weird value vs.
-        // reference semantics??
-        
         if command.type == .options {
             let optionsCommand = commandPtr.bindMemory(to: RenderCommandOptions.self, capacity: 1).pointee
             if optionsCommand.fillMode == .fill {
@@ -275,7 +279,7 @@ func render() {
             
             var instanceTransform = trianglesCommand.transform
             let instanceUniformsBuffer = device.makeBuffer(bytes: &instanceTransform, length: 16 * MemoryLayout<Float>.size, options: [])
-            let vertexBuffer = device.makeBuffer(bytes: trianglesCommand.verts, length: trianglesCommand.count * MemoryLayout<Float>.size, options: [])
+            let vertexBuffer = Unmanaged<MTLBuffer>.fromOpaque(trianglesCommand.vertexBuffer).takeUnretainedValue()
             renderEncoder.setVertexBuffer(uniformsBuffer, offset: 0, at: 0)
             renderEncoder.setVertexBuffer(instanceUniformsBuffer, offset: 0, at: 1)
             renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 2)
