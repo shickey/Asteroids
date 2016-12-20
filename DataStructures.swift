@@ -110,6 +110,8 @@ extension CircularBufferRef {
     }
 }
 
+
+
 func createCircularBuffer<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) -> CircularBufferRef<T> {
     let bufferBase = allocateTypeFromZone(zone, CircularBuffer<T>.self)
     

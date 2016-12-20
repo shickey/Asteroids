@@ -21,11 +21,16 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		A30E9C7C1E061647003160C0 /* AssetLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCA31DF90A4F00025665 /* AssetLoader.swift */; };
 		A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3547DF81DFB768800E74BEF /* TextRendering.swift */; };
-		A3547DFD1DFBB08E00E74BEF /* bad-font.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */; };
-		A3547DFE1DFBB08E00E74BEF /* bad-font.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3547DFC1DFBB08E00E74BEF /* bad-font.txt */; };
 		A3A18E221DFFA736002F27DE /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA6B1DF6410200F79B91 /* Math.swift */; };
 		A3A18E251E01010E002F27DE /* MemoryZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A18E231E010055002F27DE /* MemoryZone.swift */; };
+		A3AC95401E05C6CA00837A67 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3AC953F1E05C6CA00837A67 /* Audio.swift */; };
+		A3AC95431E05FBDB00837A67 /* bad-font.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95411E05FBDB00837A67 /* bad-font.bmp */; };
+		A3AC95441E05FBDB00837A67 /* bad-font.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95421E05FBDB00837A67 /* bad-font.txt */; };
+		A3AC95471E05FBE500837A67 /* arial-24-white.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95451E05FBE400837A67 /* arial-24-white.bmp */; };
+		A3AC95481E05FBE500837A67 /* arial-24-white.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95461E05FBE500837A67 /* arial-24-white.txt */; };
+		A3AC954A1E05FBEF00837A67 /* howsoon.wav in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95491E05FBEF00837A67 /* howsoon.wav */; };
 		A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA361DF630D600F79B91 /* AppDelegate.swift */; };
 		A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA381DF630D600F79B91 /* ViewController.swift */; };
 		A3BEEA3B1DF630D600F79B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */; };
@@ -41,13 +46,11 @@
 		A3EACC961DF7B4E200025665 /* BitmapFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC921DF7B47400025665 /* BitmapFont.swift */; };
 		A3EACC981DF7CAE600025665 /* AsteroidsApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC971DF7CAE600025665 /* AsteroidsApplication.swift */; };
 		A3EACC9A1DF83D5900025665 /* InputDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC991DF83D5900025665 /* InputDevices.swift */; };
-		A3EACCA21DF909DE00025665 /* arial-24-white.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3EACC951DF7B4D300025665 /* arial-24-white.txt */; };
 		A3EACCA51DF90E6400025665 /* AssetLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCA31DF90A4F00025665 /* AssetLoader.swift */; };
 		A3EACCAA1DF917DF00025665 /* Inputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCA91DF917DF00025665 /* Inputs.swift */; };
 		A3EACCAB1DF917F000025665 /* Inputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCA91DF917DF00025665 /* Inputs.swift */; };
 		A3EACCAE1DFA392500025665 /* TypesAndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */; };
 		A3EACCAF1DFA392C00025665 /* TypesAndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */; };
-		A3EACCB11DFA3BB700025665 /* arial-24-white.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3EACCB01DFA3BB700025665 /* arial-24-white.bmp */; };
 		A3FB171A1E039247006DB7F6 /* RefStructs_GENERATED.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */; };
 /* End PBXBuildFile section */
 
@@ -75,10 +78,11 @@
 			dstPath = assets;
 			dstSubfolderSpec = 16;
 			files = (
-				A3EACCB11DFA3BB700025665 /* arial-24-white.bmp in CopyFiles */,
-				A3547DFE1DFBB08E00E74BEF /* bad-font.txt in CopyFiles */,
-				A3547DFD1DFBB08E00E74BEF /* bad-font.bmp in CopyFiles */,
-				A3EACCA21DF909DE00025665 /* arial-24-white.txt in CopyFiles */,
+				A3AC95471E05FBE500837A67 /* arial-24-white.bmp in CopyFiles */,
+				A3AC95431E05FBDB00837A67 /* bad-font.bmp in CopyFiles */,
+				A3AC95481E05FBE500837A67 /* arial-24-white.txt in CopyFiles */,
+				A3AC954A1E05FBEF00837A67 /* howsoon.wav in CopyFiles */,
+				A3AC95441E05FBDB00837A67 /* bad-font.txt in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,9 +90,13 @@
 
 /* Begin PBXFileReference section */
 		A3547DF81DFB768800E74BEF /* TextRendering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextRendering.swift; sourceTree = "<group>"; };
-		A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = "bad-font.bmp"; path = "../../Desktop/font/bad-font.bmp"; sourceTree = "<group>"; };
-		A3547DFC1DFBB08E00E74BEF /* bad-font.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "bad-font.txt"; path = "../../Desktop/font/bad-font.txt"; sourceTree = "<group>"; };
 		A3A18E231E010055002F27DE /* MemoryZone.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryZone.swift; sourceTree = "<group>"; };
+		A3AC953F1E05C6CA00837A67 /* Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
+		A3AC95411E05FBDB00837A67 /* bad-font.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "bad-font.bmp"; sourceTree = "<group>"; };
+		A3AC95421E05FBDB00837A67 /* bad-font.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "bad-font.txt"; sourceTree = "<group>"; };
+		A3AC95451E05FBE400837A67 /* arial-24-white.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "arial-24-white.bmp"; sourceTree = "<group>"; };
+		A3AC95461E05FBE500837A67 /* arial-24-white.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "arial-24-white.txt"; sourceTree = "<group>"; };
+		A3AC95491E05FBEF00837A67 /* howsoon.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = howsoon.wav; sourceTree = "<group>"; };
 		A3BEEA331DF630D600F79B91 /* Asteroids.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroids.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3BEEA361DF630D600F79B91 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3BEEA381DF630D600F79B91 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -105,13 +113,11 @@
 		A3E7897F1E01D13800050B19 /* DataStructures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStructures.swift; sourceTree = "<group>"; };
 		A3EACC8E1DF783D200025665 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
 		A3EACC921DF7B47400025665 /* BitmapFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitmapFont.swift; sourceTree = "<group>"; };
-		A3EACC951DF7B4D300025665 /* arial-24-white.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "arial-24-white.txt"; path = "../../Desktop/arial_bitmap/arial-24-white.txt"; sourceTree = "<group>"; };
 		A3EACC971DF7CAE600025665 /* AsteroidsApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsteroidsApplication.swift; sourceTree = "<group>"; };
 		A3EACC991DF83D5900025665 /* InputDevices.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputDevices.swift; sourceTree = "<group>"; };
 		A3EACCA31DF90A4F00025665 /* AssetLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetLoader.swift; sourceTree = "<group>"; };
 		A3EACCA91DF917DF00025665 /* Inputs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Inputs.swift; sourceTree = "<group>"; };
 		A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypesAndUtils.swift; sourceTree = "<group>"; };
-		A3EACCB01DFA3BB700025665 /* arial-24-white.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = "arial-24-white.bmp"; path = "../../Desktop/arial_bitmap/arial-24-white.bmp"; sourceTree = "<group>"; };
 		A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefStructs_GENERATED.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -161,6 +167,7 @@
 				A3BEEA381DF630D600F79B91 /* ViewController.swift */,
 				A3EACC991DF83D5900025665 /* InputDevices.swift */,
 				A3BEEA451DF6312100F79B91 /* MetalWorker.swift */,
+				A3AC953F1E05C6CA00837A67 /* Audio.swift */,
 				A3BEEA471DF6315900F79B91 /* Shaders.metal */,
 				A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */,
 				A3BEEA3C1DF630D600F79B91 /* Main.storyboard */,
@@ -189,10 +196,11 @@
 		A3EACC9B1DF9098600025665 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				A3547DFB1DFBB08E00E74BEF /* bad-font.bmp */,
-				A3547DFC1DFBB08E00E74BEF /* bad-font.txt */,
-				A3EACCB01DFA3BB700025665 /* arial-24-white.bmp */,
-				A3EACC951DF7B4D300025665 /* arial-24-white.txt */,
+				A3AC95411E05FBDB00837A67 /* bad-font.bmp */,
+				A3AC95421E05FBDB00837A67 /* bad-font.txt */,
+				A3AC95451E05FBE400837A67 /* arial-24-white.bmp */,
+				A3AC95461E05FBE500837A67 /* arial-24-white.txt */,
+				A3AC95491E05FBEF00837A67 /* howsoon.wav */,
 			);
 			name = Assets;
 			sourceTree = "<group>";
@@ -340,6 +348,8 @@
 			files = (
 				A3EACC9A1DF83D5900025665 /* InputDevices.swift in Sources */,
 				A3EACCAF1DFA392C00025665 /* TypesAndUtils.swift in Sources */,
+				A3AC95401E05C6CA00837A67 /* Audio.swift in Sources */,
+				A30E9C7C1E061647003160C0 /* AssetLoader.swift in Sources */,
 				A3BEEA6F1DF6616800F79B91 /* RenderCommands.swift in Sources */,
 				A3BEEA481DF6315900F79B91 /* Shaders.metal in Sources */,
 				A3BEEA461DF6312100F79B91 /* MetalWorker.swift in Sources */,
@@ -486,6 +496,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Asteroids/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = local.seanhickey.Asteroids;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
@@ -499,6 +510,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Asteroids/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = local.seanhickey.Asteroids;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;

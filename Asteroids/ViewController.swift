@@ -15,6 +15,8 @@ class ViewController: NSViewController {
 
         view.wantsLayer = true;
         inputSystemInit()
+        audioInit()
+        
     }
 
     override func viewDidAppear() {

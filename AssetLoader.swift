@@ -19,7 +19,10 @@ func assetPath(_ filename: String) -> String {
 }
 
 func dylibPath() -> String {
-    let symbolAddress = unsafeBitCast(Entity.self, to: UnsafeMutableRawPointer.self)
+    //////////////////////// REMOVE! TEMPORARY HACK!
+    return "/Users/seanhickey/Library/Developer/Xcode/DerivedData/Asteroids-cnsxvmrospeitxfvmnhjaxvyjyto/Build/Products/Debug/libAsteroids.dylib"
+    
+    let symbolAddress = unsafeBitCast(FileData.self, to: UnsafeMutableRawPointer.self)
     var info = Dl_info(dli_fname: "", dli_fbase: nil, dli_sname: "", dli_saddr: nil)
     dladdr(symbolAddress, &info)
     let path = String(cString: info.dli_fname)
@@ -149,6 +152,80 @@ func findLeastSignificantSetBit(_ val: UInt32) -> Int {
         }
     }
     return -1
+}
+
+
+
+// WAV Files
+
+struct WavFileHeader {
+    var sGroupID : U32
+    var dwFileLength : U32
+    var sRiffType : U32
+    var format_sGroupID : U32
+    var dwChunkSize : U32
+    var wFormatTag : U16
+    var wChannels : U16
+    var dwSamplesPerSec : U32
+    var dwAvgBytesPerSec : U32
+    var wBlockAlign : U16
+    var dwBitsPerSampleLOW : U16 // Stupidness about memory alignment forces us to split this into two values
+    var dwBitsPerSampleHIGH : U16
+    
+    var dwBitsPerSample : U32 { return (U32(dwBitsPerSampleHIGH) << 16) | U32(dwBitsPerSampleLOW) }
+}
+
+struct WavFileDataChunk {
+    var sGroupID : U32
+    var dwChunkSize : U32
+}
+
+struct StereoAudioSound {
+//    var left : [U16]
+//    var right: [U16]
+    var samplesInterleaved : [S16]
+}
+
+func loadWavFile(_ filename: String) -> StereoAudioSound? {
+    
+    let fileOpt = readFile(assetPath(filename))
+    if let file = fileOpt {
+        let headerPtr = RawPtr(file.bytes).bindMemory(to: WavFileHeader.self, capacity: 1)
+        let header = headerPtr.pointee
+        
+        let dataChunkHeaderPtr = RawPtr(file.bytes) + 36
+        let dataChunkHeader = dataChunkHeaderPtr.bindMemory(to: WavFileDataChunk.self, capacity: 1).pointee
+        
+        let samplesPtr = dataChunkHeaderPtr + 8
+        let samplesCount = Int(dataChunkHeader.dwChunkSize / 2)
+        let samples = samplesPtr.bindMemory(to: S16.self, capacity: samplesCount)
+        
+//        var leftSamples : [U16] = []
+//        var rightSamples : [U16] = []
+//        
+//        leftSamples.reserveCapacity(samplesCount / 2)
+//        rightSamples.reserveCapacity(samplesCount / 2)
+//        
+//        for i in 0..<samplesCount {
+//            let sample = samples[i]
+//            if i % 2 == 0 {
+//                leftSamples.append(sample)
+//            }
+//            else {
+//                rightSamples.append(sample)
+//            }
+//        }
+        
+        var outSamples : [S16] = []
+        outSamples.reserveCapacity(samplesCount)
+        for i in 0..<samplesCount {
+            outSamples.append(samples[i])
+        }
+        
+        return StereoAudioSound(samplesInterleaved: outSamples)
+    }
+    return nil
+    
 }
 
 
