@@ -7,7 +7,7 @@ import IOKit
 import IOKit.hid
 
 let gameCodeLibName = "libAsteroids"
-let updateAndRenderSymbolName = "_TF12libAsteroids15updateAndRenderFTGSpCS_10GameMemory_9inputsPtrGSpCS_6Inputs_22renderCommandHeaderPtrGSpVS_25RenderCommandBufferHeader__T_"
+let updateAndRenderSymbolName = "updateAndRender"
 
 let device = MTLCreateSystemDefaultDevice()!
 let commandQueue = device.makeCommandQueue()

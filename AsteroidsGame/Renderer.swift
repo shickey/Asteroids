@@ -48,6 +48,7 @@ struct World {
 
 var restarting = false
 
+@_silgen_name("updateAndRender")
 public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandHeaderPtr: UnsafeMutablePointer<RenderCommandBufferHeader>) {
     
     let gameMemory = gameMemoryPtr.pointee

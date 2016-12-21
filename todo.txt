@@ -1,0 +1,24 @@
+WORKFLOW/DEBUG/GENERAL
+======
+- Switch to using sublime and compiling with the command line
+- Is there a way to access memory like a struct disregarding padding/alignment (e.g., to directly read a WAV header?)
+- Clean up game code files
+- Using @_silgen_name is probably scary. Remove eventually.
+
+GAME
+======
+- Audio system
+- Allocators
+  - As a simple start: Reuse asteroid array slots
+- Asset loading
+  - Memory allocation
+- Levels
+- Power-ups
+- Better collision detection (separation axis?)
+
+
+PLATFORM
+======
+- Uniform buffer reuse
+- Instanced rendering
+
