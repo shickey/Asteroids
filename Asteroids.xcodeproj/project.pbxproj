@@ -91,6 +91,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A34773D01E0B3E44005CD952 /* todo.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
 		A3547DF81DFB768800E74BEF /* TextRendering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextRendering.swift; sourceTree = "<group>"; };
 		A3A18E231E010055002F27DE /* MemoryZone.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryZone.swift; sourceTree = "<group>"; };
 		A3AC953F1E05C6CA00837A67 /* Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
@@ -145,6 +146,7 @@
 		A3BEEA2A1DF630D600F79B91 = {
 			isa = PBXGroup;
 			children = (
+				A34773D01E0B3E44005CD952 /* todo.txt */,
 				A3EACCA81DF9179900025665 /* Shared */,
 				A3BEEA611DF6335900F79B91 /* AsteroidsGame */,
 				A3BEEA351DF630D600F79B91 /* AsteroidsPlatform */,

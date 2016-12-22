@@ -38,7 +38,7 @@ struct GameState {
 struct World {
     var size : Size /*= GETSET =*/
     var ship : ShipRef /*= GETSET =*/
-    var asteroids : StaticArrayRef<AsteroidRef> /*= GETSET =*/
+    var asteroids : PoolRef<AsteroidRef> /*= GETSET =*/
     var lasers : CircularBufferRef<LaserRef> /*= GETSET =*/
     
     static var backgroundVertexBuffer : RawPtr?
@@ -70,12 +70,12 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         world.ship = ship
 
         let MAX_ASTEROIDS = 7 * NUM_ASTEROIDS // Every asteroid can split twice so x + 2x + 4x = 7x
-        let asteroids = createStaticArray(gameState.entityZone, type: AsteroidRef.self, count: MAX_ASTEROIDS)
+        let asteroids = createPool(gameState.entityZone, type: AsteroidRef.self, count: MAX_ASTEROIDS)
         for _ in 0..<NUM_ASTEROIDS {
             let asteroid = createAsteroid(gameMemory, gameState.entityZone, .large)
             randomizeAsteroidLocationInWorld(asteroid, world)
             randomizeAsteroidRotationAndVelocity(asteroid)
-            staticArrayPush(asteroids, asteroid)
+            poolAdd(asteroids, asteroid)
         }
         
         let MAX_LASERS = 12
@@ -146,12 +146,12 @@ func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef) {
     
     // Reset asteroids
     let asteroids = game.world.asteroids
-    clearStaticArray(asteroids)
+    clearPool(asteroids)
     for _ in 0..<NUM_ASTEROIDS {
         let asteroid = createAsteroid(gameMemory, game.entityZone, .large)
         randomizeAsteroidLocationInWorld(asteroid, game.world)
         randomizeAsteroidRotationAndVelocity(asteroid)
-        staticArrayPush(asteroids, asteroid)
+        poolAdd(asteroids, asteroid)
     }
 }
 
@@ -232,9 +232,6 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     // Simulate Asteroids
     for asteroidRef in game.world.asteroids {
         var asteroid = asteroidRef
-        if !asteroid.alive {
-            continue
-        }
         asteroid.rot += asteroid.dRot
         asteroid.rot = normalizeToRange(asteroid.rot, -FLOAT_PI, FLOAT_PI)
         
@@ -276,11 +273,8 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     }
     
     // Collision Detection - Laser to Asteroid
-    asteroidLaserCollision: for asteroidRef in game.world.asteroids {
+    asteroidLaserCollision: for (poolSlot, asteroidRef) in game.world.asteroids.enumeratedWithSlot() {
         var asteroid = asteroidRef
-        if !asteroid.alive {
-            continue
-        }
         
         for laserRef in lasers {
             var laser = laserRef
@@ -290,6 +284,7 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
             }
             
             if torusDistance(game.world.size, laser.p, asteroid.p) < scaleForAsteroidSize(asteroid.size)  {
+                poolRemoveAtIndex(game.world.asteroids, poolSlot)
                 if asteroid.size != .small {
                     var newSize : Asteroid.AsteroidSize = .large
                     if asteroid.size == .large {
@@ -316,13 +311,12 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
                         
                         randomizeAsteroidRotationAndVelocity(newAsteroid)
                         
-                        staticArrayPush(game.world.asteroids, newAsteroid)
+                        poolAdd(game.world.asteroids, newAsteroid)
                     }
                 }
                 
                 
                 laser.alive = false
-                asteroid.alive = false
                 
                 break asteroidLaserCollision
             }
@@ -335,9 +329,6 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     let p3 = ship.p + Vec2(-0.5, -0.7)
     
     for asteroid in game.world.asteroids {
-        if !asteroid.alive {
-            continue
-        }
         if torusDistance(game.world.size, asteroid.p, p1) < scaleForAsteroidSize(asteroid.size)
         || torusDistance(game.world.size, asteroid.p, p2) < scaleForAsteroidSize(asteroid.size)
         || torusDistance(game.world.size, asteroid.p, p3) < scaleForAsteroidSize(asteroid.size) {
@@ -482,9 +473,6 @@ func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
 func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
     let asteroids = game.world.asteroids
     for asteroid in asteroids {
-        if !asteroid.alive {
-            continue
-        }
         
         let scale : Float = scaleForAsteroidSize(asteroid.size)
         

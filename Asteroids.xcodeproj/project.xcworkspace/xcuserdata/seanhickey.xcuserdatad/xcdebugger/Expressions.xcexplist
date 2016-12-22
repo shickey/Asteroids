@@ -3,6 +3,22 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "poolRemoveAtIndex&lt;A&gt; (PoolRef&lt;A&gt;, Int) -&gt; ():DataStructures.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "^pool">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "simulate(GameMemory, GameStateRef, Float, Inputs) -&gt; ():Renderer.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "^game.world.asteroids">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "simulate(GamepadInputs) -&gt; ():Renderer.swift">
          <PersistentStrings>
             <PersistentString

@@ -125,14 +125,12 @@ struct Asteroid : Entity {
 //    var vertexBuffer : RawPtr /*= GETSET =*/
     
     var size : Asteroid.AsteroidSize /*= GETSET =*/
-    var alive : Bool /*= GETSET =*/
 }
 /*= END_REFSTRUCT =*/
 
 func createAsteroid(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ size: Asteroid.AsteroidSize) -> AsteroidRef {
     let asteroidPtr = allocateTypeFromZone(zone, Asteroid.self)
     var asteroid = AsteroidRef(ptr: asteroidPtr)
-    asteroid.alive = true
     asteroid.size = size
     
     if Asteroid.vertexBuffer == nil {

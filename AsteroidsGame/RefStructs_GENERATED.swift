@@ -24,7 +24,6 @@ struct AsteroidRef : EntityRef {
     var ptr : Ptr<Asteroid>
 
     var size : Asteroid.AsteroidSize { get { return ptr.pointee.size } set(val) { ptr.pointee.size = val } }
-    var alive : Bool { get { return ptr.pointee.alive } set(val) { ptr.pointee.alive = val } }
 }
 
 struct LaserRef : EntityRef {
@@ -55,7 +54,7 @@ struct WorldRef : Ref {
 
     var size : Size { get { return ptr.pointee.size } set(val) { ptr.pointee.size = val } }
     var ship : ShipRef { get { return ptr.pointee.ship } set(val) { ptr.pointee.ship = val } }
-    var asteroids : StaticArrayRef<AsteroidRef> { get { return ptr.pointee.asteroids } set(val) { ptr.pointee.asteroids = val } }
+    var asteroids : PoolRef<AsteroidRef> { get { return ptr.pointee.asteroids } set(val) { ptr.pointee.asteroids = val } }
     var lasers : CircularBufferRef<LaserRef> { get { return ptr.pointee.lasers } set(val) { ptr.pointee.lasers = val } }
 }
 
@@ -71,6 +70,15 @@ struct StaticArrayRef<T> : Ref {
     var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
     var maxCount : Int { get { return ptr.pointee.maxCount } set(val) { ptr.pointee.maxCount = val } }
     var count : Int { get { return ptr.pointee.count } set(val) { ptr.pointee.count = val } }
+}
+
+struct PoolRef<T> : Ref {
+    var ptr : Ptr<Pool<T>>
+
+    var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
+    var maxCount : Int { get { return ptr.pointee.maxCount } set(val) { ptr.pointee.maxCount = val } }
+    var count : Int { get { return ptr.pointee.count } set(val) { ptr.pointee.count = val } }
+    var occupiedMask : U64 { get { return ptr.pointee.occupiedMask } set(val) { ptr.pointee.occupiedMask = val } }
 }
 
 struct CircularBufferRef<T> : Ref {
