@@ -8,12 +8,12 @@
 
 import CoreAudio
 
-var sound : StereoAudioSound! = nil
+//var sound : StereoAudioSound! = nil
 
 func audioInit() {
     
     
-    sound = loadWavFile("howsoon.wav")
+//    sound = loadWavFile("howsoon.wav")
     
     let systemObjectId = AudioObjectID(kAudioObjectSystemObject)
     
@@ -44,45 +44,45 @@ var sampleOffset = 0
 
 func samplesRequested(_ inDevice: AudioObjectID, _ inNow: UnsafePointer<AudioTimeStamp>, _ inInputData: UnsafePointer<AudioBufferList>, _ inInputTime: UnsafePointer<AudioTimeStamp>, _ outOutputData: UnsafeMutablePointer<AudioBufferList>, _ inOutputTime: UnsafePointer<AudioTimeStamp>, _ inClientData: UnsafeMutableRawPointer?) -> OSStatus {
     
-    if sampleOffset >= sound.samplesInterleaved.count {
-        return 0
-    }
-    
-    let bufferList = outOutputData.pointee
-    
-    let totalBytesRequested = bufferList.mBuffers.mDataByteSize
-    let totalSamplesRequested = totalBytesRequested / 4 // Each sample is a 32-bit float
-    
-    var max : S16 = 0
-    var min : S16 = 0
-    
-    var outSamples : [F32] = []
-    for i in 0..<totalSamplesRequested {
-        if sampleOffset >= sound.samplesInterleaved.count {
-            break
-        }
-        
-        var sample = sound.samplesInterleaved[sampleOffset]
-        var floatSample = F32(sample) / F32(32760.0)
-        
-        if sample > max {
-            max = sample
-        }
-        else if sample < min {
-            min = sample
-        }
-        
-        if floatSample > 1.0 || floatSample < -1.0 {
-            print("Audio clipping")
-        }
-        
-        outSamples.append(floatSample)
-        
-        sampleOffset += 1
-    }
-    
-    
-    memcpy(bufferList.mBuffers.mData, &outSamples, outSamples.count * 4)
+//    if sampleOffset >= sound.samplesInterleaved.count {
+//        return 0
+//    }
+//    
+//    let bufferList = outOutputData.pointee
+//    
+//    let totalBytesRequested = bufferList.mBuffers.mDataByteSize
+//    let totalSamplesRequested = totalBytesRequested / 4 // Each sample is a 32-bit float
+//    
+//    var max : S16 = 0
+//    var min : S16 = 0
+//    
+//    var outSamples : [F32] = []
+//    for i in 0..<totalSamplesRequested {
+//        if sampleOffset >= sound.samplesInterleaved.count {
+//            break
+//        }
+//        
+//        var sample = sound.samplesInterleaved[sampleOffset]
+//        var floatSample = F32(sample) / F32(32760.0)
+//        
+//        if sample > max {
+//            max = sample
+//        }
+//        else if sample < min {
+//            min = sample
+//        }
+//        
+//        if floatSample > 1.0 || floatSample < -1.0 {
+//            print("Audio clipping")
+//        }
+//        
+//        outSamples.append(floatSample)
+//        
+//        sampleOffset += 1
+//    }
+//    
+//    
+//    memcpy(bufferList.mBuffers.mData, &outSamples, outSamples.count * 4)
     
     return 0
 }

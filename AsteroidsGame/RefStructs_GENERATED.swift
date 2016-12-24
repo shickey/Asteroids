@@ -47,6 +47,7 @@ struct GameStateRef : Ref {
     var world : WorldRef { get { return ptr.pointee.world } set(val) { ptr.pointee.world = val } }
     var zoneZone : MemoryZone { get { return ptr.pointee.zoneZone } set(val) { ptr.pointee.zoneZone = val } }
     var entityZone : MemoryZoneRef { get { return ptr.pointee.entityZone } set(val) { ptr.pointee.entityZone = val } }
+    var assetZone : MemoryZoneRef { get { return ptr.pointee.assetZone } set(val) { ptr.pointee.assetZone = val } }
 }
 
 struct WorldRef : Ref {
@@ -88,6 +89,40 @@ struct CircularBufferRef<T> : Ref {
     var maxCount : Int { get { return ptr.pointee.maxCount } set(val) { ptr.pointee.maxCount = val } }
     var count : Int { get { return ptr.pointee.count } set(val) { ptr.pointee.count = val } }
     var nextIndex : Int { get { return ptr.pointee.nextIndex } set(val) { ptr.pointee.nextIndex = val } }
+}
+
+
+
+/************************
+ * AssetLoader.swift
+ ************************/
+
+struct BitmapRef : Ref {
+    var ptr : Ptr<Bitmap>
+
+    var width : Int { get { return ptr.pointee.width } set(val) { ptr.pointee.width = val } }
+    var height : Int { get { return ptr.pointee.height } set(val) { ptr.pointee.height = val } }
+    var stride : Int { get { return ptr.pointee.stride } set(val) { ptr.pointee.stride = val } }
+    var pixels : U32Ptr { get { return ptr.pointee.pixels } set(val) { ptr.pointee.pixels = val } }
+}
+
+
+
+/************************
+ * BitmapFont.swift
+ ************************/
+
+struct BitmapFontRef : Ref {
+    var ptr : Ptr<BitmapFont>
+
+    var baselineHeight : Float { get { return ptr.pointee.baselineHeight } set(val) { ptr.pointee.baselineHeight = val } }
+    var chars : Ptr<BitmapChar> { get { return ptr.pointee.chars } set(val) { ptr.pointee.chars = val } }
+    var bitmap : BitmapRef { get { return ptr.pointee.bitmap } set(val) { ptr.pointee.bitmap = val } }
+}
+
+struct BitmapCharRef : Ref {
+    var ptr : Ptr<BitmapChar>
+
 }
 
 

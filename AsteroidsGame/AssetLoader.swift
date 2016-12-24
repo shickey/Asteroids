@@ -19,9 +19,6 @@ func assetPath(_ filename: String) -> String {
 }
 
 func dylibPath() -> String {
-    //////////////////////// REMOVE! TEMPORARY HACK!
-    return "/Users/seanhickey/Library/Developer/Xcode/DerivedData/Asteroids-cnsxvmrospeitxfvmnhjaxvyjyto/Build/Products/Debug/libAsteroids.dylib"
-    
     let symbolAddress = unsafeBitCast(FileData.self, to: UnsafeMutableRawPointer.self)
     var info = Dl_info(dli_fname: "", dli_fbase: nil, dli_sname: "", dli_saddr: nil)
     dladdr(symbolAddress, &info)
@@ -96,53 +93,59 @@ struct BitmapHeader {
     var alphaMask     : UInt32
 }
 
-class Bitmap {
-    var width  : Int = 0
-    var height : Int = 0
-    var stride : Int = 0
-    var pixels : U32Ptr! = nil
+/*= BEGIN_REFSTRUCT =*/
+struct Bitmap {
+    var width  : Int /*= GETSET =*/
+    var height : Int /*= GETSET =*/
+    var stride : Int /*= GETSET =*/
+    var pixels : U32Ptr /*= GETSET =*/
 }
+/*= END_REFSTRUCT =*/
 
-func loadBitmap(_ filename: String) -> Bitmap? {
+func loadBitmap(_ assetZone: MemoryZoneRef, _ filename: String) -> BitmapRef {
     let fileOpt = readFile(assetPath(filename))
-    if let file = fileOpt {
-        let typeHeaderPtr = RawPtr(file.bytes).bindMemory(to: BitmapTypeHeader.self, capacity: 1)
+    assert(fileOpt != nil)
+    
+    let file = fileOpt!
+    
+    let typeHeaderPtr = RawPtr(file.bytes).bindMemory(to: BitmapTypeHeader.self, capacity: 1)
+    assert(typeHeaderPtr.pointee.type == 0x4D42) // Bitmap magic number
+    
+    let headerPtr = RawPtr(file.bytes.advanced(by: 2)).bindMemory(to: BitmapHeader.self, capacity: 1)
+    let header = headerPtr.pointee
+    
+    let bitmapBase = allocateTypeFromZone(assetZone, Bitmap.self)
+    var bitmap = BitmapRef(ptr: bitmapBase)
+    bitmap.width = Int(header.width)
+    bitmap.height = Int(header.height)
+    bitmap.stride = Int(header.bitCount) * bitmap.width
+    let pixelPtr = allocateFromZone(assetZone, Int(bitmap.width) * Int(bitmap.height))
+    bitmap.pixels = pixelPtr.bindMemory(to: U32.self, capacity: bitmap.width * bitmap.height)
+    
+    let redShift   = findLeastSignificantSetBit(header.redMask)
+    let greenShift = findLeastSignificantSetBit(header.greenMask)
+    let blueShift  = findLeastSignificantSetBit(header.blueMask)
+    let alphaShift = findLeastSignificantSetBit(header.alphaMask)
+    
+    var filePixelPtr = RawPtr(file.bytes.advanced(by: Int(header.offBits))).bindMemory(to: U32.self, capacity: bitmap.width * bitmap.height)
+    for i in 0..<(bitmap.width * bitmap.height) {
+        let pixel = filePixelPtr[0]
         
-        let headerPtr = RawPtr(file.bytes.advanced(by: 2)).bindMemory(to: BitmapHeader.self, capacity: 1)
-        let header = headerPtr.pointee
+        var r = (pixel & header.redMask)   >> UInt32(redShift)
+        var g = (pixel & header.greenMask) >> UInt32(greenShift)
+        let b = (pixel & header.blueMask)  >> UInt32(blueShift)
+        var a = (pixel & header.alphaMask) >> UInt32(alphaShift)
         
-        let bitmap = Bitmap()
-        bitmap.width = Int(header.width)
-        bitmap.height = Int(header.height)
-        bitmap.stride = Int(header.bitCount) * bitmap.width
-        bitmap.pixels = RawPtr(file.bytes.advanced(by: Int(header.offBits))).bindMemory(to: UInt32.self, capacity: bitmap.width * bitmap.height)
+        a = a << 24
+        r = r << 16
+        g = g << 8
         
-        let redShift   = findLeastSignificantSetBit(header.redMask)
-        let greenShift = findLeastSignificantSetBit(header.greenMask)
-        let blueShift  = findLeastSignificantSetBit(header.blueMask)
-        let alphaShift = findLeastSignificantSetBit(header.alphaMask)
+        bitmap.pixels[i] = a|r|g|b
         
-        var pixelPtr = bitmap.pixels!
-        for _ in 0..<(bitmap.width * bitmap.height) {
-            let pixel = pixelPtr[0]
-            
-            var r = (pixel & header.redMask)   >> UInt32(redShift)
-            var g = (pixel & header.greenMask) >> UInt32(greenShift)
-            let b = (pixel & header.blueMask)  >> UInt32(blueShift)
-            var a = (pixel & header.alphaMask) >> UInt32(alphaShift)
-            
-            a = a << 24
-            r = r << 16
-            g = g << 8
-            
-            pixelPtr[0] = a|r|g|b
-            
-            pixelPtr += 1
-        }
-        
-        return bitmap
+        filePixelPtr += 1
     }
-    return nil
+    
+    return bitmap
 }
 
 func findLeastSignificantSetBit(_ val: UInt32) -> Int {

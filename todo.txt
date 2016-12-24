@@ -23,4 +23,5 @@ PLATFORM
 ======
 - Uniform buffer reuse
 - Instanced rendering
+- Resolution independence
 

@@ -30,6 +30,7 @@ struct GameState {
 
     var zoneZone : MemoryZone /*= GETSET =*/
     var entityZone : MemoryZoneRef /*= GETSET =*/
+    var assetZone : MemoryZoneRef /*= GETSET =*/
 }
 /*= END_REFSTRUCT =*/
 
@@ -48,6 +49,8 @@ struct World {
 
 var restarting = false
 
+var font : BitmapFontRef! = nil
+
 @_silgen_name("updateAndRender")
 public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandHeaderPtr: UnsafeMutablePointer<RenderCommandBufferHeader>) {
     
@@ -58,10 +61,21 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     var gameState = GameStateRef(ptr: gameStatePtr)
     
     if !gameState.gameInitialized {
+
         gameState.zoneZone.base = gameMemory.permanent + MemoryLayout<GameState>.size
         gameState.zoneZone.size = 1.megabytes
         
-        gameState.entityZone = createZone(&gameState.zoneZone, gameState.zoneZone.base + gameState.zoneZone.size, gameMemory.permanentSize - (MemoryLayout<GameState>.size + gameState.zoneZone.size))
+        let entityZoneBase = gameState.zoneZone.base + gameState.zoneZone.size
+        let entityZoneSize = 32.megabytes
+        
+        gameState.entityZone = createZone(&gameState.zoneZone, entityZoneBase, entityZoneSize)
+        
+        let assetZoneBase = entityZoneBase + entityZoneSize
+        let assetZoneSize = gameMemory.permanentSize - (MemoryLayout<GameState>.size + gameState.zoneZone.size + entityZoneSize)
+        
+        gameState.assetZone = createZone(&gameState.zoneZone, assetZoneBase, assetZoneSize)
+        
+        font = loadBitmapFont(gameState.assetZone, "source-sans-pro-16-white-shadow.txt")
         
         let ship = createShip(gameMemory, gameState.entityZone)
         
@@ -133,8 +147,8 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     renderShip(gameState, renderBuffer)
     renderLasers(gameState, renderBuffer)
     
-//    let command = renderText(renderBuffer, "(Hello, world!)?", font)
-//    pushCommand(renderBuffer, command)
+    let command = renderText(renderBuffer, "[Hello world!]?", font)
+    pushCommand(renderBuffer, command)
     
 }
 
@@ -563,8 +577,6 @@ func renderLasers(_ game: GameStateRef, _ renderBuffer: RawPtr) {
         }
         
         var command = RenderCommandTriangles()
-        
-//        command.verts = laser.verts
         command.vertexBuffer = Laser.vertexBuffer
         command.transform = translateTransform(laser.p.x, laser.p.y) * scaleTransform(0.03, 0.03)
         command.count = 8 * 3 * 2

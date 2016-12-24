@@ -10,7 +10,7 @@ import Darwin
 import simd
 
 
-func renderText(_ renderBuffer: RawPtr, _ text: String, _ font: BitmapFont) -> RenderCommandText {
+func renderText(_ renderBuffer: RawPtr, _ text: String, _ font: BitmapFontRef) -> RenderCommandText {
     
     var cursor : Float = 0.0
     
@@ -22,36 +22,37 @@ func renderText(_ renderBuffer: RawPtr, _ text: String, _ font: BitmapFont) -> R
     var indicesPtr = indices
     
     for (i, char) in chars.enumerated() {
-        if let bmpChar = font.chars[Int(char)] {
-            
+        let bmpChar = font.chars[Int(char)]
+//        if let bmpChar = font.chars[Int(char)] {
+        
             // Kerning
-            var kerning : Float = 0.0
-            if i > 0 {
-                let prevChar = chars[chars.index(chars.startIndex, offsetBy: i - 1)]
-                if let kerns = font.kerns[Int(prevChar)] {
-                    for kern in kerns {
-                        if kern.second == Int(char) {
-                            kerning = Float(kern.offset)
-                            break
-                        }
-                    }
-                }
-            }
+//            var kerning : Float = 0.0
+//            if i > 0 {
+//                let prevChar = chars[chars.index(chars.startIndex, offsetBy: i - 1)]
+//                if let kerns = font.kerns[Int(prevChar)] {
+//                    for kern in kerns {
+//                        if kern.second == Int(char) {
+//                            kerning = Float(kern.offset)
+//                            break
+//                        }
+//                    }
+//                }
+//            }
             
             
             
-            let startX = cursor + Float(bmpChar.xOffset) + kerning
-            let endX = startX + Float(bmpChar.width)
-            let startY = Float(font.baselineHeight) - Float(bmpChar.yOffset) - Float(bmpChar.height)
-            let endY = startY + Float(bmpChar.height)
+            let startX = cursor + bmpChar.xOffset// + kerning
+            let endX = startX + bmpChar.width
+            let startY = font.baselineHeight - bmpChar.yOffset - bmpChar.height
+            let endY = startY + bmpChar.height
             
             
             // TODO: Flip bitmaps rows to access them normally?
             let v : [Float] = [
-                startX, startY, 0.0, 1.0, Float(bmpChar.x),                 Float(font.bitmap.height) - Float(bmpChar.y + bmpChar.height), 0.0, 0.0,
-                startX, endY,   0.0, 1.0, Float(bmpChar.x),                 Float(font.bitmap.height) - Float(bmpChar.y),                  0.0, 0.0,
-                endX,   startY, 0.0, 1.0, Float(bmpChar.x + bmpChar.width), Float(font.bitmap.height) - Float(bmpChar.y + bmpChar.height), 0.0, 0.0,
-                endX,   endY,   0.0, 1.0, Float(bmpChar.x + bmpChar.width), Float(font.bitmap.height) - Float(bmpChar.y),                  0.0, 0.0,
+                startX, startY, 0.0, 1.0, bmpChar.x,                 Float(font.bitmap.height) - (bmpChar.y + bmpChar.height), 0.0, 0.0,
+                startX, endY,   0.0, 1.0, bmpChar.x,                 Float(font.bitmap.height) - bmpChar.y,                  0.0, 0.0,
+                endX,   startY, 0.0, 1.0, bmpChar.x + bmpChar.width, Float(font.bitmap.height) - (bmpChar.y + bmpChar.height), 0.0, 0.0,
+                endX,   endY,   0.0, 1.0, bmpChar.x + bmpChar.width, Float(font.bitmap.height) - bmpChar.y,                  0.0, 0.0,
             ]
             
             let idxOffset = UInt16(i * 4)
@@ -63,11 +64,11 @@ func renderText(_ renderBuffer: RawPtr, _ text: String, _ font: BitmapFont) -> R
             vertsPtr += 4 * 8
             indicesPtr += 6
             cursor += Float(bmpChar.advance)
-        }
-        else {
-            print("unknown character found")
-            // TODO: Render blank box or something?
-        }
+//        }
+//        else {
+//            print("unknown character found")
+//            // TODO: Render blank box or something?
+//        }
     }
     
     var command = RenderCommandText()
