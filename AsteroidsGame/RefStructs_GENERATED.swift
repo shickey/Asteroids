@@ -48,7 +48,7 @@ struct GameStateRef : Ref {
     var zoneZone : MemoryZone { get { return ptr.pointee.zoneZone } set(val) { ptr.pointee.zoneZone = val } }
     var entityZone : MemoryZoneRef { get { return ptr.pointee.entityZone } set(val) { ptr.pointee.entityZone = val } }
     var assetZone : MemoryZoneRef { get { return ptr.pointee.assetZone } set(val) { ptr.pointee.assetZone = val } }
-    var vertexBuffers : HashTableRef<EntityTypeId, RawPtr> { get { return ptr.pointee.vertexBuffers } set(val) { ptr.pointee.vertexBuffers = val } }
+    var vertexBuffers : HashTableRef<RenderableId, RawPtr> { get { return ptr.pointee.vertexBuffers } set(val) { ptr.pointee.vertexBuffers = val } }
 }
 
 struct WorldRef : Ref {
@@ -133,14 +133,18 @@ struct BitmapCharRef : Ref {
  ************************/
 
 extension Ship {
-  static var typeId : EntityTypeId = 0x000000004955149C
+  static var renderableId : RenderableId = 0x000000004955149C
 }
 
 extension Asteroid {
-  static var typeId : EntityTypeId = 0x00000000643F999B
+  static var renderableId : RenderableId = 0x00000000643F999B
 }
 
 extension Laser {
-  static var typeId : EntityTypeId = 0x0000000004475CEB
+  static var renderableId : RenderableId = 0x0000000004475CEB
+}
+
+extension World {
+  static var renderableId : RenderableId = 0x000000007A57CE92
 }
 
