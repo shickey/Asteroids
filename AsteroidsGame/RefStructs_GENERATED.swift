@@ -129,22 +129,22 @@ struct BitmapCharRef : Ref {
 
 
 /************************
- * Entity Type Ids
+ * Renderable Type Ids
  ************************/
 
 extension Ship {
-  static var renderableId : RenderableId = 0x000000004955149C
+  static var renderableId : RenderableId = 0x00533DBE4955149C
 }
 
 extension Asteroid {
-  static var renderableId : RenderableId = 0x00000000643F999B
+  static var renderableId : RenderableId = 0x46E7BAE6643F999B
 }
 
 extension Laser {
-  static var renderableId : RenderableId = 0x0000000004475CEB
+  static var renderableId : RenderableId = 0x4B4CEA7204475CEB
 }
 
 extension World {
-  static var renderableId : RenderableId = 0x000000007A57CE92
+  static var renderableId : RenderableId = 0x5632F4B37A57CE92
 }
 

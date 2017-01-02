@@ -105,16 +105,16 @@ if let numInputsStr = env["SCRIPT_INPUT_FILE_COUNT"] {
     
 }
 
-// Generate entity ids
-outputString += "/************************\n * Entity Type Ids\n ************************/\n\n"
+// Generate renderable ids
+outputString += "/************************\n * Renderable Type Ids\n ************************/\n\n"
 for (idx, renderable) in allRenderables.enumerated() {
     // Hash the entity name. This has the nice property of being deterministic between builds
     var hash : UInt64 = 0
     for c in renderable.unicodeScalars {
-        print(c)
+        print(hash)
         hash = UInt64(c.value) &+ (hash << 6) &+ (hash << 16) &- hash // The &+ and &- allow overflow
     }
-    outputString += "extension \(renderable) {\n  static var renderableId : RenderableId = 0x\(String(format:"%016X", hash))\n}\n\n"
+    outputString += "extension \(renderable) {\n  static var renderableId : RenderableId = 0x\(String(format:"%08X", hash >> 32))\(String(format:"%08X", hash))\n}\n\n"
 }
 
 if let outputPath = env["SCRIPT_OUTPUT_FILE_0"] {
