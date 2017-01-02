@@ -128,3 +128,19 @@ struct BitmapCharRef : Ref {
 
 
 
+/************************
+ * Entity Type Ids
+ ************************/
+
+extension Ship {
+  static var typeId : EntityTypeId = 0x000000004955149C
+}
+
+extension Asteroid {
+  static var typeId : EntityTypeId = 0x00000000643F999B
+}
+
+extension Laser {
+  static var typeId : EntityTypeId = 0x0000000004475CEB
+}
+

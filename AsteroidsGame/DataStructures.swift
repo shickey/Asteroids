@@ -315,9 +315,9 @@ protocol HashableKey {
     var hashValue : Int { get } // Must not be 0
 }
 
-extension Int : HashableKey {
+extension EntityTypeId : HashableKey {
     var hashValue : Int {
-        return self
+        return Int(self)
     }
 }
 
