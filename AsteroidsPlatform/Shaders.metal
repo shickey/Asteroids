@@ -61,7 +61,7 @@ vertex Vertex highlight_entity_vertex(device float4x4 *uniforms [[ buffer(0) ]],
 }
 
 fragment half4 highlight_entity_fragment(Vertex v [[ stage_in ]]) {
-    return half4(0.0, 1.0, 0.0, 1.0);
+    return half4(1.0, 0.0, 0.0, 1.0);
 }
 
 

@@ -295,12 +295,6 @@ func render() {
         }
         else if command.type == .triangles {
             let trianglesCommand = commandPtr.bindMemory(to: RenderCommandTriangles.self, capacity: 1).pointee
-            if trianglesCommand.selected {
-                renderEncoder.setRenderPipelineState(pipelineSelected)
-            }
-            else {
-                renderEncoder.setRenderPipelineState(pipelineSimple)
-            }
             
             var instanceTransform = trianglesCommand.transform
             let instanceUniformsBuffer = device.makeBuffer(bytes: &instanceTransform, length: 16 * MemoryLayout<Float>.size, options: [])
@@ -308,7 +302,15 @@ func render() {
             renderEncoder.setVertexBuffer(uniformsBuffer, offset: 0, at: 0)
             renderEncoder.setVertexBuffer(instanceUniformsBuffer, offset: 0, at: 1)
             renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 2)
-            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: trianglesCommand.count / 8)
+            
+            if trianglesCommand.selected {
+                renderEncoder.setRenderPipelineState(pipelineSelected)
+                renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: trianglesCommand.vertexCount)
+            }
+            
+            renderEncoder.setRenderPipelineState(pipelineSimple)
+            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: trianglesCommand.vertexCount)
+            
         }
         else if command.type == .text {
             let textCommand = commandPtr.bindMemory(to: RenderCommandText.self, capacity: 1).pointee
