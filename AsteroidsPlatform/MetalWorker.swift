@@ -16,6 +16,8 @@ var metalLayer : CAMetalLayer! = nil
 
 var pipelineSimple : MTLRenderPipelineState! = nil
 var pipelineTexture : MTLRenderPipelineState! = nil
+var pipelineSelected : MTLRenderPipelineState! = nil
+
 var sampleTex : MTLTexture! = nil
 var displayLink : CVDisplayLink? = nil
 
@@ -47,8 +49,8 @@ func beginRendering(_ hostLayer: CALayer) {
     hostLayer.addSublayer(metalLayer)
     
     let library = device.newDefaultLibrary()!
-    let vertexShader = library.makeFunction(name: "tile_vertex_shader")
-    let fragmentShader = library.makeFunction(name: "tile_fragment_shader")
+    let vertexShader = library.makeFunction(name: "basic_vertex")
+    let fragmentShader = library.makeFunction(name: "passthrough_fragment")
     
     let pipelineDescriptor = MTLRenderPipelineDescriptor()
     pipelineDescriptor.vertexFunction = vertexShader
@@ -72,8 +74,8 @@ func beginRendering(_ hostLayer: CALayer) {
     pipelineSimple = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
     
     // Textured
-    let vertexTextureShader = library.makeFunction(name: "basic_transform_vertex_shader")
-    let fragmentTextureShader = library.makeFunction(name: "textured_shader")
+    let vertexTextureShader = library.makeFunction(name: "basic_transform_vertex")
+    let fragmentTextureShader = library.makeFunction(name: "basic_texture_fragment")
     
     let pipelineTextureDescriptor = MTLRenderPipelineDescriptor()
     pipelineTextureDescriptor.vertexFunction = vertexTextureShader
@@ -89,6 +91,19 @@ func beginRendering(_ hostLayer: CALayer) {
     pipelineTextureDescriptor.sampleCount = 4
     
     pipelineTexture = try! device.makeRenderPipelineState(descriptor: pipelineTextureDescriptor)
+    
+    // Highlighted Entity
+    let vertexSelectedShader = library.makeFunction(name: "highlight_entity_vertex")
+    let fragmentSelectedShader = library.makeFunction(name: "highlight_entity_fragment")
+    
+    let pipelineSelectedDescriptor = MTLRenderPipelineDescriptor()
+    pipelineSelectedDescriptor.vertexFunction = vertexSelectedShader
+    pipelineSelectedDescriptor.fragmentFunction = fragmentSelectedShader
+    pipelineSelectedDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+    pipelineSelectedDescriptor.colorAttachments[0].isBlendingEnabled = true
+    pipelineSelectedDescriptor.sampleCount = 4
+    
+    pipelineSelected = try! device.makeRenderPipelineState(descriptor: pipelineSelectedDescriptor)
     
     loadGameCode()
     
@@ -191,6 +206,7 @@ func drawFrame(_ displayLink: CVDisplayLink,
             var rotate : Float = 0.0
             var thrust = false
             var fire = false
+            var restart = false
 
             let keyboard = controllers.keyboard
             if keyboard.leftArrow && !keyboard.rightArrow {
@@ -207,12 +223,16 @@ func drawFrame(_ displayLink: CVDisplayLink,
             if keyboard.spacebar {
                 fire = true
             }
+            if keyboard.escape {
+                restart = true
+            }
             
             rotate = clamp(rotate, -1.0, 1.0)
             
             inputs.rotate = rotate
             inputs.thrust = thrust
             inputs.fire = fire
+            inputs.restart = restart
         }
         
         // Clear the buffer by reseting the count
@@ -275,7 +295,12 @@ func render() {
         }
         else if command.type == .triangles {
             let trianglesCommand = commandPtr.bindMemory(to: RenderCommandTriangles.self, capacity: 1).pointee
-            renderEncoder.setRenderPipelineState(pipelineSimple)
+            if trianglesCommand.selected {
+                renderEncoder.setRenderPipelineState(pipelineSelected)
+            }
+            else {
+                renderEncoder.setRenderPipelineState(pipelineSimple)
+            }
             
             var instanceTransform = trianglesCommand.transform
             let instanceUniformsBuffer = device.makeBuffer(bytes: &instanceTransform, length: 16 * MemoryLayout<Float>.size, options: [])

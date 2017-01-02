@@ -48,6 +48,7 @@ struct GameStateRef : Ref {
     var zoneZone : MemoryZone { get { return ptr.pointee.zoneZone } set(val) { ptr.pointee.zoneZone = val } }
     var entityZone : MemoryZoneRef { get { return ptr.pointee.entityZone } set(val) { ptr.pointee.entityZone = val } }
     var assetZone : MemoryZoneRef { get { return ptr.pointee.assetZone } set(val) { ptr.pointee.assetZone = val } }
+    var vertexBuffers : HashTableRef<EntityTypeId, RawPtr> { get { return ptr.pointee.vertexBuffers } set(val) { ptr.pointee.vertexBuffers = val } }
 }
 
 struct WorldRef : Ref {

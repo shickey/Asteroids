@@ -17,6 +17,7 @@ GAME
 - Power-ups
 - Better collision detection (separation axis?)
 - Simulation needs to be rewritten to be framerate independent
+- Flying Saucer
 
 
 PLATFORM

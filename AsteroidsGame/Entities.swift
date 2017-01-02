@@ -8,12 +8,16 @@
 
 import Darwin
 
+typealias EntityTypeId = Int
+
 
 /****************************************
  * Entity Base
  ****************************************/
 
 protocol Entity {
+    static var typeId : EntityTypeId { get set }
+    
     // Position and Velocity
     var p  : Vec2 { get set }
     var dP : Vec2 { get set }
@@ -22,13 +26,14 @@ protocol Entity {
     var rot  : Float { get set }
     var dRot : Float { get set }
     
-//    var verts : VertexPointer? { get set }
-    static var vertexBuffer : RawPtr? { get set }
+//    static var vertexBuffer : RawPtr? { get set }
 }
 
 protocol EntityRef : Ref {
     associatedtype T : Entity
     var ptr : Ptr<T> { get set }
+    
+    static var typeId : EntityTypeId { get set }
     
     var p  : Vec2 { get set }
     var dP : Vec2 { get set }
@@ -37,19 +42,18 @@ protocol EntityRef : Ref {
     var rot  : Float { get set }
     var dRot : Float { get set }
     
-//    var verts : VertexPointer? { get set }
-    static var vertexBuffer : RawPtr? { get set }
+//    static var vertexBuffer : RawPtr? { get set }
 }
 
 extension EntityRef {
+    static var typeId : EntityTypeId { get { return T.typeId } set(val) {T.typeId = val} }
     var p  : Vec2 { get { return ptr.pointee.p } set(val) {ptr.pointee.p = val} }
     var dP : Vec2 { get { return ptr.pointee.dP } set(val) {ptr.pointee.dP = val} }
     
     var rot  : Float { get { return ptr.pointee.rot } set(val) {ptr.pointee.rot = val} }
     var dRot : Float { get { return ptr.pointee.dRot } set(val) {ptr.pointee.dRot = val} }
     
-//    var verts : VertexPointer? { get { return ptr.pointee.verts } set(val) {ptr.pointee.verts = val} }
-    static var vertexBuffer : RawPtr? { get { return T.vertexBuffer } set(val) {T.vertexBuffer = val} }
+//    static var vertexBuffer : RawPtr? { get { return T.vertexBuffer } set(val) {T.vertexBuffer = val} }
 }
 
 
@@ -59,32 +63,35 @@ extension EntityRef {
 
 /*= BEGIN_REFSTRUCT =*/
 struct Ship : Entity {
+    static var typeId : EntityTypeId = 1
+    
     // Entity
     var p  : Vec2 = Vec2()
     var dP : Vec2 = Vec2()
     var rot  : Float
     var dRot : Float
-//    var verts : VertexPointer?
-    static var vertexBuffer : RawPtr?
+//    static var vertexBuffer : RawPtr?
     
     // Ship
     var alive : Bool /*= GETSET =*/
 }
 /*= END_REFSTRUCT =*/
 
-func createShip(_ gameMemory: GameMemory, _ zone: MemoryZoneRef) -> ShipRef {
+func createShip(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameStateRef: GameStateRef) -> ShipRef {
+    var gameState = gameStateRef
+    
     let shipPtr = allocateTypeFromZone(zone, Ship.self)
     var ship = ShipRef(ptr: shipPtr)
     
     ship.alive = true
     
-    if Ship.vertexBuffer == nil {
+    if gameState.vertexBuffers[Ship.typeId] == nil {
         let verts : [Float] = [
             0.0,  0.7, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0,
             0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
             -0.5, -0.7, 0.0, 1.0, 0.7, 1.0, 0.4, 1.0,
             ]
-        Ship.vertexBuffer = gameMemory.platformCreateVertexBuffer!(verts)
+        gameState.vertexBuffers[Ship.typeId] = gameMemory.platformCreateVertexBuffer!(verts)
     }
     
     return ship
@@ -107,13 +114,14 @@ func createWorld(_ zone: MemoryZoneRef) -> WorldRef {
 
 /*= BEGIN_REFSTRUCT =*/
 struct Asteroid : Entity {
+    static var typeId : EntityTypeId = 2
+    
     // Entity
     var p  : Vec2 = Vec2()
     var dP : Vec2 = Vec2()
     var rot  : Float
     var dRot : Float
-//    var verts : VertexPointer?
-    static var vertexBuffer : RawPtr?
+//    static var vertexBuffer : RawPtr?
     
     // Asteroid
     enum AsteroidSize {
@@ -122,18 +130,18 @@ struct Asteroid : Entity {
         case large
     }
     
-//    var vertexBuffer : RawPtr /*= GETSET =*/
-    
     var size : Asteroid.AsteroidSize /*= GETSET =*/
 }
 /*= END_REFSTRUCT =*/
 
-func createAsteroid(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ size: Asteroid.AsteroidSize) -> AsteroidRef {
+func createAsteroid(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameStateRef: GameStateRef, _ size: Asteroid.AsteroidSize) -> AsteroidRef {
+    var gameState = gameStateRef
+    
     let asteroidPtr = allocateTypeFromZone(zone, Asteroid.self)
     var asteroid = AsteroidRef(ptr: asteroidPtr)
     asteroid.size = size
     
-    if Asteroid.vertexBuffer == nil {
+    if gameState.vertexBuffers[Asteroid.typeId] == nil {
         let verts : [Float] = [
             0.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
             1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
@@ -159,7 +167,7 @@ func createAsteroid(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ size: Ast
             cos(5.0 * (FLOAT_TWO_PI) / 6.0), sin(5.0 * (FLOAT_TWO_PI) / 6.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
             1.0,  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0
         ]
-        Asteroid.vertexBuffer = gameMemory.platformCreateVertexBuffer!(verts)
+        gameState.vertexBuffers[Asteroid.typeId] = gameMemory.platformCreateVertexBuffer!(verts)
     }
     
     return asteroid
@@ -209,13 +217,14 @@ func randomizeAsteroidRotationAndVelocity(_ asteroidRef: AsteroidRef) {
 
 /*= BEGIN_REFSTRUCT =*/
 struct Laser : Entity {
+    static var typeId : EntityTypeId = 3
+    
     // Entity
     var p  : Vec2 = Vec2()
     var dP : Vec2 = Vec2()
     var rot  : Float
     var dRot : Float
-//    var verts : VertexPointer?
-    static var vertexBuffer : RawPtr? = nil
+//    static var vertexBuffer : RawPtr? = nil
     
     // Laser
     var timeAlive : Float /*= GETSET =*/
@@ -225,7 +234,8 @@ struct Laser : Entity {
 }
 /*= END_REFSTRUCT =*/
 
-func createLaser(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ ship: ShipRef) -> LaserRef {
+func createLaser(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameStateRef: GameStateRef, _ ship: ShipRef) -> LaserRef {
+    var gameState = gameStateRef
     let laserPtr = allocateTypeFromZone(zone, Laser.self)
     var laser = LaserRef(ptr: laserPtr)
     
@@ -238,7 +248,7 @@ func createLaser(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ ship: ShipRe
     laser.lifetime = 1.0
     laser.alive = true
     
-    if Laser.vertexBuffer == nil {
+    if gameState.vertexBuffers[Laser.typeId] == nil {
         let verts : [Float] = [
             1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
             -1.0,  1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
@@ -248,7 +258,7 @@ func createLaser(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ ship: ShipRe
             -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0
         ]
-        Laser.vertexBuffer = gameMemory.platformCreateVertexBuffer!(verts)
+        gameState.vertexBuffers[Laser.typeId] = gameMemory.platformCreateVertexBuffer!(verts)
     }
     
     return laser

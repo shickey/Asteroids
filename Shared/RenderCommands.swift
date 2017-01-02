@@ -61,6 +61,7 @@ public struct RenderCommandTriangles : RenderCommand {
     public var transform = float4x4(1)
     public var vertexBuffer : RawPtr! = nil
     public var count : Int = 0
+    public var selected : Bool = false
 }
 
 public struct RenderCommandText : RenderCommand {

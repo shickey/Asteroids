@@ -302,3 +302,118 @@ struct CircularBufferIterator<T> : IteratorProtocol {
         return element
     }
 }
+
+/**********************************************
+ * HashTable<K, V>
+ *
+ * Simple hash table for storage of fixed sized structures.
+ * TODO: Add ability to remove entries and grow dynamically.
+ *
+ **********************************************/
+
+protocol HashableKey {
+    var hashValue : Int { get } // Must not be 0
+}
+
+extension Int : HashableKey {
+    var hashValue : Int {
+        return self
+    }
+}
+
+struct HashTable<K : HashableKey, V> {
+    var storage : Ptr<HashTableEntry<K, V>>
+    var maxCount : Int
+}
+
+struct HashTableEntry<K : HashableKey, V> {
+    var keyHash : Int // I.e., K.hashValue
+    var value : V
+}
+
+// Just manually create the ref types since the generic-ness is getting a little wacky
+struct HashTableRef<K : HashableKey, V> : Ref {
+    var ptr : Ptr<HashTable<K, V>>
+    
+    var storage : Ptr<HashTableEntry<K, V>> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
+    var maxCount : Int { get { return ptr.pointee.maxCount } set(val) { ptr.pointee.maxCount = val } }
+}
+
+struct HashTableEntryRef<K : HashableKey, V> : Ref {
+    var ptr : Ptr<HashTableEntry<K, V>>
+    
+    var keyHash : Int { get { return ptr.pointee.keyHash } set(val) { ptr.pointee.keyHash = val } }
+    var value : V { get { return ptr.pointee.value } set(val) { ptr.pointee.value = val } }
+}
+
+extension HashTableRef {
+    subscript(key: K) -> V? {
+        get {
+            return hashTableRetrieve(self, key)
+        }
+        set(value) {
+            hashTableInsert(self, key, value!)
+        }
+    }
+}
+
+func createHashTable<K, V>(_ zone: MemoryZoneRef, _ count: Int) -> HashTableRef<K, V> {
+    let bufferBase = allocateTypeFromZone(zone, HashTable<K, V>.self)
+    
+    let totalSize = MemoryLayout<HashTableEntry<K, V>>.stride * count
+    let storageBase = allocateFromZone(zone, totalSize)
+    memset(storageBase, 0, totalSize)
+    
+    var hashTableRef = HashTableRef(ptr: bufferBase)
+    hashTableRef.maxCount = count
+    hashTableRef.storage = storageBase.bindMemory(to: HashTableEntry<K, V>.self, capacity: count)
+    
+    return hashTableRef
+}
+
+func hashTableInsert<K, V>(_ hashTable: HashTableRef<K, V>, _ key: K, _ value: V) {
+    assert(key.hashValue > 0)
+    let hashIndex = key.hashValue % hashTable.maxCount
+    var insertionIndex = hashIndex
+    var newEntry = hashTable.storage[insertionIndex]
+    while newEntry.keyHash != 0 && newEntry.keyHash != key.hashValue { // If the slot is occupied, use linear probing. Also, allow a key's value to be overwritten
+        insertionIndex += 1
+        if insertionIndex == hashTable.maxCount {
+            insertionIndex = 0
+        }
+        assert(insertionIndex != hashIndex, "Attempted to insert into a full hash table.")
+        newEntry = hashTable.storage[insertionIndex]
+    }
+    hashTable.storage[insertionIndex].keyHash = key.hashValue
+    hashTable.storage[insertionIndex].value = value
+}
+
+func hashTableRetrieve<K, V>(_ hashTable: HashTableRef<K, V>, _ key: K) -> V? {
+    assert(key.hashValue > 0)
+    let hashIndex = key.hashValue % hashTable.maxCount
+    var retrievalIndex = hashIndex
+    var possibleEntry = hashTable.storage[retrievalIndex]
+    while possibleEntry.keyHash != key.hashValue {
+        // TODO: This early return only works because we have no way to remove entries from the table.
+        //       Figure out a way to account for this when removal is implemented
+        if possibleEntry.keyHash == 0 {
+            return nil
+        }
+        
+        retrievalIndex += 1
+        if retrievalIndex == hashTable.maxCount {
+            retrievalIndex = 0
+        }
+        if retrievalIndex == hashIndex {
+            return nil
+        }
+        possibleEntry = hashTable.storage[retrievalIndex]
+    }
+    return possibleEntry.value
+}
+
+
+
+
+
+
