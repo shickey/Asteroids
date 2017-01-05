@@ -3,10 +3,10 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "poolRemoveAtIndex&lt;A&gt; (PoolRef&lt;A&gt;, Int) -&gt; ():DataStructures.swift">
+         contextName = "simulate(GamepadInputs) -&gt; ():Renderer.swift">
          <PersistentStrings>
             <PersistentString
-               value = "^pool">
+               value = "ship">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -19,10 +19,19 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "simulate(GamepadInputs) -&gt; ():Renderer.swift">
+         contextName = "updateAndRender:Renderer.swift">
+      </ContextState>
+      <ContextState
+         contextName = "createPool&lt;A&gt; (MemoryZoneRef, A.Type, Int) -&gt; PoolRef&lt;A&gt;:DataStructures.swift">
+      </ContextState>
+      <ContextState
+         contextName = "poolAdd&lt;A&gt; (PoolRef&lt;A&gt;, A) -&gt; ():DataStructures.swift">
+      </ContextState>
+      <ContextState
+         contextName = "poolRemoveAtIndex&lt;A&gt; (PoolRef&lt;A&gt;, Int) -&gt; ():DataStructures.swift">
          <PersistentStrings>
             <PersistentString
-               value = "ship">
+               value = "^pool">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

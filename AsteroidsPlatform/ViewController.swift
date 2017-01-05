@@ -20,7 +20,7 @@ class ViewController: NSViewController {
     }
 
     override func viewDidAppear() {
-        beginRendering(view.layer!)
+        beginRendering(view)
     }
 
 

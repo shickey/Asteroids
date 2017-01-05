@@ -12,6 +12,7 @@ let updateAndRenderSymbolName = "updateAndRender"
 let device = MTLCreateSystemDefaultDevice()!
 let commandQueue = device.makeCommandQueue()
 
+var renderingView : NSView! = nil
 var metalLayer : CAMetalLayer! = nil
 
 var pipelineSimple : MTLRenderPipelineState! = nil
@@ -38,15 +39,17 @@ var updateAndRender : ((RawPtr, RawPtr, RawPtr) -> ())! = nil
 var gameMemory = GameMemory()
 var renderCommandBufferBase : RawPtr! = nil
 
-func beginRendering(_ hostLayer: CALayer) {
+func beginRendering(_ hostView: NSView) {
+    assert(hostView.layer != nil) // Must use a layer-backed view
+    renderingView = hostView
     
     metalLayer = CAMetalLayer()
     metalLayer.device = device
     metalLayer.pixelFormat = .bgra8Unorm
     metalLayer.framebufferOnly = true
-    metalLayer.frame = hostLayer.frame
+    metalLayer.frame = renderingView.frame
     
-    hostLayer.addSublayer(metalLayer)
+    renderingView.layer!.addSublayer(metalLayer)
     
     let library = device.newDefaultLibrary()!
     let vertexShader = library.makeFunction(name: "basic_vertex")
@@ -189,6 +192,9 @@ func drawFrame(_ displayLink: CVDisplayLink,
         var inputs = Inputs()
         inputs.dt = dt
         
+        let mouseLocation = renderingView.window!.mouseLocationOutsideOfEventStream
+        inputs.mouse = Vec2(Float(mouseLocation.x), Float(mouseLocation.y))
+        
         // Gamepads win out over keyboards
         if let gamepad = controllers.gamepads[0] {
             inputs.rotate = gamepad.x
@@ -310,6 +316,20 @@ func render() {
             
             renderEncoder.setRenderPipelineState(pipelineSimple)
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: trianglesCommand.vertexCount)
+            
+        }
+        else if command.type == .polyline {
+            let polylineCommand = commandPtr.bindMemory(to: RenderCommandPolyline.self, capacity: 1).pointee
+            
+            var instanceTransform = polylineCommand.transform
+            let instanceUniformsBuffer = device.makeBuffer(bytes: &instanceTransform, length: 16 * MemoryLayout<Float>.size, options: [])
+            let vertexBuffer = Unmanaged<MTLBuffer>.fromOpaque(polylineCommand.vertexBuffer).takeUnretainedValue()
+            renderEncoder.setVertexBuffer(uniformsBuffer, offset: 0, at: 0)
+            renderEncoder.setVertexBuffer(instanceUniformsBuffer, offset: 0, at: 1)
+            renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 2)
+            
+            renderEncoder.setRenderPipelineState(pipelineSimple)
+            renderEncoder.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: polylineCommand.vertexCount)
             
         }
         else if command.type == .text {

@@ -20,6 +20,7 @@ public enum RenderCommandType {
     case options
     case uniforms
     case triangles
+    case polyline
     case text
 }
 
@@ -62,6 +63,15 @@ public struct RenderCommandTriangles : RenderCommand {
     public var vertexBuffer : RawPtr! = nil
     public var vertexCount : Int = 0
     public var selected : Bool = false
+}
+
+public struct RenderCommandPolyline : RenderCommand {
+    public let type = RenderCommandType.polyline
+    public var next : RawPtr? = nil
+    
+    public var transform = float4x4(1)
+    public var vertexBuffer : RawPtr! = nil
+    public var vertexCount : Int = 0
 }
 
 public struct RenderCommandText : RenderCommand {

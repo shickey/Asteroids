@@ -112,7 +112,7 @@ extension PoolRef {
     }
 }
 
-func createPool<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) -> PoolRef<T> {
+func createPool<T>(_ zone: MemoryZoneRef, _ type: T.Type, _ count: Int) -> PoolRef<T> {
     assert(count < 64) // TODO: Currently bounded by what is representable in the occupiedMask. Figure out how to allocate bigger pools and/or grow dynamically
     let poolBase = allocateTypeFromZone(zone, Pool<T>.self)
     
@@ -128,7 +128,8 @@ func createPool<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) -> PoolRef<T
     return poolRef
 }
 
-func poolAdd<T>(_ poolRef: PoolRef<T>, _ element: T) {
+@discardableResult
+func poolAdd<T>(_ poolRef: PoolRef<T>, _ element: T) -> Int {
     var pool = poolRef
     assert(pool.count < pool.maxCount)
     
@@ -142,6 +143,8 @@ func poolAdd<T>(_ poolRef: PoolRef<T>, _ element: T) {
     
     pool.occupiedMask |= U64(1) << U64(index)
     pool.count += 1
+    
+    return index
 }
 
 func poolRemoveAtIndex<T>(_ poolRef: PoolRef<T>, _ index: Int) {
@@ -277,6 +280,7 @@ func clearCircularBuffer<T>(_ bufferRef: CircularBufferRef<T>) {
     let totalSize = MemoryLayout<T>.stride * buffer.maxCount
     memset(buffer.storage, 0, totalSize)
     buffer.count = 0
+    buffer.nextIndex = 0
 }
 
 extension CircularBufferRef : Sequence {

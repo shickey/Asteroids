@@ -44,6 +44,9 @@ func preprocessStructs(_ source: String) -> (String, [String]) {
                 let inheritedTypeName = structString[result!.rangeAt(4)]
                 if inheritedTypeName != "Renderable" {
                     structRefDecl += inheritedTypeName
+                    if inheritedTypeName == "Entity" {
+                        structRefDecl += ", "
+                    }
                 }
                 
                 if inheritedTypeName == "Entity" || inheritedTypeName == "Renderable" {
@@ -115,6 +118,7 @@ for (idx, renderable) in allRenderables.enumerated() {
         hash = UInt64(c.value) &+ (hash << 6) &+ (hash << 16) &- hash // The &+ and &- allow overflow
     }
     outputString += "extension \(renderable) {\n  static var renderableId : RenderableId = 0x\(String(format:"%08X", hash >> 32))\(String(format:"%08X", hash))\n}\n\n"
+    outputString += "extension \(renderable)Ref {\n  static var renderableId : RenderableId { get { return \(renderable).renderableId } }\n}\n\n"
 }
 
 if let outputPath = env["SCRIPT_OUTPUT_FILE_0"] {

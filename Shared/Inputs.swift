@@ -15,4 +15,5 @@ open class Inputs {
     
     // Debugging Purposes
     var restart : Bool = false
+    var mouse : Vec2 = Vec2()
 }

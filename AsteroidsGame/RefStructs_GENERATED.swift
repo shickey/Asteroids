@@ -14,21 +14,43 @@ protocol Ref {
  * Entities.swift
  ************************/
 
-struct ShipRef : EntityRef {
+struct RenderableRef : Ref {
+    var ptr : Ptr<Renderable>
+
+    var vertexBuffer : RawPtr { get { return ptr.pointee.vertexBuffer } set(val) { ptr.pointee.vertexBuffer = val } }
+    var vertexCount : Int { get { return ptr.pointee.vertexCount } set(val) { ptr.pointee.vertexCount = val } }
+    var boundingBoxBuffer : RawPtr { get { return ptr.pointee.boundingBoxBuffer } set(val) { ptr.pointee.boundingBoxBuffer = val } }
+}
+
+struct EntityBaseRef : Ref {
+    var ptr : Ptr<EntityBase>
+
+    var poolIndex : Int { get { return ptr.pointee.poolIndex } set(val) { ptr.pointee.poolIndex = val } }
+    var p : Vec2 { get { return ptr.pointee.p } set(val) { ptr.pointee.p = val } }
+    var dP : Vec2 { get { return ptr.pointee.dP } set(val) { ptr.pointee.dP = val } }
+    var rot : Float { get { return ptr.pointee.rot } set(val) { ptr.pointee.rot = val } }
+    var dRot : Float { get { return ptr.pointee.dRot } set(val) { ptr.pointee.dRot = val } }
+    var scale : Float { get { return ptr.pointee.scale } set(val) { ptr.pointee.scale = val } }
+}
+
+struct ShipRef : Entity, Ref {
     var ptr : Ptr<Ship>
 
+    var entity : EntityBaseRef { get { return ptr.pointee.entity } set(val) { ptr.pointee.entity = val } }
     var alive : Bool { get { return ptr.pointee.alive } set(val) { ptr.pointee.alive = val } }
 }
 
-struct AsteroidRef : EntityRef {
+struct AsteroidRef : Entity, Ref {
     var ptr : Ptr<Asteroid>
 
+    var entity : EntityBaseRef { get { return ptr.pointee.entity } set(val) { ptr.pointee.entity = val } }
     var size : Asteroid.AsteroidSize { get { return ptr.pointee.size } set(val) { ptr.pointee.size = val } }
 }
 
-struct LaserRef : EntityRef {
+struct LaserRef : Entity, Ref {
     var ptr : Ptr<Laser>
 
+    var entity : EntityBaseRef { get { return ptr.pointee.entity } set(val) { ptr.pointee.entity = val } }
     var timeAlive : Float { get { return ptr.pointee.timeAlive } set(val) { ptr.pointee.timeAlive = val } }
     var lifetime : Float { get { return ptr.pointee.lifetime } set(val) { ptr.pointee.lifetime = val } }
     var alive : Bool { get { return ptr.pointee.alive } set(val) { ptr.pointee.alive = val } }
@@ -48,13 +70,14 @@ struct GameStateRef : Ref {
     var zoneZone : MemoryZone { get { return ptr.pointee.zoneZone } set(val) { ptr.pointee.zoneZone = val } }
     var entityZone : MemoryZoneRef { get { return ptr.pointee.entityZone } set(val) { ptr.pointee.entityZone = val } }
     var assetZone : MemoryZoneRef { get { return ptr.pointee.assetZone } set(val) { ptr.pointee.assetZone = val } }
-    var vertexBuffers : HashTableRef<RenderableId, RawPtr> { get { return ptr.pointee.vertexBuffers } set(val) { ptr.pointee.vertexBuffers = val } }
+    var renderables : HashTableRef<RenderableId, RenderableRef> { get { return ptr.pointee.renderables } set(val) { ptr.pointee.renderables = val } }
 }
 
 struct WorldRef : Ref {
     var ptr : Ptr<World>
 
     var size : Size { get { return ptr.pointee.size } set(val) { ptr.pointee.size = val } }
+    var entities : PoolRef<EntityBaseRef> { get { return ptr.pointee.entities } set(val) { ptr.pointee.entities = val } }
     var ship : ShipRef { get { return ptr.pointee.ship } set(val) { ptr.pointee.ship = val } }
     var asteroids : PoolRef<AsteroidRef> { get { return ptr.pointee.asteroids } set(val) { ptr.pointee.asteroids = val } }
     var lasers : CircularBufferRef<LaserRef> { get { return ptr.pointee.lasers } set(val) { ptr.pointee.lasers = val } }
@@ -136,15 +159,23 @@ extension Ship {
   static var renderableId : RenderableId = 0x00533DBE4955149C
 }
 
+extension ShipRef {
+  static var renderableId : RenderableId { get { return Ship.renderableId } }
+}
+
 extension Asteroid {
   static var renderableId : RenderableId = 0x46E7BAE6643F999B
+}
+
+extension AsteroidRef {
+  static var renderableId : RenderableId { get { return Asteroid.renderableId } }
 }
 
 extension Laser {
   static var renderableId : RenderableId = 0x4B4CEA7204475CEB
 }
 
-extension World {
-  static var renderableId : RenderableId = 0x5632F4B37A57CE92
+extension LaserRef {
+  static var renderableId : RenderableId { get { return Laser.renderableId } }
 }
 
