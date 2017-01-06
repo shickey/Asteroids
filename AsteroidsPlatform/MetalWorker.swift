@@ -195,6 +195,8 @@ func drawFrame(_ displayLink: CVDisplayLink,
         let mouseLocation = renderingView.window!.mouseLocationOutsideOfEventStream
         inputs.mouse = Vec2(Float(mouseLocation.x), Float(mouseLocation.y))
         
+        inputs.mouseClicked = Bool((NSEvent.pressedMouseButtons() & 0x1) == 0x1)
+        
         // Gamepads win out over keyboards
         if let gamepad = controllers.gamepads[0] {
             inputs.rotate = gamepad.x
@@ -242,7 +244,8 @@ func drawFrame(_ displayLink: CVDisplayLink,
         }
         
         // Clear the buffer by reseting the count
-        let header = RenderCommandBufferHeader()
+        var header = RenderCommandBufferHeader()
+        header.windowSize = Size(Float(renderingView.bounds.size.width), Float(renderingView.bounds.size.height))
         renderCommandBufferBase.storeBytes(of: header, as: RenderCommandBufferHeader.self)
         
         updateAndRender(&gameMemory, &inputs, renderCommandBufferBase)

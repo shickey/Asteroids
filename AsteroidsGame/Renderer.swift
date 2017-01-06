@@ -15,6 +15,7 @@ prefix func ^<T : Ref>(_ ref : T) -> T.T {
 }
 
 struct DEBUG_STRUCT {
+    let SIMULATING = true
     let ZOOM_OUT = false
     let BACKGROUND = false
 }
@@ -120,25 +121,17 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     }
     
     // Simulate
-    simulate(gameMemory, gameState, inputs.dt, inputs)
-    
-#if false
-    // Check for entity selection
-    for entity in world.entities {
-        if inputs.mouseClicked && hitTest(inputs.mouse, entity.boundingBox) {
-            debugState.selectedEntity = entity
-            break
-        }
+    if DEBUG.SIMULATING {
+        simulate(gameMemory, gameState, inputs.dt, inputs)
     }
-#endif
     
     // Render
     let renderBuffer = Ptr(renderCommandHeaderPtr)
-
+    let renderBufferHeader = renderCommandHeaderPtr.pointee
+    
     var options = RenderCommandOptions()
     options.fillMode = .fill
     pushCommand(renderBuffer, options)
-    
     
     let scaleFactor = max(gameState.world.size.width, gameState.world.size.height)
     var worldTransform = float4x4(1)
@@ -161,9 +154,23 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     else {
         renderBlackBackground(gameMemory, gameState, renderBuffer)
     }
+    
     renderAsteroids(gameState, renderBuffer)
     renderShip(gameState, renderBuffer)
     renderLasers(gameState, renderBuffer)
+    
+#if DEBUG
+    // Check for entity selection
+    for entity in gameState.world.entities {
+        if hitTest(gameState, inputs.mouse, entity, renderBufferHeader.windowSize) {
+            renderBoundingBoxOnTorus(entity, gameState, renderBuffer)
+        }
+        //        if inputs.mouseClicked && hitTest(gameState, inputs.mouse, entity) {
+        ////            debugState.selectedEntity = entity
+        //            break
+        //        }
+    }
+#endif
     
 //    let command = renderText(renderBuffer, "[Hello world!]?", font)
 //    pushCommand(renderBuffer, command)
@@ -427,17 +434,17 @@ func renderTerribleBackground(_ gameMemory: GameMemory, _ gameRef: GameStateRef,
     pushCommand(renderBuffer, command)
 }
 
-func renderBoundingBoxOnTorus<T : Entity>(_ entity: T, _ game: GameStateRef, _ renderBuffer: RawPtr) {
-    let pX = entity.p.x
-    let pY = entity.p.y
-    let rot = entity.rot
-    let scale = entity.scale
+func renderBoundingBoxOnTorus(_ entityBase: EntityBaseRef, _ game: GameStateRef, _ renderBuffer: RawPtr) {
+    let pX = entityBase.p.x
+    let pY = entityBase.p.y
+    let rot = entityBase.rot
+    let scale = entityBase.scale
     
-    let renderable = game.renderables[T.renderableId]!
+    let renderable = game.renderables[entityBase.renderableId]!
     
     var boundingBoxCommand = RenderCommandPolyline()
     boundingBoxCommand.vertexBuffer = renderable.boundingBoxBuffer
-    boundingBoxCommand.transform = translateTransform(entity.p.x, entity.p.y) * rotateTransform(entity.rot) * scaleTransform(entity.scale, entity.scale)
+    boundingBoxCommand.transform = translateTransform(pX, pY) * rotateTransform(rot) * scaleTransform(scale, scale)
     boundingBoxCommand.vertexCount = 5 // Always 5 vertices for a polyline bounding box
     pushCommand(renderBuffer, boundingBoxCommand)
     
@@ -558,15 +565,12 @@ func renderEntityOnTorus<T : Entity>(_ entity: T, _ game: GameStateRef, _ render
         command.transform = transform
         pushCommand(renderBuffer, command)
     }
-    
-    renderBoundingBoxOnTorus(entity, game, renderBuffer)
 
 }
 
 func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
     let ship = game.world.ship
     if !ship.alive {
-        renderBoundingBoxOnTorus(ship, game, renderBuffer)
         return
     }
     

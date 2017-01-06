@@ -17,8 +17,9 @@ protocol Ref {
 struct RenderableRef : Ref {
     var ptr : Ptr<Renderable>
 
-    var vertexBuffer : RawPtr { get { return ptr.pointee.vertexBuffer } set(val) { ptr.pointee.vertexBuffer = val } }
     var vertexCount : Int { get { return ptr.pointee.vertexCount } set(val) { ptr.pointee.vertexCount = val } }
+    var vertexBuffer : RawPtr { get { return ptr.pointee.vertexBuffer } set(val) { ptr.pointee.vertexBuffer = val } }
+    var boundingBox : Rect { get { return ptr.pointee.boundingBox } set(val) { ptr.pointee.boundingBox = val } }
     var boundingBoxBuffer : RawPtr { get { return ptr.pointee.boundingBoxBuffer } set(val) { ptr.pointee.boundingBoxBuffer = val } }
 }
 
@@ -26,6 +27,7 @@ struct EntityBaseRef : Ref {
     var ptr : Ptr<EntityBase>
 
     var poolIndex : Int { get { return ptr.pointee.poolIndex } set(val) { ptr.pointee.poolIndex = val } }
+    var renderableId : RenderableId { get { return ptr.pointee.renderableId } set(val) { ptr.pointee.renderableId = val } }
     var p : Vec2 { get { return ptr.pointee.p } set(val) { ptr.pointee.p = val } }
     var dP : Vec2 { get { return ptr.pointee.dP } set(val) { ptr.pointee.dP = val } }
     var rot : Float { get { return ptr.pointee.rot } set(val) { ptr.pointee.rot = val } }

@@ -13,6 +13,8 @@ public struct RenderCommandBufferHeader {
     var firstCommandBase : RawPtr? = nil
     var lastCommandBase : RawPtr? = nil
     var lastCommandHead : RawPtr? = nil
+    
+    var windowSize : Size = Size(0, 0)
 }
 
 public enum RenderCommandType {

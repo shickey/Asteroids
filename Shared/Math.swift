@@ -52,12 +52,27 @@ struct Vec2 {
     }
 }
 
+struct Rect {
+    var x : Float = 0.0
+    var y : Float = 0.0
+    var w : Float = 0.0
+    var h : Float = 0.0
+}
+
 func +(lhs: Vec2, rhs: Vec2) -> Vec2 {
     return Vec2(lhs.x + rhs.x, lhs.y + rhs.y)
 }
 
 func +=(lhs: inout Vec2, rhs: Vec2) {
     lhs = lhs + rhs
+}
+
+func -(lhs: Vec2, rhs: Vec2) -> Vec2 {
+    return Vec2(lhs.x - rhs.x, lhs.y - rhs.y)
+}
+
+func -=(lhs: inout Vec2, rhs: Vec2) {
+    lhs = lhs - rhs
 }
 
 func norm(_ vec: Vec2) -> Float {

@@ -7,6 +7,9 @@
 //
 
 import Darwin
+import simd
+
+typealias Transform = float4x4
 
 /****************************************
  * Renderable Struct for Vertex Data
@@ -16,8 +19,10 @@ typealias RenderableId = U64
 
 /*= BEGIN_REFSTRUCT =*/
 struct Renderable {
-    var vertexBuffer : RawPtr /*= GETSET =*/
     var vertexCount : Int /*= GETSET =*/
+    var vertexBuffer : RawPtr /*= GETSET =*/
+    
+    var boundingBox : Rect /*= GETSET =*/
     var boundingBoxBuffer : RawPtr /*= GETSET =*/
 }
 /*= END_REFSTRUCT =*/
@@ -58,6 +63,8 @@ func createRenderable(_ zone: MemoryZoneRef, _ gameState: GameStateRef, _ gameMe
         }
     }
     
+    renderable.boundingBox = Rect(x: minX, y: minY, w: maxX - minX, h: maxY - minY)
+    
     let boundingBoxVerts : [Float] = [
         minX, minY, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
         minX, maxY, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
@@ -80,6 +87,8 @@ protocol Entity {
     
     // Entity Base Properties
     var poolIndex : Int { get set }
+    var renderableId : RenderableId { get }
+    
     var p  : Vec2 { get set }
     var dP : Vec2 { get set }
     var rot  : Float { get set }
@@ -89,6 +98,7 @@ protocol Entity {
 
 extension Entity {
     var poolIndex : Int { get { return entity.poolIndex } set(val) {entity.poolIndex = val} }
+    var renderableId : RenderableId { get { return entity.renderableId } }
     
     var p  : Vec2 { get { return entity.p } set(val) {entity.p = val} }
     var dP : Vec2 { get { return entity.dP } set(val) {entity.dP = val} }
@@ -102,6 +112,7 @@ extension Entity {
 /*= BEGIN_REFSTRUCT =*/
 struct EntityBase {
     var poolIndex : Int /*= GETSET =*/
+    var renderableId : RenderableId /*= GETSET =*/
     
     // Position and Velocity
     var p  : Vec2 /*= GETSET =*/
@@ -115,18 +126,27 @@ struct EntityBase {
 }
 /*= END_REFSTRUCT =*/
 
+/****************************************
+ * Entity Functions
+ ****************************************/
 
-func createEntity(_ zone: MemoryZoneRef, _ gameState: GameStateRef) -> EntityBaseRef {
-    let entityPtr = allocateTypeFromZone(zone, EntityBase.self)
-    var entity = EntityBaseRef(ptr: entityPtr)
-    entity.scale = 1.0
-    let index = poolAdd(gameState.world.entities, entity)
-    entity.poolIndex = index
-    return entity
+func createEntityBase<T : Entity>(_ entityRef: T, _ zone: MemoryZoneRef, _ gameState: GameStateRef) {
+    var entity = entityRef
+    let entityBasePtr = allocateTypeFromZone(zone, EntityBase.self)
+    var entityBase = EntityBaseRef(ptr: entityBasePtr)
+    entityBase.scale = 1.0
+    entityBase.renderableId = T.renderableId
+    let index = poolAdd(gameState.world.entities, entityBase)
+    entityBase.poolIndex = index
+    entity.entity = entityBase
 }
 
 func destroyEntity(_ gameState: GameStateRef, _ entity: Entity) {
     poolRemoveAtIndex(gameState.world.entities, entity.poolIndex)
+}
+
+func entityTransform(_ entity: EntityBaseRef) -> Transform {
+    return translateTransform(entity.p.x, entity.p.y) * rotateTransform(entity.rot) * scaleTransform(entity.scale, entity.scale)
 }
 
 /****************************************
@@ -147,7 +167,7 @@ func createShip(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameStateRef:
     let shipPtr = allocateTypeFromZone(zone, Ship.self)
     var ship = ShipRef(ptr: shipPtr)
     
-    ship.entity = createEntity(zone, gameState)
+    createEntityBase(ship, zone, gameState)
     
     ship.alive = true
     
@@ -199,7 +219,7 @@ func createAsteroid(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameState
     let asteroidPtr = allocateTypeFromZone(zone, Asteroid.self)
     var asteroid = AsteroidRef(ptr: asteroidPtr)
     
-    asteroid.entity = createEntity(zone, gameState)
+    createEntityBase(asteroid, zone, gameState)
     
     asteroid.size = size
     asteroid.entity.scale = scaleForAsteroidSize(size)
@@ -295,7 +315,7 @@ func createLaser(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameStateRef
     let laserPtr = allocateTypeFromZone(zone, Laser.self)
     var laser = LaserRef(ptr: laserPtr)
     
-    laser.entity = createEntity(zone, gameState)
+    createEntityBase(laser, zone, gameState)
     
     laser.p = ship.p
 
