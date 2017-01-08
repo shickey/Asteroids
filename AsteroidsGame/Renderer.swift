@@ -10,8 +10,8 @@ import Darwin
 import simd
 
 prefix operator ^
-prefix func ^<T : Ref>(_ ref : T) -> T.T {
-        return ref.ptr.pointee
+prefix func ^<T>(_ ref : Ref<T>) -> T {
+    return ref.ptr.pointee
 }
 
 struct DEBUG_STRUCT {
@@ -56,6 +56,8 @@ var restarting = false
 
 var font : BitmapFontRef! = nil
 
+var selectedEntity : Entity? = nil
+
 @_silgen_name("updateAndRender")
 public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandHeaderPtr: UnsafeMutablePointer<RenderCommandBufferHeader>) {
     
@@ -63,7 +65,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     let inputs = inputsPtr.pointee
     
     let gameStatePtr : Ptr<GameState> = <-gameMemory.permanent
-    var gameState = GameStateRef(ptr: gameStatePtr)
+    let gameState = GameStateRef(&gameStatePtr.pointee)
     
     if !gameState.gameInitialized {
 
@@ -86,7 +88,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         
         
         
-        var world = createWorld(gameState.entityZone)
+        let world = createWorld(gameState.entityZone)
         gameState.world = world
         
         world.size = Size(20.0, 20.0)
@@ -159,18 +161,53 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     renderShip(gameState, renderBuffer)
     renderLasers(gameState, renderBuffer)
     
-#if DEBUG
+    
+    
     // Check for entity selection
-    for entity in gameState.world.entities {
+    if hitTest(gameState, inputs.mouse, gameState.world.ship, renderBufferHeader.windowSize) {
+        renderBoundingBoxOnTorus(gameState.world.ship, gameState, renderBuffer)
+        if inputs.mouseClicked {
+            selectedEntity = gameState.world.ship
+        }
+    }
+    for entity in gameState.world.asteroids {
         if hitTest(gameState, inputs.mouse, entity, renderBufferHeader.windowSize) {
             renderBoundingBoxOnTorus(entity, gameState, renderBuffer)
+            if inputs.mouseClicked {
+                selectedEntity = entity
+                break
+            }
         }
-        //        if inputs.mouseClicked && hitTest(gameState, inputs.mouse, entity) {
-        ////            debugState.selectedEntity = entity
-        //            break
-        //        }
     }
-#endif
+    
+    for entity in gameState.world.lasers {
+        if hitTest(gameState, inputs.mouse, entity, renderBufferHeader.windowSize) {
+            renderBoundingBoxOnTorus(entity, gameState, renderBuffer)
+            if inputs.mouseClicked {
+                selectedEntity = entity
+                break
+            }
+        }
+    }
+    
+    if let selected = selectedEntity {
+        renderBoundingBoxOnTorus(selected, gameState, renderBuffer)
+        
+        let debugInfoOpt = debugEntity(selected)
+        
+        if let debugInfo = debugInfoOpt {
+            print(debugInfo.name)
+            for (name, value) in debugInfo.entries {
+                print("  \(name): \(value)")
+            }
+            print("\n")
+        }
+        else {
+            print("Unable to print debug info for selected entity")
+        }
+        
+        
+    }
     
 //    let command = renderText(renderBuffer, "[Hello world!]?", font)
 //    pushCommand(renderBuffer, command)
@@ -179,20 +216,18 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
 }
 
 func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef) {
-    var game = gameState
-    
-    let asteroids = game.world.asteroids
-    clearPool(game.world.asteroids)
-    clearPool(game.world.entities)
-    clearCircularBuffer(game.world.lasers)
+    let asteroids = gameState.world.asteroids
+    clearPool(gameState.world.asteroids)
+    clearPool(gameState.world.entities)
+    clearCircularBuffer(gameState.world.lasers)
     
     // Reset ship
-    game.world.ship = createShip(gameMemory, game.entityZone, game)
+    gameState.world.ship = createShip(gameMemory, gameState.entityZone, gameState)
     
     // Reset asteroids
     for _ in 0..<NUM_ASTEROIDS {
-        let asteroid = createAsteroid(gameMemory, game.entityZone, game, .large)
-        randomizeAsteroidLocationInWorld(asteroid, game.world)
+        let asteroid = createAsteroid(gameMemory, gameState.entityZone, gameState, .large)
+        randomizeAsteroidLocationInWorld(asteroid, gameState.world)
         randomizeAsteroidRotationAndVelocity(asteroid)
         poolAdd(asteroids, asteroid)
     }
@@ -247,10 +282,10 @@ var laserTimeToWait : Float = 0.0
 
 
 // TODO: Rewrite completely. Needs to be dependent on dt otherwise will change speed depending on framerate
-func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inputs: Inputs) {
+func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, _ inputs: Inputs) {
     
-    var world = game.world
-    var ship = game.world.ship
+    let world = gameState.world
+    var ship = gameState.world.ship
     
     // Simulate Ship
     rotateEntity(ship, 0.1 * inputs.rotate)
@@ -273,7 +308,7 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     
     
     // Simulate Asteroids
-    for asteroidRef in game.world.asteroids {
+    for asteroidRef in gameState.world.asteroids {
         var asteroid = asteroidRef
         asteroid.rot += asteroid.dRot
         asteroid.rot = normalizeToRange(asteroid.rot, -FLOAT_PI, FLOAT_PI)
@@ -285,7 +320,7 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     }
     
     // Simulate Lasers
-    let lasers = game.world.lasers
+    let lasers = gameState.world.lasers
     laserTimeToWait -= dt
     if laserTimeToWait < 0.0 {
         laserTimeToWait = 0.0
@@ -293,14 +328,14 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     
     if inputs.fire && ship.alive {
         if laserTimeToWait <= 0.0 {
-            let laser = createLaser(gameMemory, game.entityZone, game, game.world.ship)
+            let laser = createLaser(gameMemory, gameState.entityZone, gameState, gameState.world.ship)
             circularBufferPush(lasers, laser)
             laserTimeToWait = 0.25
         }
     }
     
     
-    for laserRef in game.world.lasers {
+    for laserRef in gameState.world.lasers {
         var laser = laserRef
         if !laser.alive {
             continue
@@ -308,7 +343,7 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
         laser.timeAlive += dt
         if laser.timeAlive > laser.lifetime {
             laser.alive = false
-            destroyEntity(game, laser)
+            destroyEntity(gameState, laser)
             continue
         }
         laser.p += laser.dP
@@ -317,18 +352,14 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     }
     
     // Collision Detection - Laser to Asteroid
-    asteroidLaserCollision: for (poolSlot, asteroidRef) in game.world.asteroids.enumeratedWithSlot() {
-        var asteroid = asteroidRef
-        
-        for laserRef in lasers {
-            var laser = laserRef
-            
+    asteroidLaserCollision: for (poolSlot, asteroid) in gameState.world.asteroids.enumeratedWithSlot() {
+        for laser in lasers {
             if !laser.alive {
                 continue
             }
             
-            if torusDistance(game.world.size, laser.p, asteroid.p) < scaleForAsteroidSize(asteroid.size)  {
-                poolRemoveAtIndex(game.world.asteroids, poolSlot)
+            if torusDistance(gameState.world.size, laser.p, asteroid.p) < scaleForAsteroidSize(asteroid.size)  {
+                poolRemoveAtIndex(gameState.world.asteroids, poolSlot)
                 if asteroid.size != .small {
                     var newSize : Asteroid.AsteroidSize = .large
                     if asteroid.size == .large {
@@ -339,7 +370,7 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
                     }
                     
                     for _ in 0..<2 {
-                        var newAsteroid = createAsteroid(gameMemory, game.entityZone, game, newSize)
+                        var newAsteroid = createAsteroid(gameMemory, gameState.entityZone, gameState, newSize)
                         newAsteroid.p = asteroid.p
                         
                         var velocityScale : Float = 0.02
@@ -355,10 +386,10 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
                         
                         randomizeAsteroidRotationAndVelocity(newAsteroid)
                         
-                        poolAdd(game.world.asteroids, newAsteroid)
+                        poolAdd(gameState.world.asteroids, newAsteroid)
                     }
                 }
-                destroyEntity(game, asteroid)
+                destroyEntity(gameState, asteroid)
                 
                 laser.alive = false
                 
@@ -372,10 +403,10 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     let p2 = ship.p + Vec2(0.5, -0.7)
     let p3 = ship.p + Vec2(-0.5, -0.7)
     
-    for asteroid in game.world.asteroids {
-        if torusDistance(game.world.size, asteroid.p, p1) < scaleForAsteroidSize(asteroid.size)
-        || torusDistance(game.world.size, asteroid.p, p2) < scaleForAsteroidSize(asteroid.size)
-        || torusDistance(game.world.size, asteroid.p, p3) < scaleForAsteroidSize(asteroid.size) {
+    for asteroid in gameState.world.asteroids {
+        if torusDistance(gameState.world.size, asteroid.p, p1) < scaleForAsteroidSize(asteroid.size)
+        || torusDistance(gameState.world.size, asteroid.p, p2) < scaleForAsteroidSize(asteroid.size)
+        || torusDistance(gameState.world.size, asteroid.p, p3) < scaleForAsteroidSize(asteroid.size) {
             ship.alive = false
             break
         }
@@ -383,12 +414,11 @@ func simulate(_ gameMemory: GameMemory, _ game: GameStateRef, _ dt: Float, _ inp
     
 }
 
-func renderBlackBackground(_ gameMemory: GameMemory, _ gameRef: GameStateRef, _ renderBuffer: RawPtr) {
-    var game = gameRef
+func renderBlackBackground(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ renderBuffer: RawPtr) {
     var command = RenderCommandTriangles()
     
-    let world = game.world
-    if game.renderables[World.renderableId] == nil || firstRun == true {
+    let world = gameState.world
+    if gameState.renderables[World.renderableId] == nil || firstRun == true {
         let verts = [
             -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
              (world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
@@ -397,24 +427,23 @@ func renderBlackBackground(_ gameMemory: GameMemory, _ gameRef: GameStateRef, _ 
              (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
             -(world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
         ]
-        let renderable = createRenderable(game.entityZone, game, gameMemory, verts)
-        game.renderables[World.renderableId] = renderable
+        let renderable = createRenderable(gameState.entityZone, gameState, gameMemory, verts)
+        gameState.renderables[World.renderableId] = renderable
     }
     
     
-    command.vertexBuffer = game.renderables[World.renderableId]!.vertexBuffer
+    command.vertexBuffer = gameState.renderables[World.renderableId]!.vertexBuffer
     command.transform = float4x4(1)
     command.vertexCount = 6
     
     pushCommand(renderBuffer, command)
 }
 
-func renderTerribleBackground(_ gameMemory: GameMemory, _ gameRef: GameStateRef, _ renderBuffer: RawPtr) {
-    var game = gameRef
+func renderTerribleBackground(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ renderBuffer: RawPtr) {
     var command = RenderCommandTriangles()
     
-    let world = game.world
-    if game.renderables[World.renderableId] == nil || firstRun == true {
+    let world = gameState.world
+    if gameState.renderables[World.renderableId] == nil || firstRun == true {
         let verts = [
             -(world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 1.0, 0.0, 0.0, 1.0,
              (world.size.w / 2.0),  (world.size.height / 2.0), 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
@@ -423,24 +452,24 @@ func renderTerribleBackground(_ gameMemory: GameMemory, _ gameRef: GameStateRef,
              (world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
             -(world.size.w / 2.0), -(world.size.height / 2.0), 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
         ]
-        let renderable = createRenderable(game.entityZone, game, gameMemory, verts)
-        game.renderables[World.renderableId] = renderable
+        let renderable = createRenderable(gameState.entityZone, gameState, gameMemory, verts)
+        gameState.renderables[World.renderableId] = renderable
     }
     
-    command.vertexBuffer = game.renderables[World.renderableId]!.vertexBuffer
+    command.vertexBuffer = gameState.renderables[World.renderableId]!.vertexBuffer
     command.transform = float4x4(1)
     command.vertexCount = 6
     
     pushCommand(renderBuffer, command)
 }
 
-func renderBoundingBoxOnTorus(_ entityBase: EntityBaseRef, _ game: GameStateRef, _ renderBuffer: RawPtr) {
-    let pX = entityBase.p.x
-    let pY = entityBase.p.y
-    let rot = entityBase.rot
-    let scale = entityBase.scale
+func renderBoundingBoxOnTorus(_ entity: Entity, _ gameState: GameStateRef, _ renderBuffer: RawPtr) {
+    let pX = entity.p.x
+    let pY = entity.p.y
+    let rot = entity.rot
+    let scale = entity.scale
     
-    let renderable = game.renderables[entityBase.renderableId]!
+    let renderable = gameState.renderables[entity.renderableId]!
     
     var boundingBoxCommand = RenderCommandPolyline()
     boundingBoxCommand.vertexBuffer = renderable.boundingBoxBuffer
@@ -448,8 +477,8 @@ func renderBoundingBoxOnTorus(_ entityBase: EntityBaseRef, _ game: GameStateRef,
     boundingBoxCommand.vertexCount = 5 // Always 5 vertices for a polyline bounding box
     pushCommand(renderBuffer, boundingBoxCommand)
     
-    let worldWidth = game.world.size.width
-    let worldHeight = game.world.size.height
+    let worldWidth = gameState.world.size.width
+    let worldHeight = gameState.world.size.height
     
     if pX < (-worldWidth / 2.0) + scale {
         
@@ -501,13 +530,13 @@ func renderBoundingBoxOnTorus(_ entityBase: EntityBaseRef, _ game: GameStateRef,
     
 }
 
-func renderEntityOnTorus<T : Entity>(_ entity: T, _ game: GameStateRef, _ renderBuffer: RawPtr) {
+func renderEntityOnTorus(_ entity: Entity, _ gameState: GameStateRef, _ renderBuffer: RawPtr) {
     let pX = entity.p.x
     let pY = entity.p.y
     let rot = entity.rot
     let scale = entity.scale
     
-    let renderable = game.renderables[T.renderableId]!
+    let renderable = gameState.renderables[entity.base.renderableId]!
     
     var command = RenderCommandTriangles()
     command.vertexBuffer = renderable.vertexBuffer
@@ -515,8 +544,8 @@ func renderEntityOnTorus<T : Entity>(_ entity: T, _ game: GameStateRef, _ render
     command.vertexCount = renderable.vertexCount
     pushCommand(renderBuffer, command)
     
-    let worldWidth = game.world.size.width
-    let worldHeight = game.world.size.height
+    let worldWidth = gameState.world.size.width
+    let worldHeight = gameState.world.size.height
     
     if pX < (-worldWidth / 2.0) + scale {
         
@@ -568,31 +597,31 @@ func renderEntityOnTorus<T : Entity>(_ entity: T, _ game: GameStateRef, _ render
 
 }
 
-func renderShip(_ game: GameStateRef, _ renderBuffer: RawPtr) {
-    let ship = game.world.ship
+func renderShip(_ gameState: GameStateRef, _ renderBuffer: RawPtr) {
+    let ship = gameState.world.ship
     if !ship.alive {
         return
     }
     
-    renderEntityOnTorus(ship, game, renderBuffer)
+    renderEntityOnTorus(ship, gameState, renderBuffer)
 }
 
-func renderAsteroids(_ game: GameStateRef, _ renderBuffer: RawPtr) {
-    let asteroids = game.world.asteroids
+func renderAsteroids(_ gameState: GameStateRef, _ renderBuffer: RawPtr) {
+    let asteroids = gameState.world.asteroids
     for asteroid in asteroids {
-        renderEntityOnTorus(asteroid, game, renderBuffer)
+        renderEntityOnTorus(asteroid, gameState, renderBuffer)
     }
 }
 
-func renderLasers(_ game: GameStateRef, _ renderBuffer: RawPtr) {
-    let lasers = game.world.lasers
+func renderLasers(_ gameState: GameStateRef, _ renderBuffer: RawPtr) {
+    let lasers = gameState.world.lasers
     for laser in lasers {
         if !laser.alive {
             continue
         }
         
         var command = RenderCommandTriangles()
-        command.vertexBuffer = game.renderables[Laser.renderableId]!.vertexBuffer
+        command.vertexBuffer = gameState.renderables[Laser.renderableId]!.vertexBuffer
         command.transform = translateTransform(laser.p.x, laser.p.y) * scaleTransform(0.03, 0.03)
         command.vertexCount = 3 * 2
         

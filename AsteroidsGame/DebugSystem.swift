@@ -8,7 +8,7 @@
 
 import simd
 
-func hitTest(_ gameState: GameStateRef, _ location : Vec2, _ entity: EntityBaseRef, _ windowSize: Size) -> Bool {
+func hitTest(_ gameState: GameStateRef, _ location : Vec2, _ entity: Entity, _ windowSize: Size) -> Bool {
     let renderable = gameState.renderables[entity.renderableId]!
     
     if location.x < 0 || location.y < 0 || location.x > windowSize.w || location.y > windowSize.h {
@@ -99,6 +99,50 @@ func intersect(_ line1Start: Vec2, _ line1End: Vec2, _ line2Start: Vec2, _ line2
     
     return false
 }
+
+
+
+struct DebugStruct {
+    typealias Entry = (String, Any)
+    var name : String
+    var entries : [Entry]
+}
+
+func debugEntity(_ entity: Entity) -> DebugStruct? {
+    if let ship = entity as? ShipRef {
+        return debugEntityRef(ship)
+    }
+    else if let asteroid = entity as? AsteroidRef {
+        return debugEntityRef(asteroid)
+    }
+    else if let laser = entity as? LaserRef {
+        return debugEntityRef(laser)
+    }
+    else {
+        print("Unsupported Entity")
+    }
+    return nil
+}
+
+func debugEntityRef<T>(_ entity: EntityRef<T>) -> DebugStruct {
+    var entries : [DebugStruct.Entry] = []
+    
+    let entityBaseMirror = Mirror(reflecting: ^entity.base)
+    for (nameOpt, value) in entityBaseMirror.children {
+        if let name = nameOpt {
+            entries.append((name, value))
+        }
+    }
+    
+    let entityMirror = Mirror(reflecting: ^entity)
+    for (nameOpt, value) in entityMirror.children {
+        if let name = nameOpt {
+            entries.append((name, value))
+        }
+    }
+    return DebugStruct(name: String(describing: entityMirror.subjectType), entries: entries)
+}
+
 
 
 

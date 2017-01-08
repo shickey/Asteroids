@@ -115,7 +115,7 @@ func loadBitmap(_ assetZone: MemoryZoneRef, _ filename: String) -> BitmapRef {
     let header = headerPtr.pointee
     
     let bitmapBase = allocateTypeFromZone(assetZone, Bitmap.self)
-    var bitmap = BitmapRef(ptr: bitmapBase)
+    let bitmap = BitmapRef(&bitmapBase.pointee)
     bitmap.width = Int(header.width)
     bitmap.height = Int(header.height)
     bitmap.stride = Int(header.bitCount) * bitmap.width

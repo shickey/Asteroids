@@ -38,7 +38,7 @@ func createStaticArray<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) -> St
     let totalSize = MemoryLayout<T>.stride * count
     let storageBase = allocateFromZone(zone, totalSize)
     
-    var arrayRef = StaticArrayRef(ptr: arrayBase)
+    let arrayRef = StaticArrayRef(&arrayBase.pointee)
     arrayRef.maxCount = count
     arrayRef.count = 0
     arrayRef.storage = storageBase.bindMemory(to: T.self, capacity: count)
@@ -46,15 +46,13 @@ func createStaticArray<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) -> St
     return arrayRef
 }
 
-func staticArrayPush<T>(_ arrayRef: StaticArrayRef<T>, _ element: T) {
-    var array = arrayRef
+func staticArrayPush<T>(_ array: StaticArrayRef<T>, _ element: T) {
     assert(array.count < array.maxCount)
     array.storage[array.count] = element
     array.count += 1
 }
 
-func clearStaticArray<T>(_ arrayRef: StaticArrayRef<T>) {
-    var array = arrayRef
+func clearStaticArray<T>(_ array: StaticArrayRef<T>) {
     let totalSize = MemoryLayout<T>.stride * array.maxCount
     memset(array.storage, 0, totalSize)
     array.count = 0
@@ -119,7 +117,7 @@ func createPool<T>(_ zone: MemoryZoneRef, _ type: T.Type, _ count: Int) -> PoolR
     let totalSize = MemoryLayout<T>.stride * count
     let storageBase = allocateFromZone(zone, totalSize)
     
-    var poolRef = PoolRef(ptr: poolBase)
+    let poolRef = PoolRef(&poolBase.pointee)
     poolRef.maxCount = count
     poolRef.count = 0
     poolRef.storage = storageBase.bindMemory(to: T.self, capacity: count)
@@ -129,8 +127,7 @@ func createPool<T>(_ zone: MemoryZoneRef, _ type: T.Type, _ count: Int) -> PoolR
 }
 
 @discardableResult
-func poolAdd<T>(_ poolRef: PoolRef<T>, _ element: T) -> Int {
-    var pool = poolRef
+func poolAdd<T>(_ pool: PoolRef<T>, _ element: T) -> Int {
     assert(pool.count < pool.maxCount)
     
     // Find open slot
@@ -147,8 +144,7 @@ func poolAdd<T>(_ poolRef: PoolRef<T>, _ element: T) -> Int {
     return index
 }
 
-func poolRemoveAtIndex<T>(_ poolRef: PoolRef<T>, _ index: Int) {
-    var pool = poolRef
+func poolRemoveAtIndex<T>(_ pool: PoolRef<T>, _ index: Int) {
     assert(index < pool.maxCount)
     assert((pool.occupiedMask & U64(1) << U64(index)) != 0)
     
@@ -157,8 +153,7 @@ func poolRemoveAtIndex<T>(_ poolRef: PoolRef<T>, _ index: Int) {
     pool.count -= 1
 }
 
-func clearPool<T>(_ poolRef: PoolRef<T>) {
-    var pool = poolRef
+func clearPool<T>(_ pool: PoolRef<T>) {
     let totalSize = MemoryLayout<T>.stride * pool.maxCount
     memset(pool.storage, 0, totalSize)
     pool.count = 0
@@ -255,7 +250,7 @@ func createCircularBuffer<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) ->
     let totalSize = MemoryLayout<T>.stride * count
     let storageBase = allocateFromZone(zone, totalSize)
     
-    var bufferRef = CircularBufferRef(ptr: bufferBase)
+    let bufferRef = CircularBufferRef(&bufferBase.pointee)
     bufferRef.maxCount = count
     bufferRef.nextIndex = 0
     bufferRef.storage = storageBase.bindMemory(to: T.self, capacity: count)
@@ -263,8 +258,7 @@ func createCircularBuffer<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) ->
     return bufferRef
 }
 
-func circularBufferPush<T>(_ bufferRef: CircularBufferRef<T>, _ element: T) {
-    var buffer = bufferRef
+func circularBufferPush<T>(_ buffer: CircularBufferRef<T>, _ element: T) {
     buffer.storage[buffer.nextIndex] = element
     buffer.nextIndex += 1
     if buffer.nextIndex == buffer.maxCount {
@@ -275,8 +269,7 @@ func circularBufferPush<T>(_ bufferRef: CircularBufferRef<T>, _ element: T) {
     }
 }
 
-func clearCircularBuffer<T>(_ bufferRef: CircularBufferRef<T>) {
-    var buffer = bufferRef
+func clearCircularBuffer<T>(_ buffer: CircularBufferRef<T>) {
     let totalSize = MemoryLayout<T>.stride * buffer.maxCount
     memset(buffer.storage, 0, totalSize)
     buffer.count = 0
@@ -336,16 +329,12 @@ struct HashTableEntry<K : HashableKey, V> {
 }
 
 // Just manually create the ref types since the generic-ness is getting a little wacky
-struct HashTableRef<K : HashableKey, V> : Ref {
-    var ptr : Ptr<HashTable<K, V>>
-    
+class HashTableRef<K : HashableKey, V> : Ref<HashTable<K, V>> {
     var storage : Ptr<HashTableEntry<K, V>> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
     var maxCount : Int { get { return ptr.pointee.maxCount } set(val) { ptr.pointee.maxCount = val } }
 }
 
-struct HashTableEntryRef<K : HashableKey, V> : Ref {
-    var ptr : Ptr<HashTableEntry<K, V>>
-    
+class HashTableEntryRef<K : HashableKey, V> : Ref<HashTableEntry<K, V>> {
     var keyHash : Int { get { return ptr.pointee.keyHash } set(val) { ptr.pointee.keyHash = val } }
     var value : V { get { return ptr.pointee.value } set(val) { ptr.pointee.value = val } }
 }
@@ -368,7 +357,7 @@ func createHashTable<K, V>(_ zone: MemoryZoneRef, _ count: Int) -> HashTableRef<
     let storageBase = allocateFromZone(zone, totalSize)
     memset(storageBase, 0, totalSize)
     
-    var hashTableRef = HashTableRef(ptr: bufferBase)
+    let hashTableRef = HashTableRef(&bufferBase.pointee)
     hashTableRef.maxCount = count
     hashTableRef.storage = storageBase.bindMemory(to: HashTableEntry<K, V>.self, capacity: count)
     

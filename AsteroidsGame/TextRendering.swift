@@ -10,7 +10,7 @@ import Darwin
 import simd
 
 
-func renderText(_ renderBuffer: RawPtr, _ text: String, _ font: BitmapFontRef) -> RenderCommandText {
+func renderText(_ text: String, _ windowSize: Size, _ windowLocation: Vec2, _ font: BitmapFontRef, _ renderBuffer: RawPtr) -> RenderCommandText {
     
     var cursor : Float = 0.0
     
@@ -43,7 +43,7 @@ func renderText(_ renderBuffer: RawPtr, _ text: String, _ font: BitmapFontRef) -
             
             let startX = cursor + bmpChar.xOffset// + kerning
             let endX = startX + bmpChar.width
-            let startY = font.baselineHeight - bmpChar.yOffset - bmpChar.height
+            let startY = font.baseline - bmpChar.yOffset - bmpChar.height
             let endY = startY + bmpChar.height
             
             
@@ -72,7 +72,7 @@ func renderText(_ renderBuffer: RawPtr, _ text: String, _ font: BitmapFontRef) -
     }
     
     var command = RenderCommandText()
-    command.transform = translateTransform(-0.5, 0.0) * scaleTransform(1.0 / 250.0, 1.0 / 250.0)
+    command.transform = translateTransform(-1.0, 0.8) * scaleTransform(1.0 / (windowSize.w / 2.0), 1.0 / (windowSize.h / 2.0))
     command.quadCount = chars.count
     command.quads = verts
     command.indices = indices

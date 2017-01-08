@@ -8,7 +8,8 @@
 
 /*= BEGIN_REFSTRUCT =*/
 struct BitmapFont {
-    var baselineHeight : Float /*= GETSET =*/
+    var baseline : Float /*= GETSET =*/
+    var lineHeight : Float /*= GETSET =*/
     var chars : Ptr<BitmapChar> /*= GETSET =*/
 //    var kerns : Dictionary<Int, Array<BitmapKerning>>
     var bitmap : BitmapRef /*= GETSET =*/
@@ -36,7 +37,7 @@ struct BitmapChar {
 func loadBitmapFont(_ assetZone: MemoryZoneRef, _ fontName: String) -> BitmapFontRef {
     
     let bitmapFontPtr = allocateTypeFromZone(assetZone, BitmapFont.self)
-    var bitmapFont = BitmapFontRef(ptr: bitmapFontPtr)
+    let bitmapFont = BitmapFontRef(&bitmapFontPtr.pointee)
     
 //    bitmapFont.chars = [:]
 //    bitmapFont.kerns = [:]
@@ -54,7 +55,10 @@ func loadBitmapFont(_ assetZone: MemoryZoneRef, _ fontName: String) -> BitmapFon
             for token in tokens {
                 let pairs = token.split(separator: "=")
                 if String(pairs[0]) == "base" {
-                    bitmapFont.baselineHeight = Float(String(pairs[1]))!
+                    bitmapFont.baseline = Float(String(pairs[1]))!
+                }
+                else if String(pairs[0]) == "lineHeight" {
+                    bitmapFont.lineHeight = Float(String(pairs[1]))!
                 }
             }
         }
