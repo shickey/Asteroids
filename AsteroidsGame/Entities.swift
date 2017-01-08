@@ -9,8 +9,6 @@
 import Darwin
 import simd
 
-typealias Transform = float4x4
-
 /****************************************
  * Renderable Struct for Vertex Data
  ****************************************/

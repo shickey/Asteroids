@@ -136,7 +136,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     pushCommand(renderBuffer, options)
     
     let scaleFactor = max(gameState.world.size.width, gameState.world.size.height)
-    var worldTransform = float4x4(1)
+    var worldTransform = Transform(1)
     worldTransform[0][0] = 1.0 / (scaleFactor / 2.0)
     worldTransform[1][1] = 1.0 / (scaleFactor / 2.0)
     
@@ -164,6 +164,8 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     
     
     // Check for entity selection
+    // TODO: Can we generalize this and just iterate over all the entity bases?
+    //       If so, how do we access the "derived" entity from its base?
     if hitTest(gameState, inputs.mouse, gameState.world.ship, renderBufferHeader.windowSize) {
         renderBoundingBoxOnTorus(gameState.world.ship, gameState, renderBuffer)
         if inputs.mouseClicked {
@@ -433,7 +435,7 @@ func renderBlackBackground(_ gameMemory: GameMemory, _ gameState: GameStateRef, 
     
     
     command.vertexBuffer = gameState.renderables[World.renderableId]!.vertexBuffer
-    command.transform = float4x4(1)
+    command.transform = Transform(1)
     command.vertexCount = 6
     
     pushCommand(renderBuffer, command)
@@ -457,7 +459,7 @@ func renderTerribleBackground(_ gameMemory: GameMemory, _ gameState: GameStateRe
     }
     
     command.vertexBuffer = gameState.renderables[World.renderableId]!.vertexBuffer
-    command.transform = float4x4(1)
+    command.transform = Transform(1)
     command.vertexCount = 6
     
     pushCommand(renderBuffer, command)
@@ -628,27 +630,4 @@ func renderLasers(_ gameState: GameStateRef, _ renderBuffer: RawPtr) {
         pushCommand(renderBuffer, command)
     }
     
-}
-
-func translateTransform(_ x: Float, _ y: Float) -> float4x4 {
-    var transform = float4x4(1)
-    transform[3][0] = x
-    transform[3][1] = y
-    return transform
-}
-
-func rotateTransform(_ theta: Float) -> float4x4 {
-    var transform = float4x4(1)
-    transform[0][0] =  cos(theta)
-    transform[0][1] = -sin(theta)
-    transform[1][0] =  sin(theta)
-    transform[1][1] =  cos(theta)
-    return transform
-}
-
-func scaleTransform(_ x: Float, _ y: Float) -> float4x4 {
-    var transform = float4x4(1)
-    transform[0][0] = x
-    transform[1][1] = y
-    return transform
 }

@@ -1,5 +1,5 @@
 //
-//  Types.swift
+//  Math.swift
 //  Asteroids
 //
 //  Created by Sean Hickey on 12/5/16.
@@ -7,50 +7,12 @@
 //
 
 import Darwin
+import simd
+
+typealias Transform = float4x4
 
 let FLOAT_PI = Float(M_PI)
 let FLOAT_TWO_PI = Float(2.0 * M_PI)
-
-struct Size {
-    var width : Float = 1.0
-    var height : Float = 1.0
-    
-    var w : Float {
-        get {
-            return width
-        }
-        set(newW) {
-            width = newW
-        }
-    }
-    
-    var h : Float {
-        get {
-            return height
-        }
-        set(newH) {
-            height = newH
-        }
-    }
-    
-    init(_ newWidth: Float, _ newHeight: Float) {
-        width = newWidth
-        height = newHeight
-    }
-}
-
-
-struct Vec2 {
-    var x : Float = 0.0
-    var y : Float = 0.0
-    
-    init() {}
-    
-    init(_ newX: Float, _ newY: Float) {
-        x = newX
-        y = newY
-    }
-}
 
 struct Rect {
     var x : Float = 0.0
@@ -84,12 +46,6 @@ func normalize(_ vec: Vec2) -> Vec2 {
     return Vec2(vec.x / len, vec.y / len)
 }
 
-func normalizeToRange(_ val: Float, _ min: Float, _ max: Float) -> Float {
-    let width = max - min
-    let offset = val - min
-    
-    return (offset - (floorf(offset / width) * width)) + min
-}
 
 func distanceSquared(_ v1: Vec2, _ v2: Vec2) -> Float {
     return ((v1.x - v2.x) * (v1.x - v2.x)) + ((v1.y - v2.y) * (v1.y - v2.y))
@@ -111,14 +67,36 @@ func torusDistance(_ torusSize: Size, _ v1: Vec2, _ v2: Vec2) -> Float {
     return sqrt((xDiff * xDiff) + (yDiff * yDiff))
 }
 
-func clamp(_ val: Float, _ min: Float, _ max: Float) -> Float {
-    if val < min {
-        return min
-    }
-    if val > max {
-        return max
-    }
-    return val
+func normalizeToRange(_ val: Float, _ min: Float, _ max: Float) -> Float {
+    let width = max - min
+    let offset = val - min
+    
+    return (offset - (floorf(offset / width) * width)) + min
+}
+
+// Transforms
+
+func translateTransform(_ x: Float, _ y: Float) -> Transform {
+    var transform = Transform(1)
+    transform[3][0] = x
+    transform[3][1] = y
+    return transform
+}
+
+func rotateTransform(_ theta: Float) -> Transform {
+    var transform = Transform(1)
+    transform[0][0] =  cos(theta)
+    transform[0][1] = -sin(theta)
+    transform[1][0] =  sin(theta)
+    transform[1][1] =  cos(theta)
+    return transform
+}
+
+func scaleTransform(_ x: Float, _ y: Float) -> Transform {
+    var transform = Transform(1)
+    transform[0][0] = x
+    transform[1][1] = y
+    return transform
 }
 
 // Random Numbers

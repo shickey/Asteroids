@@ -25,7 +25,6 @@
 		A34774041E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A34774021E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt */; };
 		A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3547DF81DFB768800E74BEF /* TextRendering.swift */; };
 		A381F0421E1DDE5500620AFE /* DebugSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A381F0401E1DDDB800620AFE /* DebugSystem.swift */; };
-		A3A18E221DFFA736002F27DE /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA6B1DF6410200F79B91 /* Math.swift */; };
 		A3A18E251E01010E002F27DE /* MemoryZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A18E231E010055002F27DE /* MemoryZone.swift */; };
 		A3AC95401E05C6CA00837A67 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3AC953F1E05C6CA00837A67 /* Audio.swift */; };
 		A3AC95431E05FBDB00837A67 /* bad-font.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95411E05FBDB00837A67 /* bad-font.bmp */; };
@@ -33,6 +32,8 @@
 		A3AC95471E05FBE500837A67 /* arial-24-white.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95451E05FBE400837A67 /* arial-24-white.bmp */; };
 		A3AC95481E05FBE500837A67 /* arial-24-white.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95461E05FBE500837A67 /* arial-24-white.txt */; };
 		A3AC954A1E05FBEF00837A67 /* howsoon.wav in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95491E05FBEF00837A67 /* howsoon.wav */; };
+		A3BC207A1E22EB8E00677DA8 /* SharedMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BC20791E22EB8E00677DA8 /* SharedMath.swift */; };
+		A3BC207B1E22EB8E00677DA8 /* SharedMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BC20791E22EB8E00677DA8 /* SharedMath.swift */; };
 		A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA361DF630D600F79B91 /* AppDelegate.swift */; };
 		A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA381DF630D600F79B91 /* ViewController.swift */; };
 		A3BEEA3B1DF630D600F79B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */; };
@@ -107,6 +108,7 @@
 		A3AC95451E05FBE400837A67 /* arial-24-white.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "arial-24-white.bmp"; sourceTree = "<group>"; };
 		A3AC95461E05FBE500837A67 /* arial-24-white.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "arial-24-white.txt"; sourceTree = "<group>"; };
 		A3AC95491E05FBEF00837A67 /* howsoon.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = howsoon.wav; sourceTree = "<group>"; };
+		A3BC20791E22EB8E00677DA8 /* SharedMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharedMath.swift; sourceTree = "<group>"; };
 		A3BEEA331DF630D600F79B91 /* Asteroids.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroids.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3BEEA361DF630D600F79B91 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3BEEA381DF630D600F79B91 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -119,7 +121,7 @@
 		A3BEEA621DF6338700F79B91 /* libAsteroids-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "libAsteroids-Bridging-Header.h"; sourceTree = "<group>"; };
 		A3BEEA631DF6338700F79B91 /* RenderCommands.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderCommands.swift; sourceTree = "<group>"; };
 		A3BEEA651DF633D800F79B91 /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
-		A3BEEA6B1DF6410200F79B91 /* Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		A3BEEA6B1DF6410200F79B91 /* Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Math.swift; path = ../Shared/Math.swift; sourceTree = "<group>"; };
 		A3C694471E1AA22400946AA3 /* GenerateRefStructs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateRefStructs.swift; sourceTree = "<group>"; };
 		A3E7897F1E01D13800050B19 /* DataStructures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStructures.swift; sourceTree = "<group>"; };
 		A3EACC8E1DF783D200025665 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
@@ -194,6 +196,7 @@
 			children = (
 				A3BEEA621DF6338700F79B91 /* libAsteroids-Bridging-Header.h */,
 				A3EACC9B1DF9098600025665 /* Assets */,
+				A3BEEA6B1DF6410200F79B91 /* Math.swift */,
 				A3EACCA31DF90A4F00025665 /* AssetLoader.swift */,
 				A3EACC921DF7B47400025665 /* BitmapFont.swift */,
 				A3BEEA651DF633D800F79B91 /* Renderer.swift */,
@@ -235,8 +238,8 @@
 				A3BEEA631DF6338700F79B91 /* RenderCommands.swift */,
 				A3EACCA91DF917DF00025665 /* Inputs.swift */,
 				A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */,
-				A3BEEA6B1DF6410200F79B91 /* Math.swift */,
 				A3F2566F1E08D50900360BBE /* Platform.swift */,
+				A3BC20791E22EB8E00677DA8 /* SharedMath.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -378,6 +381,7 @@
 				A3EACCAF1DFA392C00025665 /* TypesAndUtils.swift in Sources */,
 				A3AC95401E05C6CA00837A67 /* Audio.swift in Sources */,
 				A3F256701E08D50900360BBE /* Platform.swift in Sources */,
+				A3BC207A1E22EB8E00677DA8 /* SharedMath.swift in Sources */,
 				A3BEEA6F1DF6616800F79B91 /* RenderCommands.swift in Sources */,
 				A3BEEA481DF6315900F79B91 /* Shaders.metal in Sources */,
 				A3BEEA461DF6312100F79B91 /* MetalWorker.swift in Sources */,
@@ -385,7 +389,6 @@
 				A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */,
 				A3EACCAA1DF917DF00025665 /* Inputs.swift in Sources */,
 				A3EACC981DF7CAE600025665 /* AsteroidsApplication.swift in Sources */,
-				A3A18E221DFFA736002F27DE /* Math.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,6 +409,7 @@
 				A3BEEA641DF6338700F79B91 /* RenderCommands.swift in Sources */,
 				A3BEEA6C1DF6410200F79B91 /* Math.swift in Sources */,
 				A3EACCAB1DF917F000025665 /* Inputs.swift in Sources */,
+				A3BC207B1E22EB8E00677DA8 /* SharedMath.swift in Sources */,
 				A3EACCAE1DFA392500025665 /* TypesAndUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
