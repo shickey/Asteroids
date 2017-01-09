@@ -76,6 +76,12 @@ func windowToWorldCoordinates(_ location: Vec2, _ windowSize: Size, _ gameState:
     return result
 }
 
+func windowToNormalizedCoordinates(_ location: Vec2, _ windowSize: Size) -> Vec2 {
+    let x = (location.x / (windowSize.width / 2.0)) - 1.0
+    let y = (location.y / (windowSize.height / 2.0)) - 1.0
+    return Vec2(x, y)
+}
+
 func intersect(_ line1Start: Vec2, _ line1End: Vec2, _ line2Start: Vec2, _ line2End: Vec2) -> Bool {
     
     func simple2dCross(_ a: Vec2, _ b: Vec2) -> Float {

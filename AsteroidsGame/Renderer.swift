@@ -83,7 +83,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         
         gameState.assetZone = createZone(&gameState.zoneZone, assetZoneBase, assetZoneSize)
         
-        font = loadBitmapFont(gameState.assetZone, "source-sans-pro-16-white-shadow.txt")
+        font = loadBitmapFont(gameState.assetZone, "arial-12-white-blackstroke.txt")
         
         gameState.renderables = createHashTable(gameState.entityZone, 37) // Use a large-enough prime to help hash distribution
         
@@ -199,14 +199,16 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         let debugInfoOpt = debugEntity(selected)
         
         if let debugInfo = debugInfoOpt {
-            print(debugInfo.name)
+            var textOrigin = Vec2(0.0, renderBufferHeader.windowSize.h - font.lineHeight)
+            pushCommand(renderBuffer, renderText(debugInfo.name, renderBufferHeader.windowSize, textOrigin, font, renderBuffer))
+            textOrigin.y -= font.lineHeight
             for (name, value) in debugInfo.entries {
-                print("  \(name): \(value)")
+                pushCommand(renderBuffer, renderText("  \(name): \(value)", renderBufferHeader.windowSize, textOrigin, font, renderBuffer))
+                textOrigin.y -= font.lineHeight
             }
-            print("\n")
         }
         else {
-            print("Unable to print debug info for selected entity")
+            print("Unable to get debug info for selected entity")
         }
         
         

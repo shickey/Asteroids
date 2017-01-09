@@ -34,6 +34,8 @@
 		A3AC954A1E05FBEF00837A67 /* howsoon.wav in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3AC95491E05FBEF00837A67 /* howsoon.wav */; };
 		A3BC207A1E22EB8E00677DA8 /* SharedMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BC20791E22EB8E00677DA8 /* SharedMath.swift */; };
 		A3BC207B1E22EB8E00677DA8 /* SharedMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BC20791E22EB8E00677DA8 /* SharedMath.swift */; };
+		A3BC20801E232A9D00677DA8 /* arial-12-white-blackstroke.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3BC207E1E232A9D00677DA8 /* arial-12-white-blackstroke.bmp */; };
+		A3BC20811E232A9D00677DA8 /* arial-12-white-blackstroke.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3BC207F1E232A9D00677DA8 /* arial-12-white-blackstroke.txt */; };
 		A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA361DF630D600F79B91 /* AppDelegate.swift */; };
 		A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA381DF630D600F79B91 /* ViewController.swift */; };
 		A3BEEA3B1DF630D600F79B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */; };
@@ -86,7 +88,9 @@
 				A3AC95471E05FBE500837A67 /* arial-24-white.bmp in CopyFiles */,
 				A3AC95431E05FBDB00837A67 /* bad-font.bmp in CopyFiles */,
 				A3AC95481E05FBE500837A67 /* arial-24-white.txt in CopyFiles */,
+				A3BC20811E232A9D00677DA8 /* arial-12-white-blackstroke.txt in CopyFiles */,
 				A3AC954A1E05FBEF00837A67 /* howsoon.wav in CopyFiles */,
+				A3BC20801E232A9D00677DA8 /* arial-12-white-blackstroke.bmp in CopyFiles */,
 				A34774031E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp in CopyFiles */,
 				A34774041E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt in CopyFiles */,
 				A3AC95441E05FBDB00837A67 /* bad-font.txt in CopyFiles */,
@@ -109,6 +113,8 @@
 		A3AC95461E05FBE500837A67 /* arial-24-white.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "arial-24-white.txt"; sourceTree = "<group>"; };
 		A3AC95491E05FBEF00837A67 /* howsoon.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = howsoon.wav; sourceTree = "<group>"; };
 		A3BC20791E22EB8E00677DA8 /* SharedMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharedMath.swift; sourceTree = "<group>"; };
+		A3BC207E1E232A9D00677DA8 /* arial-12-white-blackstroke.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "arial-12-white-blackstroke.bmp"; sourceTree = "<group>"; };
+		A3BC207F1E232A9D00677DA8 /* arial-12-white-blackstroke.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "arial-12-white-blackstroke.txt"; sourceTree = "<group>"; };
 		A3BEEA331DF630D600F79B91 /* Asteroids.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroids.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3BEEA361DF630D600F79B91 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3BEEA381DF630D600F79B91 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -221,6 +227,8 @@
 		A3EACC9B1DF9098600025665 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				A3BC207E1E232A9D00677DA8 /* arial-12-white-blackstroke.bmp */,
+				A3BC207F1E232A9D00677DA8 /* arial-12-white-blackstroke.txt */,
 				A34774011E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp */,
 				A34774021E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt */,
 				A3AC95411E05FBDB00837A67 /* bad-font.bmp */,

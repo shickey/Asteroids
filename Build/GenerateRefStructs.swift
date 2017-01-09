@@ -18,7 +18,7 @@ func preprocessStructs(_ source: String) -> (String, [String]) {
     
     let structRegex = try! NSRegularExpression(pattern: "/\\*=\\s*BEGIN_REFSTRUCT\\s*=\\*/\\s*(.*?)\\s*/\\*=\\s*END_REFSTRUCT\\s*=\\*/", options: [.dotMatchesLineSeparators, .allowCommentsAndWhitespace])
     
-    let declRegex = try! NSRegularExpression(pattern: "^\\s*struct\\s+([\\w]+)(<[\\w\\s\\,&:]*>)?\\s*(:\\s*(\\w+)\\s*)?\\{\\s*$", options: [.anchorsMatchLines, .useUnixLineSeparators])
+    let declRegex = try! NSRegularExpression(pattern: "^\\s*struct\\s+([\\w]+)(<[\\w\\s\\,&:]*>)?\\s*(:\\s*(\\w+\\?*)\\s*)?\\{\\s*$", options: [.anchorsMatchLines, .useUnixLineSeparators])
     
     let propertyRegex = try! NSRegularExpression(pattern: "^(\\s+var\\s+(\\w+)\\s+:\\s+([\\w<>\\,\\s\\.]+))\\s+/\\*=\\s(GETSET|GET|SET)\\s=\\*/$", options: [.anchorsMatchLines, .useUnixLineSeparators])
     

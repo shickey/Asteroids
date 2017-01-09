@@ -72,7 +72,8 @@ func renderText(_ text: String, _ windowSize: Size, _ windowLocation: Vec2, _ fo
     }
     
     var command = RenderCommandText()
-    command.transform = translateTransform(-1.0, 0.8) * scaleTransform(1.0 / (windowSize.w / 2.0), 1.0 / (windowSize.h / 2.0))
+    let normalizedLocation = windowToNormalizedCoordinates(windowLocation, windowSize)
+    command.transform = translateTransform(normalizedLocation.x, normalizedLocation.y) * scaleTransform(1.0 / (windowSize.w / 2.0), 1.0 / (windowSize.h / 2.0))
     command.quadCount = chars.count
     command.quads = verts
     command.indices = indices
