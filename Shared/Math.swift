@@ -37,6 +37,14 @@ func -=(lhs: inout Vec2, rhs: Vec2) {
     lhs = lhs - rhs
 }
 
+func *(lhs: Vec2, rhs: Float) -> Vec2 {
+    return Vec2(rhs * lhs.x, rhs * lhs.y)
+}
+
+func *(lhs: Float, rhs: Vec2) -> Vec2 {
+    return Vec2(lhs * rhs.x, lhs * rhs.y)
+}
+
 func norm(_ vec: Vec2) -> Float {
     return sqrt((vec.x * vec.x) + (vec.y * vec.y))
 }

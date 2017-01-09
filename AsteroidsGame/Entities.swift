@@ -283,13 +283,13 @@ func randomizeAsteroidLocationInWorld(_ asteroidRef: AsteroidRef, _ world: World
 func randomizeAsteroidRotationAndVelocity(_ asteroidRef: AsteroidRef) {
     var asteroid = asteroidRef
     asteroid.rot = randomInRange(-FLOAT_PI, FLOAT_PI)
-    asteroid.dRot = randomInRange(FLOAT_TWO_PI / 900.0, FLOAT_TWO_PI / 700.0)
-    var velocityScale : Float = 0.02
+    asteroid.dRot = randomInRange(FLOAT_TWO_PI / 15.0, FLOAT_TWO_PI / 10.0)
+    var velocityScale : Float = 1.2
     if asteroid.size == .medium {
-        velocityScale = 0.04
+        velocityScale = 2.4
     }
     else if asteroid.size == .small {
-        velocityScale = 0.06
+        velocityScale = 3.6
     }
     asteroid.dP.x = randomInRange(-velocityScale, velocityScale)
     asteroid.dP.y = randomInRange(-velocityScale, velocityScale)
@@ -320,8 +320,8 @@ func createLaser(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameState: G
     
     laser.p = ship.p
 
-    laser.dP.x = sin(ship.rot) * 0.2
-    laser.dP.y = cos(ship.rot) * 0.2
+    laser.dP.x = sin(ship.rot) * 12.0
+    laser.dP.y = cos(ship.rot) * 12.0
     
     laser.timeAlive = 0.0
     laser.lifetime = 1.0

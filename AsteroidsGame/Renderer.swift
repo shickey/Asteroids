@@ -18,6 +18,7 @@ struct DEBUG_STRUCT {
     let SIMULATING = true
     let ZOOM_OUT = false
     let BACKGROUND = false
+    var SIMULATION_TIME_FACTOR = 1.0
 }
 
 let DEBUG = DEBUG_STRUCT()
@@ -282,28 +283,30 @@ func pushCommand<T: RenderCommand>(_ renderBufferBase: RawPtr, _ command: T) {
 
 var laserTimeToWait : Float = 0.0
 
-
-// TODO: Rewrite completely. Needs to be dependent on dt otherwise will change speed depending on framerate
 func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, _ inputs: Inputs) {
+
+#if DEBUG
+    let dt = dt * Float(DEBUG.SIMULATION_TIME_FACTOR)
+#endif
     
     let world = gameState.world
     var ship = gameState.world.ship
     
     // Simulate Ship
-    rotateEntity(ship, 0.1 * inputs.rotate)
+    rotateEntity(ship, 6.0 * inputs.rotate * dt)
     
-    let accelFactor : Float = 0.005
-    let maxVelocity : Float = 0.5
+    let accelFactor : Float = 10.0
+    let maxVelocity : Float = 60.0
     
     if inputs.thrust {
-        ship.dP.x += sin(ship.rot) * accelFactor
-        ship.dP.y += cos(ship.rot) * accelFactor
+        ship.dP.x += sin(ship.rot) * accelFactor * dt
+        ship.dP.y += cos(ship.rot) * accelFactor * dt
         
         ship.dP.x = clamp(ship.dP.x, -maxVelocity, maxVelocity)
         ship.dP.y = clamp(ship.dP.y, -maxVelocity, maxVelocity)
     }
     
-    ship.p += ship.dP
+    ship.p += ship.dP * dt
     
     ship.p.x = normalizeToRange(ship.p.x, -world.size.w / 2.0, world.size.w / 2.0)
     ship.p.y = normalizeToRange(ship.p.y, -world.size.h / 2.0, world.size.h / 2.0)
@@ -312,10 +315,10 @@ func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, 
     // Simulate Asteroids
     for asteroidRef in gameState.world.asteroids {
         var asteroid = asteroidRef
-        asteroid.rot += asteroid.dRot
+        asteroid.rot += asteroid.dRot * dt
         asteroid.rot = normalizeToRange(asteroid.rot, -FLOAT_PI, FLOAT_PI)
         
-        asteroid.p += asteroid.dP
+        asteroid.p += asteroid.dP * dt
         
         asteroid.p.x = normalizeToRange(asteroid.p.x, -world.size.w / 2.0, world.size.w / 2.0)
         asteroid.p.y = normalizeToRange(asteroid.p.y, -world.size.h / 2.0, world.size.h / 2.0)
@@ -348,7 +351,7 @@ func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, 
             destroyEntity(gameState, laser)
             continue
         }
-        laser.p += laser.dP
+        laser.p += laser.dP * dt
         laser.p.x = normalizeToRange(laser.p.x, -world.size.w / 2.0, world.size.w / 2.0)
         laser.p.y = normalizeToRange(laser.p.y, -world.size.h / 2.0, world.size.h / 2.0)
     }
@@ -374,17 +377,6 @@ func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, 
                     for _ in 0..<2 {
                         var newAsteroid = createAsteroid(gameMemory, gameState.entityZone, gameState, newSize)
                         newAsteroid.p = asteroid.p
-                        
-                        var velocityScale : Float = 0.02
-                        if newSize == .medium {
-                            velocityScale = 0.04
-                        }
-                        else if newSize == .small {
-                            velocityScale = 0.06
-                        }
-                        
-                        newAsteroid.dP.x = randomInRange(-velocityScale, velocityScale)
-                        newAsteroid.dP.y = randomInRange(-velocityScale, velocityScale)
                         
                         randomizeAsteroidRotationAndVelocity(newAsteroid)
                         
