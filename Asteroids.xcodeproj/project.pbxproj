@@ -36,6 +36,7 @@
 		A3BC207B1E22EB8E00677DA8 /* SharedMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BC20791E22EB8E00677DA8 /* SharedMath.swift */; };
 		A3BC20801E232A9D00677DA8 /* arial-12-white-blackstroke.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3BC207E1E232A9D00677DA8 /* arial-12-white-blackstroke.bmp */; };
 		A3BC20811E232A9D00677DA8 /* arial-12-white-blackstroke.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3BC207F1E232A9D00677DA8 /* arial-12-white-blackstroke.txt */; };
+		A3BC20831E23321B00677DA8 /* BucketArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BC20821E23321B00677DA8 /* BucketArray.swift */; };
 		A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA361DF630D600F79B91 /* AppDelegate.swift */; };
 		A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA381DF630D600F79B91 /* ViewController.swift */; };
 		A3BEEA3B1DF630D600F79B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */; };
@@ -115,6 +116,7 @@
 		A3BC20791E22EB8E00677DA8 /* SharedMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharedMath.swift; sourceTree = "<group>"; };
 		A3BC207E1E232A9D00677DA8 /* arial-12-white-blackstroke.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "arial-12-white-blackstroke.bmp"; sourceTree = "<group>"; };
 		A3BC207F1E232A9D00677DA8 /* arial-12-white-blackstroke.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "arial-12-white-blackstroke.txt"; sourceTree = "<group>"; };
+		A3BC20821E23321B00677DA8 /* BucketArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BucketArray.swift; sourceTree = "<group>"; };
 		A3BEEA331DF630D600F79B91 /* Asteroids.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asteroids.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3BEEA361DF630D600F79B91 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3BEEA381DF630D600F79B91 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 				A3EACC8E1DF783D200025665 /* Entities.swift */,
 				A3A18E231E010055002F27DE /* MemoryZone.swift */,
 				A3E7897F1E01D13800050B19 /* DataStructures.swift */,
+				A3BC20821E23321B00677DA8 /* BucketArray.swift */,
 				A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */,
 				A381F0401E1DDDB800620AFE /* DebugSystem.swift */,
 			);
@@ -369,6 +372,7 @@
 				"$(SRCROOT)/AsteroidsGame/DataStructures.swift",
 				"$(SRCROOT)/AsteroidsGame/AssetLoader.swift",
 				"$(SRCROOT)/AsteroidsGame/BitmapFont.swift",
+				"$(SRCROOT)/AsteroidsGame/BucketArray.swift",
 			);
 			outputPaths = (
 				"$(SRCROOT)/AsteroidsGame/RefStructs_GENERATED.swift",
@@ -413,6 +417,7 @@
 				A3FB171A1E039247006DB7F6 /* RefStructs_GENERATED.swift in Sources */,
 				A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */,
 				A3E789811E01D1D200050B19 /* DataStructures.swift in Sources */,
+				A3BC20831E23321B00677DA8 /* BucketArray.swift in Sources */,
 				A3EACCA51DF90E6400025665 /* AssetLoader.swift in Sources */,
 				A3BEEA641DF6338700F79B91 /* RenderCommands.swift in Sources */,
 				A3BEEA6C1DF6410200F79B91 /* Math.swift in Sources */,

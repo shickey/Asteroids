@@ -23,7 +23,7 @@ class RenderableRef : Ref<Renderable> {
 }
 
 class EntityBaseRef : Ref<EntityBase> {
-    var poolIndex : Int { get { return ptr.pointee.poolIndex } set(val) { ptr.pointee.poolIndex = val } }
+    var locator : BucketLocator { get { return ptr.pointee.locator } set(val) { ptr.pointee.locator = val } }
     var renderableId : RenderableId { get { return ptr.pointee.renderableId } set(val) { ptr.pointee.renderableId = val } }
     var p : Vec2 { get { return ptr.pointee.p } set(val) { ptr.pointee.p = val } }
     var dP : Vec2 { get { return ptr.pointee.dP } set(val) { ptr.pointee.dP = val } }
@@ -37,6 +37,7 @@ class ShipRef : EntityRef<Ship> {
 }
 
 class AsteroidRef : EntityRef<Asteroid> {
+    var asteroidLocator : BucketLocator { get { return ptr.pointee.asteroidLocator } set(val) { ptr.pointee.asteroidLocator = val } }
     var size : Asteroid.AsteroidSize { get { return ptr.pointee.size } set(val) { ptr.pointee.size = val } }
 }
 
@@ -63,9 +64,9 @@ class GameStateRef : Ref<GameState> {
 
 class WorldRef : Ref<World> {
     var size : Size { get { return ptr.pointee.size } set(val) { ptr.pointee.size = val } }
-    var entities : PoolRef<EntityBaseRef> { get { return ptr.pointee.entities } set(val) { ptr.pointee.entities = val } }
+    var entities : BucketArrayRef<EntityBase> { get { return ptr.pointee.entities } set(val) { ptr.pointee.entities = val } }
     var ship : ShipRef { get { return ptr.pointee.ship } set(val) { ptr.pointee.ship = val } }
-    var asteroids : PoolRef<AsteroidRef> { get { return ptr.pointee.asteroids } set(val) { ptr.pointee.asteroids = val } }
+    var asteroids : BucketArrayRef<Asteroid> { get { return ptr.pointee.asteroids } set(val) { ptr.pointee.asteroids = val } }
     var lasers : CircularBufferRef<LaserRef> { get { return ptr.pointee.lasers } set(val) { ptr.pointee.lasers = val } }
 }
 
@@ -122,6 +123,27 @@ class BitmapFontRef : Ref<BitmapFont> {
 }
 
 class BitmapCharRef : Ref<BitmapChar> {
+}
+
+
+
+/************************
+ * BucketArray.swift
+ ************************/
+
+class BucketArrayRef<T> : Ref<BucketArray<T>> {
+    var zone : MemoryZoneRef { get { return ptr.pointee.zone } set(val) { ptr.pointee.zone = val } }
+    var first : BucketRef<T> { get { return ptr.pointee.first } set(val) { ptr.pointee.first = val } }
+    var last : BucketRef<T> { get { return ptr.pointee.last } set(val) { ptr.pointee.last = val } }
+    var capacity : U64 { get { return ptr.pointee.capacity } set(val) { ptr.pointee.capacity = val } }
+    var used : U64 { get { return ptr.pointee.used } set(val) { ptr.pointee.used = val } }
+}
+
+class BucketRef<T> : Ref<Bucket<T>> {
+    var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
+    var used : U64 { get { return ptr.pointee.used } set(val) { ptr.pointee.used = val } }
+    var occupiedMask : U64 { get { return ptr.pointee.occupiedMask } set(val) { ptr.pointee.occupiedMask = val } }
+    var next : BucketRef<T> { get { return ptr.pointee.next } set(val) { ptr.pointee.next = val } }
 }
 
 

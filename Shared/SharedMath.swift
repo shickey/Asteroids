@@ -36,7 +36,7 @@ struct Size {
     }
 }
 
-
+// TODO: Make vectors generic
 struct Vec2 {
     var x : Float = 0.0
     var y : Float = 0.0
