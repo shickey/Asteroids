@@ -38,7 +38,7 @@ func createStaticArray<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) -> St
     let totalSize = MemoryLayout<T>.stride * count
     let storageBase = allocateFromZone(zone, totalSize)
     
-    let arrayRef = StaticArrayRef(&arrayBase.pointee)
+    let arrayRef = StaticArrayRef(arrayBase)
     arrayRef.maxCount = count
     arrayRef.count = 0
     arrayRef.storage = storageBase.bindMemory(to: T.self, capacity: count)
@@ -117,7 +117,7 @@ func createPool<T>(_ zone: MemoryZoneRef, _ type: T.Type, _ count: Int) -> PoolR
     let totalSize = MemoryLayout<T>.stride * count
     let storageBase = allocateFromZone(zone, totalSize)
     
-    let poolRef = PoolRef(&poolBase.pointee)
+    let poolRef = PoolRef(poolBase)
     poolRef.maxCount = count
     poolRef.count = 0
     poolRef.storage = storageBase.bindMemory(to: T.self, capacity: count)
@@ -250,7 +250,7 @@ func createCircularBuffer<T>(_ zone: MemoryZoneRef, type: T.Type, count: Int) ->
     let totalSize = MemoryLayout<T>.stride * count
     let storageBase = allocateFromZone(zone, totalSize)
     
-    let bufferRef = CircularBufferRef(&bufferBase.pointee)
+    let bufferRef = CircularBufferRef(bufferBase)
     bufferRef.maxCount = count
     bufferRef.nextIndex = 0
     bufferRef.storage = storageBase.bindMemory(to: T.self, capacity: count)
@@ -357,7 +357,7 @@ func createHashTable<K, V>(_ zone: MemoryZoneRef, _ count: Int) -> HashTableRef<
     let storageBase = allocateFromZone(zone, totalSize)
     memset(storageBase, 0, totalSize)
     
-    let hashTableRef = HashTableRef(&bufferBase.pointee)
+    let hashTableRef = HashTableRef(bufferBase)
     hashTableRef.maxCount = count
     hashTableRef.storage = storageBase.bindMemory(to: HashTableEntry<K, V>.self, capacity: count)
     

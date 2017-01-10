@@ -30,7 +30,7 @@ struct Bucket<T> {
 /*= END_REFSTRUCT =*/
 
 extension BucketArrayRef {
-    subscript(locator: BucketLocator) -> T? {
+    subscript(locator: BucketLocator) -> Ptr<T>? {
         get {
             assert(locator.index < 64)
             assert((locator.bucket * 64) + locator.index < self.capacity)
@@ -43,7 +43,7 @@ extension BucketArrayRef {
                 // Empty slot
                 return nil
             }
-            return bucket.storage[Int(locator.index)]
+            return bucket.storage + Int(locator.index)
         }
     }
 }
@@ -51,7 +51,7 @@ extension BucketArrayRef {
 func createBucketArray<T>(_ zone: MemoryZoneRef, _ type : T.Type, _ capacity : U64) -> BucketArrayRef<T> {
     // Allocate space for the BucketArray and Buckets up front (to put them close together)
     let bucketArrayPtr = allocateTypeFromZone(zone, BucketArray<T>.self)
-    let bucketArray = BucketArrayRef<T>(&bucketArrayPtr.pointee)
+    let bucketArray = BucketArrayRef<T>(bucketArrayPtr)
     bucketArray.zone = zone
     bucketArray.capacity = ((capacity + 63) / 64) * 64 // Round up to next multiple of 64
     bucketArray.used = 0
@@ -63,7 +63,7 @@ func createBucketArray<T>(_ zone: MemoryZoneRef, _ type : T.Type, _ capacity : U
     var buckets = [BucketRef<T>]()
     for _ in 0..<numBuckets {
         let bucketPtr = allocateTypeFromZone(zone, Bucket<T>.self)
-        let bucket = BucketRef<T>(&bucketPtr.pointee)
+        let bucket = BucketRef<T>(bucketPtr)
         bucket.used = 0
         bucket.occupiedMask = 0
         buckets.append(bucket)
@@ -126,7 +126,7 @@ func bucketArrayNewElement<T>(_ bucketArray: BucketArrayRef<T>) -> (Ptr<T>, Buck
 
 func bucketArrayAddBucket<T>(_ bucketArray: BucketArrayRef<T>) {
     let newBucketPtr = allocateTypeFromZone(bucketArray.zone, Bucket<T>.self)
-    let newBucket = BucketRef<T>(&newBucketPtr.pointee)
+    let newBucket = BucketRef<T>(newBucketPtr)
     newBucket.used = 0
     newBucket.occupiedMask = 0
     

@@ -6,8 +6,11 @@
 ****************************************************/
 class Ref<T> {
     var ptr : Ptr<T>
-    init(_ referenced: inout T) {
-        ptr = Ptr<T>(&referenced)
+    init(referencing: inout T) {
+        ptr = Ptr<T>(&referencing)
+    }
+    init(_ newPtr: Ptr<T>) {
+        ptr = newPtr
     }
 }
 
@@ -23,7 +26,7 @@ class RenderableRef : Ref<Renderable> {
 }
 
 class EntityBaseRef : Ref<EntityBase> {
-    var locator : BucketLocator { get { return ptr.pointee.locator } set(val) { ptr.pointee.locator = val } }
+    var id : EntityId { get { return ptr.pointee.id } set(val) { ptr.pointee.id = val } }
     var renderableId : RenderableId { get { return ptr.pointee.renderableId } set(val) { ptr.pointee.renderableId = val } }
     var p : Vec2 { get { return ptr.pointee.p } set(val) { ptr.pointee.p = val } }
     var dP : Vec2 { get { return ptr.pointee.dP } set(val) { ptr.pointee.dP = val } }
@@ -68,6 +71,15 @@ class WorldRef : Ref<World> {
     var ship : ShipRef { get { return ptr.pointee.ship } set(val) { ptr.pointee.ship = val } }
     var asteroids : BucketArrayRef<Asteroid> { get { return ptr.pointee.asteroids } set(val) { ptr.pointee.asteroids = val } }
     var lasers : CircularBufferRef<LaserRef> { get { return ptr.pointee.lasers } set(val) { ptr.pointee.lasers = val } }
+}
+
+class DebugStateRef : Ref<DebugState> {
+    var initialized : Bool { get { return ptr.pointee.initialized } set(val) { ptr.pointee.initialized = val } }
+    var simulating : Bool { get { return ptr.pointee.simulating } set(val) { ptr.pointee.simulating = val } }
+    var simulationTimeFactor : Float { get { return ptr.pointee.simulationTimeFactor } set(val) { ptr.pointee.simulationTimeFactor = val } }
+    var zoom : Float { get { return ptr.pointee.zoom } set(val) { ptr.pointee.zoom = val } }
+    var font : BitmapFontRef { get { return ptr.pointee.font } set(val) { ptr.pointee.font = val } }
+    var selectedEntityId : EntityId { get { return ptr.pointee.selectedEntityId } set(val) { ptr.pointee.selectedEntityId = val } }
 }
 
 

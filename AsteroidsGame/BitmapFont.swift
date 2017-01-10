@@ -37,7 +37,7 @@ struct BitmapChar {
 func loadBitmapFont(_ assetZone: MemoryZoneRef, _ fontName: String) -> BitmapFontRef {
     
     let bitmapFontPtr = allocateTypeFromZone(assetZone, BitmapFont.self)
-    let bitmapFont = BitmapFontRef(&bitmapFontPtr.pointee)
+    let bitmapFont = BitmapFontRef(bitmapFontPtr)
     
 //    bitmapFont.chars = [:]
 //    bitmapFont.kerns = [:]

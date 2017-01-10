@@ -113,17 +113,20 @@ func beginRendering(_ hostView: NSView) {
     let bigAddress = RawPtr(bitPattern: 8.gigabytes)
     let permanentStorageSize = 256.megabytes
     let transientStorageSize = 2.gigabytes
+    let debugStorageSize = 256.megabytes
     let commandBufferSize = 256.megabytes
-    let totalSize = permanentStorageSize + transientStorageSize + commandBufferSize
+    let totalSize = permanentStorageSize + transientStorageSize + debugStorageSize + commandBufferSize
     
     // TODO: Is this memory *guaranteed* to be cleared to zero?
     //       Linux docs suggest yes, Darwin docs doesn't specify
     //       Empirically seems to be true
-    gameMemory.permanent = mmap(bigAddress, totalSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANON, -1, 0)
-    gameMemory.permanentSize = permanentStorageSize
-    gameMemory.transient = gameMemory.permanent + permanentStorageSize
-    gameMemory.transientSize = transientStorageSize
-    renderCommandBufferBase = gameMemory.transient + transientStorageSize
+    gameMemory.permanentStorage = mmap(bigAddress, totalSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANON, -1, 0)
+    gameMemory.permanentStorageSize = permanentStorageSize
+    gameMemory.transientStorage = gameMemory.permanentStorage + permanentStorageSize
+    gameMemory.transientStorageSize = transientStorageSize
+    gameMemory.debugStorage = gameMemory.transientStorage + transientStorageSize
+    gameMemory.debugStorageSize = debugStorageSize
+    renderCommandBufferBase = gameMemory.debugStorage + debugStorageSize
     
     // Platform API
     gameMemory.platformCreateVertexBuffer = createVertexBuffer

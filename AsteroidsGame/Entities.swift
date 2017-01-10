@@ -13,6 +13,9 @@ import simd
  * Renderable Struct for Vertex Data
  ****************************************/
 
+typealias EntityId = U64
+let InvalidEntityId = U64.max
+
 typealias RenderableId = U64
 
 /*= BEGIN_REFSTRUCT =*/
@@ -32,7 +35,7 @@ func createRenderable(_ zone: MemoryZoneRef, _ gameState: GameStateRef, _ gameMe
     assert(vertices.count % 8 == 0)
     
     let renderablePtr = allocateTypeFromZone(zone, Renderable.self)
-    let renderable = RenderableRef(&renderablePtr.pointee)
+    let renderable = RenderableRef(renderablePtr)
     
     renderable.vertexBuffer = gameMemory.platformCreateVertexBuffer!(vertices)
     renderable.vertexCount = vertices.count / 8
@@ -81,7 +84,8 @@ func createRenderable(_ zone: MemoryZoneRef, _ gameState: GameStateRef, _ gameMe
 
 /*= BEGIN_REFSTRUCT =*/
 struct EntityBase {
-    var locator : BucketLocator /*= GETSET =*/
+    // An Entity ID is unique at any given time, but can be reused once the entity is destroyed
+    var id : EntityId /*= GETSET =*/
     var renderableId : RenderableId /*= GETSET =*/
     
     // Position and Velocity
@@ -100,7 +104,7 @@ protocol Entity {
     var base : EntityBaseRef { get set }
     
     // Entity Base Properties
-    var locator : BucketLocator { get set }
+    var id : EntityId { get set }
     var renderableId : RenderableId { get }
     var p  : Vec2 { get set }
     var dP : Vec2 { get set }
@@ -110,7 +114,7 @@ protocol Entity {
 }
 
 extension Entity {
-    var locator : BucketLocator { get { return self.base.locator } set(val) { self.base.locator = val} }
+    var id : EntityId { get { return self.base.id } set(val) { self.base.id = val} }
     var renderableId : RenderableId { get { return base.renderableId } }
     
     var p  : Vec2 { get { return base.p } set(val) { base.p = val} }
@@ -133,14 +137,15 @@ class EntityRef<T: Entity> : Ref<T>, Entity {
 
 func createEntityBase(_ zone: MemoryZoneRef, _ gameState: GameStateRef) -> EntityBaseRef {
     let (entityBasePtr, locator) = bucketArrayNewElement(gameState.world.entities)
-    let entityBase = EntityBaseRef(&entityBasePtr.pointee)
+    let entityBase = EntityBaseRef(entityBasePtr)
     entityBase.scale = 1.0
-    entityBase.locator = locator
+    entityBase.id = (locator.bucket * 64) + locator.index // TODO: This assumes bucket sizes of 64
     return entityBase
 }
 
 func destroyEntity(_ gameState: GameStateRef, _ entity: Entity) {
-    bucketArrayRemove(gameState.world.entities, entity.locator)
+    let locator : BucketLocator = (entity.id / 64, entity.id % 64)
+    bucketArrayRemove(gameState.world.entities, locator)
 }
 
 func entityTransform(_ entity: Entity) -> Transform {
@@ -161,7 +166,7 @@ struct Ship : Entity {
 
 func createShip(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameState: GameStateRef) -> ShipRef {
     let shipPtr = allocateTypeFromZone(zone, Ship.self)
-    var ship = ShipRef(&shipPtr.pointee)
+    var ship = ShipRef(shipPtr)
     
     let entityBase = createEntityBase(zone, gameState)
     entityBase.renderableId = Ship.renderableId
@@ -191,7 +196,7 @@ func createShip(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameState: Ga
 
 func createWorld(_ zone: MemoryZoneRef) -> WorldRef {
     let worldPtr = allocateTypeFromZone(zone, World.self)
-    return WorldRef(&worldPtr.pointee)
+    return WorldRef(worldPtr)
 }
 
 
@@ -216,7 +221,7 @@ struct Asteroid : Entity {
 
 func createAsteroid(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameState: GameStateRef, _ size: Asteroid.AsteroidSize) -> AsteroidRef {
     let (asteroidPtr, locator) = bucketArrayNewElement(gameState.world.asteroids)
-    var asteroid = AsteroidRef(&asteroidPtr.pointee)
+    var asteroid = AsteroidRef(asteroidPtr)
     asteroid.asteroidLocator = locator
     
     let entityBase = createEntityBase(zone, gameState)
@@ -314,7 +319,7 @@ struct Laser : Entity {
 
 func createLaser(_ gameMemory: GameMemory, _ zone: MemoryZoneRef, _ gameState: GameStateRef, _ ship: ShipRef) -> LaserRef {
     let laserPtr = allocateTypeFromZone(zone, Laser.self)
-    var laser = LaserRef(&laserPtr.pointee)
+    var laser = LaserRef(laserPtr)
     
     let entityBase = createEntityBase(zone, gameState)
     entityBase.renderableId = Laser.renderableId

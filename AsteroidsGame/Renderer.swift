@@ -14,15 +14,6 @@ prefix func ^<T>(_ ref : Ref<T>) -> T {
     return ref.ptr.pointee
 }
 
-struct DEBUG_STRUCT {
-    let SIMULATING = true
-    let ZOOM_OUT = false
-    let BACKGROUND = false
-    var SIMULATION_TIME_FACTOR = 1.0
-}
-
-let DEBUG = DEBUG_STRUCT()
-
 let NUM_ASTEROIDS = 3
 
 /*= BEGIN_REFSTRUCT =*/
@@ -51,13 +42,22 @@ struct World {
 /*= END_REFSTRUCT =*/
 
 
+/*= BEGIN_REFSTRUCT =*/
+struct DebugState {
+    var initialized : Bool /*= GETSET =*/
+    var simulating : Bool /*= GETSET =*/
+    var simulationTimeFactor : Float /*= GETSET =*/
+    var zoom : Float /*= GETSET =*/
+    
+    var font : BitmapFontRef /*= GETSET =*/
+    var selectedEntityId : EntityId /*= GETSET =*/
+}
+/*= END_REFSTRUCT =*/
+
+
 var firstRun = true // This feels wrong, but is useful for doing things on game code reload boundaries
 
 var restarting = false
-
-var font : BitmapFontRef! = nil
-
-var selectedEntity : Entity? = nil
 
 @_silgen_name("updateAndRender")
 public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandHeaderPtr: UnsafeMutablePointer<RenderCommandBufferHeader>) {
@@ -65,12 +65,12 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     let gameMemory = gameMemoryPtr.pointee
     let inputs = inputsPtr.pointee
     
-    let gameStatePtr : Ptr<GameState> = <-gameMemory.permanent
-    let gameState = GameStateRef(&gameStatePtr.pointee)
+    let gameStatePtr : Ptr<GameState> = <-gameMemory.permanentStorage
+    let gameState = GameStateRef(gameStatePtr)
     
     if !gameState.gameInitialized {
 
-        gameState.zoneZone.base = gameMemory.permanent + MemoryLayout<GameState>.size
+        gameState.zoneZone.base = gameMemory.permanentStorage + MemoryLayout<GameState>.size
         gameState.zoneZone.size = 1.megabytes
         
         let entityZoneBase = gameState.zoneZone.base + gameState.zoneZone.size
@@ -79,15 +79,11 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         gameState.entityZone = createZone(&gameState.zoneZone, entityZoneBase, entityZoneSize)
         
         let assetZoneBase = entityZoneBase + entityZoneSize
-        let assetZoneSize = gameMemory.permanentSize - (MemoryLayout<GameState>.size + gameState.zoneZone.size + entityZoneSize)
+        let assetZoneSize = gameMemory.permanentStorageSize - (MemoryLayout<GameState>.size + gameState.zoneZone.size + entityZoneSize)
         
         gameState.assetZone = createZone(&gameState.zoneZone, assetZoneBase, assetZoneSize)
         
-        font = loadBitmapFont(gameState.assetZone, "arial-12-white-blackstroke.txt")
-        
         gameState.renderables = createHashTable(gameState.entityZone, 37) // Use a large-enough prime to help hash distribution
-        
-        
         
         let world = createWorld(gameState.entityZone)
         gameState.world = world
@@ -112,17 +108,31 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         gameState.gameInitialized = true
     }
     
+    let debugStatePtr : Ptr<DebugState> = <-gameMemory.debugStorage
+    let debugState = DebugStateRef(debugStatePtr)
+    
+    if !debugState.initialized {
+        debugState.simulating = true
+        debugState.simulationTimeFactor = 1.0
+        debugState.zoom = 1.0
+        debugState.selectedEntityId = InvalidEntityId
+        
+        debugState.font = loadBitmapFont(gameState.assetZone, "arial-12-white-blackstroke.txt")
+        
+        debugState.initialized = true
+    }
+    
     if !restarting && inputs.restart {
         restarting = true
-        restartGame(gameMemory, gameState)
+        restartGame(gameMemory, gameState, debugState)
     }
     else if restarting && !inputs.restart {
         restarting = false
     }
     
     // Simulate
-    if DEBUG.SIMULATING {
-        simulate(gameMemory, gameState, inputs.dt, inputs)
+    if debugState.simulating {
+        simulate(gameMemory, gameState, inputs.dt, inputs, debugState)
     }
     
     // Render
@@ -133,27 +143,16 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     options.fillMode = .fill
     pushCommand(renderBuffer, options)
     
-    let scaleFactor = max(gameState.world.size.width, gameState.world.size.height)
+    let scaleFactor = max(gameState.world.size.width, gameState.world.size.height) * debugState.zoom
     var worldTransform = Transform(1)
     worldTransform[0][0] = 1.0 / (scaleFactor / 2.0)
     worldTransform[1][1] = 1.0 / (scaleFactor / 2.0)
-    
-    if DEBUG.ZOOM_OUT {
-        worldTransform[0][0] = 1.0 / scaleFactor
-        worldTransform[1][1] = 1.0 / scaleFactor
-    }
     
     var uniforms = RenderCommandUniforms()
     uniforms.transform = worldTransform
     pushCommand(renderBuffer, uniforms)
     
-    
-    if DEBUG.BACKGROUND {
-        renderTerribleBackground(gameMemory, gameState, renderBuffer)
-    }
-    else {
-        renderBlackBackground(gameMemory, gameState, renderBuffer)
-    }
+    renderBlackBackground(gameMemory, gameState, renderBuffer)
     
     renderAsteroids(gameState, renderBuffer)
     renderShip(gameState, renderBuffer)
@@ -164,45 +163,58 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     // Check for entity selection
     // TODO: Can we generalize this and just iterate over all the entity bases?
     //       If so, how do we access the "derived" entity from its base?
-    if hitTest(gameState, inputs.mouse, gameState.world.ship, renderBufferHeader.windowSize) {
-        renderBoundingBoxOnTorus(gameState.world.ship, gameState, renderBuffer)
-        if inputs.mouseClicked {
-            selectedEntity = gameState.world.ship
-        }
-    }
-    for entityPtr in gameState.world.asteroids {
-        let entity = AsteroidRef(&entityPtr.pointee)
-        if hitTest(gameState, inputs.mouse, entity, renderBufferHeader.windowSize) {
+    let mouseWorldLocation = windowToWorldCoordinates(inputs.mouse, renderBufferHeader.windowSize, gameState)
+    for entityPtr in gameState.world.entities {
+        let entity = EntityBaseRef(entityPtr)
+        if hitTest(gameState, mouseWorldLocation, entity) {
             renderBoundingBoxOnTorus(entity, gameState, renderBuffer)
             if inputs.mouseClicked {
-                selectedEntity = entity
-                break
+                debugState.selectedEntityId = entity.id
             }
         }
     }
     
-    for entity in gameState.world.lasers {
-        if hitTest(gameState, inputs.mouse, entity, renderBufferHeader.windowSize) {
-            renderBoundingBoxOnTorus(entity, gameState, renderBuffer)
-            if inputs.mouseClicked {
-                selectedEntity = entity
-                break
-            }
-        }
-    }
     
-    if let selected = selectedEntity {
-        renderBoundingBoxOnTorus(selected, gameState, renderBuffer)
+    let selectedId = debugState.selectedEntityId
+    if selectedId != InvalidEntityId {
         
-        let debugInfoOpt = debugEntity(selected)
+        let locator : BucketLocator = (selectedId / 64, selectedId % 64)
+        let selectedPtr = gameState.world.entities[locator]!
+        let selected = EntityBaseRef(selectedPtr)
+        
+        
+        var debugInfoOpt : DebugStruct? = nil
+        if gameState.world.ship.id == selectedId {
+            debugInfoOpt = debugEntity(gameState.world.ship)
+        }
+        else {
+            for asteroidPtr in gameState.world.asteroids {
+                let asteroid = AsteroidRef(asteroidPtr)
+                if asteroid.id == selectedId {
+                    debugInfoOpt = debugEntity(asteroid)
+                    break
+                }
+            }
+            if debugInfoOpt == nil {
+                for laser in gameState.world.lasers {
+                    if laser.id == selectedId {
+                        debugInfoOpt = debugEntity(laser)
+                        break
+                    }
+                }
+            }
+        }
+        
         
         if let debugInfo = debugInfoOpt {
-            var textOrigin = Vec2(0.0, renderBufferHeader.windowSize.h - font.lineHeight)
-            pushCommand(renderBuffer, renderText(debugInfo.name, renderBufferHeader.windowSize, textOrigin, font, renderBuffer))
-            textOrigin.y -= font.lineHeight
+            renderBoundingBoxOnTorus(selected, gameState, renderBuffer)
+            
+            var textOrigin = Vec2(0.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight)
+            pushCommand(renderBuffer, renderText(debugInfo.name, renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
+            textOrigin.y -= debugState.font.lineHeight
             for (name, value) in debugInfo.entries {
-                pushCommand(renderBuffer, renderText("  \(name): \(value)", renderBufferHeader.windowSize, textOrigin, font, renderBuffer))
-                textOrigin.y -= font.lineHeight
+                pushCommand(renderBuffer, renderText("  \(name): \(value)", renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
+                textOrigin.y -= debugState.font.lineHeight
             }
         }
         else {
@@ -213,15 +225,12 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     }
     
     // Debug print number of live entities
-    pushCommand(renderBuffer, renderText("Live Entities: \(gameState.world.entities.used)", renderBufferHeader.windowSize, Vec2(renderBufferHeader.windowSize.w / 2.0, renderBufferHeader.windowSize.h - font.lineHeight), font, renderBuffer))
-    
-//    let command = renderText(renderBuffer, "[Hello world!]?", font)
-//    pushCommand(renderBuffer, command)
+    pushCommand(renderBuffer, renderText("Live Entities: \(gameState.world.entities.used)", renderBufferHeader.windowSize, Vec2(renderBufferHeader.windowSize.w / 2.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight), debugState.font, renderBuffer))
     
     firstRun = false
 }
 
-func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef) {
+func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ debugState: DebugStateRef) {
     bucketArrayClear(gameState.world.asteroids)
     bucketArrayClear(gameState.world.entities)
     clearCircularBuffer(gameState.world.lasers)
@@ -236,6 +245,9 @@ func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef) {
         randomizeAsteroidRotationAndVelocity(asteroid)
         
     }
+    
+    // Reset debug state
+    debugState.selectedEntityId = InvalidEntityId
 }
 
 func pushCommand<T: RenderCommand>(_ renderBufferBase: RawPtr, _ command: T) {
@@ -285,11 +297,9 @@ func pushCommand<T: RenderCommand>(_ renderBufferBase: RawPtr, _ command: T) {
 
 var laserTimeToWait : Float = 0.0
 
-func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, _ inputs: Inputs) {
+func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, _ inputs: Inputs, _ debugState: DebugStateRef) {
 
-#if DEBUG
-    let dt = dt * Float(DEBUG.SIMULATION_TIME_FACTOR)
-#endif
+    let dt = dt * Float(debugState.simulationTimeFactor)
     
     let world = gameState.world
     var ship = gameState.world.ship
@@ -316,7 +326,7 @@ func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, 
     
     // Simulate Asteroids
     for asteroidPtr in gameState.world.asteroids {
-        var asteroid = AsteroidRef(&asteroidPtr.pointee)
+        var asteroid = AsteroidRef(asteroidPtr)
         asteroid.rot += asteroid.dRot * dt
         asteroid.rot = normalizeToRange(asteroid.rot, -FLOAT_PI, FLOAT_PI)
         
@@ -360,7 +370,7 @@ func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, 
     
     // Collision Detection - Laser to Asteroid
     asteroidLaserCollision: for asteroidPtr in gameState.world.asteroids {
-        let asteroid = AsteroidRef(&asteroidPtr.pointee)
+        let asteroid = AsteroidRef(asteroidPtr)
         for laser in lasers {
             if !laser.alive {
                 continue
@@ -400,7 +410,7 @@ func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, 
     let p3 = ship.p + Vec2(-0.5, -0.7)
     
     for asteroidPtr in gameState.world.asteroids {
-        let asteroid = AsteroidRef(&asteroidPtr.pointee)
+        let asteroid = AsteroidRef(asteroidPtr)
         if torusDistance(gameState.world.size, asteroid.p, p1) < scaleForAsteroidSize(asteroid.size)
         || torusDistance(gameState.world.size, asteroid.p, p2) < scaleForAsteroidSize(asteroid.size)
         || torusDistance(gameState.world.size, asteroid.p, p3) < scaleForAsteroidSize(asteroid.size) {
@@ -460,7 +470,7 @@ func renderTerribleBackground(_ gameMemory: GameMemory, _ gameState: GameStateRe
     pushCommand(renderBuffer, command)
 }
 
-func renderBoundingBoxOnTorus(_ entity: Entity, _ gameState: GameStateRef, _ renderBuffer: RawPtr) {
+func renderBoundingBoxOnTorus(_ entity: EntityBaseRef, _ gameState: GameStateRef, _ renderBuffer: RawPtr) {
     let pX = entity.p.x
     let pY = entity.p.y
     let rot = entity.rot
@@ -606,7 +616,7 @@ func renderShip(_ gameState: GameStateRef, _ renderBuffer: RawPtr) {
 func renderAsteroids(_ gameState: GameStateRef, _ renderBuffer: RawPtr) {
     let asteroids = gameState.world.asteroids
     for asteroidPtr in asteroids {
-        let asteroid = AsteroidRef(&asteroidPtr.pointee)
+        let asteroid = AsteroidRef(asteroidPtr)
         renderEntityOnTorus(asteroid, gameState, renderBuffer)
     }
 }
@@ -625,5 +635,4 @@ func renderLasers(_ gameState: GameStateRef, _ renderBuffer: RawPtr) {
         
         pushCommand(renderBuffer, command)
     }
-    
 }
