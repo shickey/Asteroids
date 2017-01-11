@@ -11,18 +11,35 @@ extension String {
     }
 }
 
-// Returns a string consisting of all the ref structs and an array of string containing all the renderable names
-func preprocessStructs(_ source: String) -> (String, [String]) {
+struct RefStruct {
+    var type : String = ""
+    var genericType : String = ""
+    var inheritedTypes : String = ""
+    var properties : [RefStructProperty] = []
+}
+
+struct RefStructProperty {
+    enum AccessorType {
+        case get
+        case set
+        case getset
+    }
     
-    var renderables : [String] = []
+    var name : String = ""
+    var type : String = ""
+    var accessorType : AccessorType = .getset
+}
+
+func parseRefStructs(_ source: String) -> [RefStruct] {
     
     let structRegex = try! NSRegularExpression(pattern: "/\\*=\\s*BEGIN_REFSTRUCT\\s*=\\*/\\s*(.*?)\\s*/\\*=\\s*END_REFSTRUCT\\s*=\\*/", options: [.dotMatchesLineSeparators, .allowCommentsAndWhitespace])
     
-    let declRegex = try! NSRegularExpression(pattern: "^\\s*struct\\s+([\\w]+)(<[\\w\\s\\,&:]*>)?\\s*(:\\s*(\\w+\\?*)\\s*)?\\{\\s*$", options: [.anchorsMatchLines, .useUnixLineSeparators])
+    let declRegex = try! NSRegularExpression(pattern: "^\\s*struct\\s+([\\w]+)(<([\\w\\s\\,&:]*)>)?\\s*(:\\s*(\\w+\\?*)\\s*)?\\{\\s*$", options: [.anchorsMatchLines, .useUnixLineSeparators])
     
     let propertyRegex = try! NSRegularExpression(pattern: "^(\\s+var\\s+(\\w+)\\s+:\\s+([\\w<>\\,\\s\\.]+\\??))\\s+/\\*=\\s(GETSET|GET|SET)\\s=\\*/$", options: [.anchorsMatchLines, .useUnixLineSeparators])
     
-    var output = ""
+    var refStructs : [RefStruct] = []
+    
     structRegex.enumerateMatches(in: source, options: [], range: NSMakeRange(0, source.characters.count), using: { (result, flags, stopPtr) in
         
         let range = result!.rangeAt(1)
@@ -31,103 +48,138 @@ func preprocessStructs(_ source: String) -> (String, [String]) {
         declRegex.enumerateMatches(in: structString, options: [], range: NSMakeRange(0, structString.characters.count), using: { (result, flags, stopPtr) in
             
             let typeName = structString[result!.rangeAt(1)]
+            
             var genericType = ""
-            
-            if result!.rangeAt(2).location != NSNotFound {
-                genericType = structString[result!.rangeAt(2)]
+            if result!.rangeAt(3).location != NSNotFound {
+                genericType = structString[result!.rangeAt(3)]
             }
             
-            var classRefDecl = "class \(typeName)Ref\(genericType) : "
-            
-            var isEntityRef = false
-            if result!.rangeAt(4).location != NSNotFound {
-                let inheritedTypeName = structString[result!.rangeAt(4)]
-//                if inheritedTypeName != "Renderable" {
-                    if inheritedTypeName == "Entity" {
-                        classRefDecl += "EntityRef<\(typeName)>"
-                        isEntityRef = true
-                    }
-//                }
-                
-                if inheritedTypeName == "Entity" || inheritedTypeName == "Renderable" {
-                    renderables.append(typeName)
-                }
-            }
-            else {
-                classRefDecl += "Ref<\(typeName)\(genericType)>"
+            var inheritedTypes = ""
+            if result!.rangeAt(5).location != NSNotFound {
+                inheritedTypes = structString[result!.rangeAt(5)]
+
             }
             
-            classRefDecl += " {\n"
+            var refStruct = RefStruct()
+            refStruct.type = typeName
+            refStruct.genericType = genericType
+            refStruct.inheritedTypes = inheritedTypes
             
             propertyRegex.enumerateMatches(in: structString, options: [], range: NSMakeRange(0, structString.characters.count), using: { (result, flags, stopPtr) in
                 
-                let varName = structString[result!.rangeAt(2)]
-                let varType = structString[result!.rangeAt(3)]
-                let accessorType = structString[result!.rangeAt(4)]
+                var prop = RefStructProperty()
                 
-                if isEntityRef && varName == "base" {
-                    return
+                prop.name = structString[result!.rangeAt(2)]
+                prop.type = structString[result!.rangeAt(3)]
+                let accessorTypeString = structString[result!.rangeAt(4)]
+                if accessorTypeString == "GET" {
+                    prop.accessorType = .get
+                }
+                else if accessorTypeString == "SET" {
+                    prop.accessorType = .set
+                }
+                else if accessorTypeString == "GETSET" {
+                    prop.accessorType = .getset
                 }
                 
-                var propDecl = "    var \(varName) : \(varType) { "
-                
-                if accessorType == "GET" || accessorType == "GETSET" {
-                    propDecl += "get { return ptr.pointee.\(varName) } "
-                }
-                if accessorType == "SET" || accessorType == "GETSET" {
-                    propDecl += "set(val) { ptr.pointee.\(varName) = val } "
-                }
-                propDecl += "}\n"
-                
-                classRefDecl += propDecl
+                refStruct.properties.append(prop)
+
             })
             
-            output += classRefDecl + "}\n\n"
+            refStructs.append(refStruct)
         })
         
     })
     
-    return (output, renderables)
+    return refStructs
 }
 
-var outputString = "/***************************************************\n* ReferenceStructs.swift\n*\n* THIS FILE IS AUTOGENERATED WITH EACH BUILD.\n* DON'T WRITE ANYTHING IMPORTANT IN HERE!\n****************************************************/\nclass Ref<T> {\n    var ptr : Ptr<T>\n    init(referencing: inout T) {\n        ptr = Ptr<T>(&referencing)\n    }\n    init(_ newPtr: Ptr<T>) {\n        ptr = newPtr\n    }\n}\n\n"
+func outputStringForRefStruct(_ refStruct: RefStruct) -> String {
+    var genericDecl = ""
+    if refStruct.genericType != "" {
+        genericDecl = "<\(refStruct.genericType)>"
+    }
+    
+    var result = "class \(refStruct.type)Ref\(genericDecl) : "
+    
+    if refStruct.inheritedTypes == "Entity" {
+        result += "EntityRef<\(refStruct.type)> {\n"
+    }
+    else {
+        result += "Ref<\(refStruct.type)\(genericDecl)> {\n"
+    }
+    
+    for prop in refStruct.properties {
+        if refStruct.inheritedTypes == "Entity" && prop.name == "base" {
+            continue
+        }
+        
+        var propDecl = "    var \(prop.name) : \(prop.type) { "
+        if prop.accessorType == .get || prop.accessorType == .getset {
+            propDecl += "get { return ptr.pointee.\(prop.name) } "
+        }
+        if prop.accessorType == .set || prop.accessorType == .getset {
+            propDecl += "set(val) { ptr.pointee.\(prop.name) = val } "
+        }
+        propDecl += "}\n"
+        
+        result += propDecl
+    }
+    
+    
+    result += "}\n\n"
+    
+    return result
+}
+
+
+
 
 let env = ProcessInfo.processInfo.environment
-
-print("Hello world!")
-
-// Preprocess files, generate ref structs, and gather renderable names
-var allRenderables : [String] = []
 
 if let numInputsStr = env["SCRIPT_INPUT_FILE_COUNT"] {
     let numInputs = Int(numInputsStr)!
     
+    // Preprocess files
+    var refStructs : [String : [RefStruct]] = [:]
     for i in 0..<numInputs {
         if let inputPath = env["SCRIPT_INPUT_FILE_\(i)"] {
             let filename = (inputPath as NSString).lastPathComponent
             var source = try! String(contentsOfFile: inputPath)
-            let (refStructs, entityNames) = preprocessStructs(source)
-            outputString += "/************************\n * \(filename)\n ************************/\n\n"
-            outputString += refStructs + "\n\n"
-            allRenderables += entityNames
+            refStructs[filename] = parseRefStructs(source)
         }
     }
     
-}
-
-// Generate renderable ids
-outputString += "/************************\n * Renderable Type Ids\n ************************/\n\n"
-for (idx, renderable) in allRenderables.enumerated() {
-    // Hash the entity name. This has the nice property of being deterministic between builds
-    var hash : UInt64 = 0
-    for c in renderable.unicodeScalars {
-        hash = UInt64(c.value) &+ (hash << 6) &+ (hash << 16) &- hash // The &+ and &- allow overflow
+    var outputString = "/***************************************************\n* ReferenceStructs.swift\n*\n* THIS FILE IS AUTOGENERATED WITH EACH BUILD.\n* DON'T WRITE ANYTHING IMPORTANT IN HERE!\n****************************************************/\nclass Ref<T> {\n    var ptr : Ptr<T>\n    init(referencing: inout T) {\n        ptr = Ptr<T>(&referencing)\n    }\n    init(_ newPtr: Ptr<T>) {\n        ptr = newPtr\n    }\n}\n\n"
+    
+    var entities : [RefStruct] = []
+    
+    // Generate output structs, grab all entities
+    for (filename, structs) in refStructs {
+        outputString += "/************************\n * \(filename)\n ************************/\n\n"
+        for refStruct in structs {
+            if refStruct.inheritedTypes == "Entity" {
+                entities.append(refStruct)
+            }
+            outputString += outputStringForRefStruct(refStruct)
+        }
     }
-    outputString += "extension \(renderable) {\n  static var renderableId : RenderableId = 0x\(String(format:"%08X", hash >> 32))\(String(format:"%08X", hash))\n}\n\n"
-    outputString += "extension \(renderable)Ref {\n  static var renderableId : RenderableId { get { return \(renderable).renderableId } }\n}\n\n"
-}
-
-if let outputPath = env["SCRIPT_OUTPUT_FILE_0"] {
-    try! outputString.write(toFile: outputPath, atomically: true, encoding: .utf8)
+    
+    // Generate renderable ids
+    outputString += "/************************\n * Renderable Type Ids\n ************************/\n\n"
+    for entity in entities {
+        // Hash the entity name. This has the nice property of being deterministic between builds
+        var hash : UInt64 = 0
+        for c in entity.type.unicodeScalars {
+            hash = UInt64(c.value) &+ (hash << 6) &+ (hash << 16) &- hash // The &+ and &- allow overflow
+        }
+        outputString += "extension \(entity.type) {\n  static var renderableId : RenderableId = 0x\(String(format:"%08X", hash >> 32))\(String(format:"%08X", hash))\n}\n\n"
+        outputString += "extension \(entity.type)Ref {\n  static var renderableId : RenderableId { get { return \(entity.type).renderableId } }\n}\n\n"
+    }
+    
+    // Write file
+    if let outputPath = env["SCRIPT_OUTPUT_FILE_0"] {
+        try! outputString.write(toFile: outputPath, atomically: true, encoding: .utf8)
+    }
 }
 

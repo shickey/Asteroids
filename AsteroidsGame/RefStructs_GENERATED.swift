@@ -50,8 +50,6 @@ class LaserRef : EntityRef<Laser> {
     var alive : Bool { get { return ptr.pointee.alive } set(val) { ptr.pointee.alive = val } }
 }
 
-
-
 /************************
  * Renderer.swift
  ************************/
@@ -82,7 +80,38 @@ class DebugStateRef : Ref<DebugState> {
     var selectedEntityId : EntityId { get { return ptr.pointee.selectedEntityId } set(val) { ptr.pointee.selectedEntityId = val } }
 }
 
+/************************
+ * BitmapFont.swift
+ ************************/
 
+class BitmapFontRef : Ref<BitmapFont> {
+    var baseline : Float { get { return ptr.pointee.baseline } set(val) { ptr.pointee.baseline = val } }
+    var lineHeight : Float { get { return ptr.pointee.lineHeight } set(val) { ptr.pointee.lineHeight = val } }
+    var chars : Ptr<BitmapChar> { get { return ptr.pointee.chars } set(val) { ptr.pointee.chars = val } }
+    var bitmap : BitmapRef { get { return ptr.pointee.bitmap } set(val) { ptr.pointee.bitmap = val } }
+}
+
+class BitmapCharRef : Ref<BitmapChar> {
+}
+
+/************************
+ * BucketArray.swift
+ ************************/
+
+class BucketArrayRef<T> : Ref<BucketArray<T>> {
+    var zone : MemoryZoneRef { get { return ptr.pointee.zone } set(val) { ptr.pointee.zone = val } }
+    var first : BucketRef<T> { get { return ptr.pointee.first } set(val) { ptr.pointee.first = val } }
+    var last : BucketRef<T> { get { return ptr.pointee.last } set(val) { ptr.pointee.last = val } }
+    var capacity : U64 { get { return ptr.pointee.capacity } set(val) { ptr.pointee.capacity = val } }
+    var used : U64 { get { return ptr.pointee.used } set(val) { ptr.pointee.used = val } }
+}
+
+class BucketRef<T> : Ref<Bucket<T>> {
+    var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
+    var used : U64 { get { return ptr.pointee.used } set(val) { ptr.pointee.used = val } }
+    var occupiedMask : U64 { get { return ptr.pointee.occupiedMask } set(val) { ptr.pointee.occupiedMask = val } }
+    var next : BucketRef<T> { get { return ptr.pointee.next } set(val) { ptr.pointee.next = val } }
+}
 
 /************************
  * DataStructures.swift
@@ -108,8 +137,6 @@ class CircularBufferRef<T> : Ref<CircularBuffer<T>> {
     var nextIndex : Int { get { return ptr.pointee.nextIndex } set(val) { ptr.pointee.nextIndex = val } }
 }
 
-
-
 /************************
  * AssetLoader.swift
  ************************/
@@ -120,45 +147,6 @@ class BitmapRef : Ref<Bitmap> {
     var stride : Int { get { return ptr.pointee.stride } set(val) { ptr.pointee.stride = val } }
     var pixels : U32Ptr { get { return ptr.pointee.pixels } set(val) { ptr.pointee.pixels = val } }
 }
-
-
-
-/************************
- * BitmapFont.swift
- ************************/
-
-class BitmapFontRef : Ref<BitmapFont> {
-    var baseline : Float { get { return ptr.pointee.baseline } set(val) { ptr.pointee.baseline = val } }
-    var lineHeight : Float { get { return ptr.pointee.lineHeight } set(val) { ptr.pointee.lineHeight = val } }
-    var chars : Ptr<BitmapChar> { get { return ptr.pointee.chars } set(val) { ptr.pointee.chars = val } }
-    var bitmap : BitmapRef { get { return ptr.pointee.bitmap } set(val) { ptr.pointee.bitmap = val } }
-}
-
-class BitmapCharRef : Ref<BitmapChar> {
-}
-
-
-
-/************************
- * BucketArray.swift
- ************************/
-
-class BucketArrayRef<T> : Ref<BucketArray<T>> {
-    var zone : MemoryZoneRef { get { return ptr.pointee.zone } set(val) { ptr.pointee.zone = val } }
-    var first : BucketRef<T> { get { return ptr.pointee.first } set(val) { ptr.pointee.first = val } }
-    var last : BucketRef<T> { get { return ptr.pointee.last } set(val) { ptr.pointee.last = val } }
-    var capacity : U64 { get { return ptr.pointee.capacity } set(val) { ptr.pointee.capacity = val } }
-    var used : U64 { get { return ptr.pointee.used } set(val) { ptr.pointee.used = val } }
-}
-
-class BucketRef<T> : Ref<Bucket<T>> {
-    var storage : Ptr<T> { get { return ptr.pointee.storage } set(val) { ptr.pointee.storage = val } }
-    var used : U64 { get { return ptr.pointee.used } set(val) { ptr.pointee.used = val } }
-    var occupiedMask : U64 { get { return ptr.pointee.occupiedMask } set(val) { ptr.pointee.occupiedMask = val } }
-    var next : BucketRef<T> { get { return ptr.pointee.next } set(val) { ptr.pointee.next = val } }
-}
-
-
 
 /************************
  * Renderable Type Ids
