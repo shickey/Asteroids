@@ -167,11 +167,11 @@ struct DebugEvent {
 }
 
 
-func TIMED_BLOCK_BEGIN(_ functionName: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
+func TIMED_BLOCK_BEGIN(_ id : Int, _ functionName: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
     
 }
 
-func TIMED_BLOCK_END(_ functionName: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
+func TIMED_BLOCK_END(_ id : Int, _ functionName: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
     
 }
 

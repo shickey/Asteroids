@@ -69,7 +69,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     let gameState = GameStateRef(gameStatePtr)
     
     if !gameState.gameInitialized {
-        /*= TIMED_BLOCK =*/
+        /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(1); defer { TIMED_BLOCK_END(1) };
 
         gameState.zoneZone.base = gameMemory.permanentStorage + MemoryLayout<GameState>.size
         gameState.zoneZone.size = 1.megabytes
@@ -178,7 +178,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     
     let selectedId = debugState.selectedEntityId
     if selectedId != InvalidEntityId {
-        /*= TIMED_BLOCK =*/
+        /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(2); defer { TIMED_BLOCK_END(2) };
         
         let locator : BucketLocator = (selectedId / 64, selectedId % 64)
         if let selectedPtr = gameState.world.entities[locator] {
@@ -238,7 +238,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
 }
 
 func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ debugState: DebugStateRef) {
-    /*= TIMED_BLOCK =*/
+    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(3); defer { TIMED_BLOCK_END(3) };
     bucketArrayClear(gameState.world.asteroids)
     bucketArrayClear(gameState.world.entities)
     clearCircularBuffer(gameState.world.lasers)
@@ -307,7 +307,7 @@ var laserTimeToWait : Float = 0.0
 
 func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, _ inputs: Inputs, _ debugState: DebugStateRef) {
     
-    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(); defer { TIMED_BLOCK_END() };
+    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(4); defer { TIMED_BLOCK_END(4) };
 
     let dt = dt * Float(debugState.simulationTimeFactor)
     

@@ -244,7 +244,7 @@ for filepath in gameFilepaths {
     var source = try! String(contentsOfFile: filepath)
     
     if let preprocessed = preprocessTimedBlocks(source, &nextTimedBlockId) {
-        print(preprocessed)
+        try! preprocessed.write(toFile: filepath, atomically: true, encoding: .utf8)
     }
 }
 
