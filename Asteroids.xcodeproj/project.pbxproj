@@ -130,7 +130,7 @@
 		A3BEEA631DF6338700F79B91 /* RenderCommands.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderCommands.swift; sourceTree = "<group>"; };
 		A3BEEA651DF633D800F79B91 /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		A3BEEA6B1DF6410200F79B91 /* Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Math.swift; path = ../Shared/Math.swift; sourceTree = "<group>"; };
-		A3C694471E1AA22400946AA3 /* GenerateRefStructs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateRefStructs.swift; sourceTree = "<group>"; };
+		A3C694471E1AA22400946AA3 /* Preprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preprocessor.swift; sourceTree = "<group>"; };
 		A3E7897F1E01D13800050B19 /* DataStructures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStructures.swift; sourceTree = "<group>"; };
 		A3EACC8E1DF783D200025665 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
 		A3EACC921DF7B47400025665 /* BitmapFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitmapFont.swift; sourceTree = "<group>"; };
@@ -222,7 +222,7 @@
 		A3C694461E1AA1E400946AA3 /* Build */ = {
 			isa = PBXGroup;
 			children = (
-				A3C694471E1AA22400946AA3 /* GenerateRefStructs.swift */,
+				A3C694471E1AA22400946AA3 /* Preprocessor.swift */,
 			);
 			path = Build;
 			sourceTree = "<group>";
@@ -367,20 +367,12 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/AsteroidsGame/Entities.swift",
-				"$(SRCROOT)/AsteroidsGame/Renderer.swift",
-				"$(SRCROOT)/AsteroidsGame/DataStructures.swift",
-				"$(SRCROOT)/AsteroidsGame/AssetLoader.swift",
-				"$(SRCROOT)/AsteroidsGame/BitmapFont.swift",
-				"$(SRCROOT)/AsteroidsGame/BucketArray.swift",
 			);
 			outputPaths = (
-				"$(SRCROOT)/AsteroidsGame/RefStructs_GENERATED.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/env xcrun --sdk macosx swift $SOURCE_ROOT/Build/GenerateRefStructs.swift";
-			showEnvVarsInLog = 0;
+			shellScript = "export GAME_FILES=$(find $SOURCE_ROOT/AsteroidsGame -name '*.swift')\nexport SHARED_FILES=$(find $SOURCE_ROOT/Shared -name '*.swift')\n\n/usr/bin/env xcrun --sdk macosx swift $SOURCE_ROOT/Build/Preprocessor.swift";
 		};
 /* End PBXShellScriptBuildPhase section */
 

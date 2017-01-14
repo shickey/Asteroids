@@ -81,20 +81,6 @@ class DebugStateRef : Ref<DebugState> {
 }
 
 /************************
- * BitmapFont.swift
- ************************/
-
-class BitmapFontRef : Ref<BitmapFont> {
-    var baseline : Float { get { return ptr.pointee.baseline } set(val) { ptr.pointee.baseline = val } }
-    var lineHeight : Float { get { return ptr.pointee.lineHeight } set(val) { ptr.pointee.lineHeight = val } }
-    var chars : Ptr<BitmapChar> { get { return ptr.pointee.chars } set(val) { ptr.pointee.chars = val } }
-    var bitmap : BitmapRef { get { return ptr.pointee.bitmap } set(val) { ptr.pointee.bitmap = val } }
-}
-
-class BitmapCharRef : Ref<BitmapChar> {
-}
-
-/************************
  * BucketArray.swift
  ************************/
 
@@ -111,6 +97,17 @@ class BucketRef<T> : Ref<Bucket<T>> {
     var used : U64 { get { return ptr.pointee.used } set(val) { ptr.pointee.used = val } }
     var occupiedMask : U64 { get { return ptr.pointee.occupiedMask } set(val) { ptr.pointee.occupiedMask = val } }
     var next : BucketRef<T> { get { return ptr.pointee.next } set(val) { ptr.pointee.next = val } }
+}
+
+/************************
+ * AssetLoader.swift
+ ************************/
+
+class BitmapRef : Ref<Bitmap> {
+    var width : Int { get { return ptr.pointee.width } set(val) { ptr.pointee.width = val } }
+    var height : Int { get { return ptr.pointee.height } set(val) { ptr.pointee.height = val } }
+    var stride : Int { get { return ptr.pointee.stride } set(val) { ptr.pointee.stride = val } }
+    var pixels : U32Ptr { get { return ptr.pointee.pixels } set(val) { ptr.pointee.pixels = val } }
 }
 
 /************************
@@ -138,14 +135,17 @@ class CircularBufferRef<T> : Ref<CircularBuffer<T>> {
 }
 
 /************************
- * AssetLoader.swift
+ * BitmapFont.swift
  ************************/
 
-class BitmapRef : Ref<Bitmap> {
-    var width : Int { get { return ptr.pointee.width } set(val) { ptr.pointee.width = val } }
-    var height : Int { get { return ptr.pointee.height } set(val) { ptr.pointee.height = val } }
-    var stride : Int { get { return ptr.pointee.stride } set(val) { ptr.pointee.stride = val } }
-    var pixels : U32Ptr { get { return ptr.pointee.pixels } set(val) { ptr.pointee.pixels = val } }
+class BitmapFontRef : Ref<BitmapFont> {
+    var baseline : Float { get { return ptr.pointee.baseline } set(val) { ptr.pointee.baseline = val } }
+    var lineHeight : Float { get { return ptr.pointee.lineHeight } set(val) { ptr.pointee.lineHeight = val } }
+    var chars : Ptr<BitmapChar> { get { return ptr.pointee.chars } set(val) { ptr.pointee.chars = val } }
+    var bitmap : BitmapRef { get { return ptr.pointee.bitmap } set(val) { ptr.pointee.bitmap = val } }
+}
+
+class BitmapCharRef : Ref<BitmapChar> {
 }
 
 /************************

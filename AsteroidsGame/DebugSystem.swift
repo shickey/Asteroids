@@ -73,8 +73,11 @@ func hitTest(_ gameState: GameStateRef, _ location : Vec2, _ entity: EntityBaseR
     return false
 }
 
-func windowToWorldCoordinates(_ location: Vec2, _ windowSize: Size, _ gameState: GameStateRef) -> Vec2 {
+func windowToWorldCoordinates(_ location: Vec2, _ windowSize: Size, _ gameState: GameStateRef, _ debugState: DebugStateRef) -> Vec2 {
     var worldSize = gameState.world.size
+    
+    worldSize.w *= debugState.zoom
+    worldSize.h *= debugState.zoom
     
     var result = Vec2()
     result.x = ((location.x - (windowSize.w / 2.0)) / (windowSize.w / 2.0)) * (worldSize.w / 2.0)
@@ -154,6 +157,30 @@ func debugEntityRef<T>(_ entity: EntityRef<T>) -> DebugStruct {
     }
     return DebugStruct(name: String(describing: entityMirror.subjectType), entries: entries)
 }
+
+
+
+struct DebugEvent {
+    var id : String
+    var cycleCount : U64
+    var functionName : String
+}
+
+
+func TIMED_BLOCK_BEGIN(_ functionName: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
+    
+}
+
+func TIMED_BLOCK_END(_ functionName: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
+    
+}
+
+
+
+
+
+
+
 
 
 

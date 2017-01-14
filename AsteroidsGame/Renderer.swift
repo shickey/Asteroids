@@ -69,6 +69,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     let gameState = GameStateRef(gameStatePtr)
     
     if !gameState.gameInitialized {
+        /*= TIMED_BLOCK =*/
 
         gameState.zoneZone.base = gameMemory.permanentStorage + MemoryLayout<GameState>.size
         gameState.zoneZone.size = 1.megabytes
@@ -163,7 +164,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     // Check for entity selection
     // TODO: Can we generalize this and just iterate over all the entity bases?
     //       If so, how do we access the "derived" entity from its base?
-    let mouseWorldLocation = windowToWorldCoordinates(inputs.mouse, renderBufferHeader.windowSize, gameState)
+    let mouseWorldLocation = windowToWorldCoordinates(inputs.mouse, renderBufferHeader.windowSize, gameState, debugState)
     for entityPtr in gameState.world.entities {
         let entity = EntityBaseRef(entityPtr)
         if hitTest(gameState, mouseWorldLocation, entity) {
@@ -177,49 +178,55 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     
     let selectedId = debugState.selectedEntityId
     if selectedId != InvalidEntityId {
+        /*= TIMED_BLOCK =*/
         
         let locator : BucketLocator = (selectedId / 64, selectedId % 64)
-        let selectedPtr = gameState.world.entities[locator]!
-        let selected = EntityBaseRef(selectedPtr)
-        
-        
-        var debugInfoOpt : DebugStruct? = nil
-        if gameState.world.ship.id == selectedId {
-            debugInfoOpt = debugEntity(gameState.world.ship)
-        }
-        else {
-            for asteroidPtr in gameState.world.asteroids {
-                let asteroid = AsteroidRef(asteroidPtr)
-                if asteroid.id == selectedId {
-                    debugInfoOpt = debugEntity(asteroid)
-                    break
-                }
+        if let selectedPtr = gameState.world.entities[locator] {
+            let selected = EntityBaseRef(selectedPtr)
+            
+            
+            var debugInfoOpt : DebugStruct? = nil
+            if gameState.world.ship.id == selectedId {
+                debugInfoOpt = debugEntity(gameState.world.ship)
             }
-            if debugInfoOpt == nil {
-                for laser in gameState.world.lasers {
-                    if laser.id == selectedId {
-                        debugInfoOpt = debugEntity(laser)
+            else {
+                for asteroidPtr in gameState.world.asteroids {
+                    let asteroid = AsteroidRef(asteroidPtr)
+                    if asteroid.id == selectedId {
+                        debugInfoOpt = debugEntity(asteroid)
                         break
                     }
                 }
+                if debugInfoOpt == nil {
+                    for laser in gameState.world.lasers {
+                        if laser.id == selectedId {
+                            debugInfoOpt = debugEntity(laser)
+                            break
+                        }
+                    }
+                }
             }
-        }
-        
-        
-        if let debugInfo = debugInfoOpt {
-            renderBoundingBoxOnTorus(selected, gameState, renderBuffer)
             
-            var textOrigin = Vec2(0.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight)
-            pushCommand(renderBuffer, renderText(debugInfo.name, renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
-            textOrigin.y -= debugState.font.lineHeight
-            for (name, value) in debugInfo.entries {
-                pushCommand(renderBuffer, renderText("  \(name): \(value)", renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
+            
+            if let debugInfo = debugInfoOpt {
+                renderBoundingBoxOnTorus(selected, gameState, renderBuffer)
+                
+                var textOrigin = Vec2(0.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight)
+                pushCommand(renderBuffer, renderText(debugInfo.name, renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
                 textOrigin.y -= debugState.font.lineHeight
+                for (name, value) in debugInfo.entries {
+                    pushCommand(renderBuffer, renderText("  \(name): \(value)", renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
+                    textOrigin.y -= debugState.font.lineHeight
+                }
+            }
+            else {
+                print("Unable to get debug info for selected entity")
             }
         }
         else {
-            print("Unable to get debug info for selected entity")
+            debugState.selectedEntityId = InvalidEntityId
         }
+        
         
         
     }
@@ -231,6 +238,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
 }
 
 func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ debugState: DebugStateRef) {
+    /*= TIMED_BLOCK =*/
     bucketArrayClear(gameState.world.asteroids)
     bucketArrayClear(gameState.world.entities)
     clearCircularBuffer(gameState.world.lasers)
@@ -298,6 +306,8 @@ func pushCommand<T: RenderCommand>(_ renderBufferBase: RawPtr, _ command: T) {
 var laserTimeToWait : Float = 0.0
 
 func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, _ inputs: Inputs, _ debugState: DebugStateRef) {
+    
+    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(); defer { TIMED_BLOCK_END() };
 
     let dt = dt * Float(debugState.simulationTimeFactor)
     

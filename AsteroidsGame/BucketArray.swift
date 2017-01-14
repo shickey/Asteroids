@@ -49,6 +49,7 @@ extension BucketArrayRef {
 }
 
 func createBucketArray<T>(_ zone: MemoryZoneRef, _ type : T.Type, _ capacity : U64) -> BucketArrayRef<T> {
+    /*= TIMED_BLOCK =*/
     // Allocate space for the BucketArray and Buckets up front (to put them close together)
     let bucketArrayPtr = allocateTypeFromZone(zone, BucketArray<T>.self)
     let bucketArray = BucketArrayRef<T>(bucketArrayPtr)
