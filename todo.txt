@@ -1,24 +1,23 @@
-WORKFLOW/DEBUG/GENERAL
+WORKFLOW/GENERAL
 ======
 - Switch to using sublime and compiling with the command line
 - Is there a way to access memory like a struct disregarding padding/alignment (e.g., to directly read a WAV header?)
-- Clean up game code files
-- Using @_silgen_name is probably scary. Remove eventually.
-- Move build script into file, have build script call it
 
 GAME
 ======
 - Audio system
 - Allocators
-  - As a simple start: Reuse asteroid array slots
 - Asset loading
   - Memory allocation
 - Levels
 - Power-ups
 - Better collision detection (separation axis?)
-- Simulation needs to be rewritten to be framerate independent
 - Flying Saucer
 
+DEBUG
+======
+- Capture frame statistics over time and render to screen
+- UI for interacting with debug state
 
 PLATFORM
 ======

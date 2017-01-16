@@ -243,8 +243,16 @@ for filepath in gameFilepaths {
     let filename = URL(fileURLWithPath: filepath).lastPathComponent
     var source = try! String(contentsOfFile: filepath)
     
+    // Overwrite source files with preprocessed timed blocks
     if let preprocessed = preprocessTimedBlocks(source, &nextTimedBlockId) {
         try! preprocessed.write(toFile: filepath, atomically: true, encoding: .utf8)
+    }
+    
+    // Generate file to hold debug info
+    if let sourceFolder = env["SOURCE_ROOT"] {
+        let outputPath = sourceFolder + "/AsteroidsGame/TimedBlocks_GENERATED.swift"
+        let source = "var debugTimers : [DebugTimer] = [DebugTimer](repeating: DebugTimer(), count: \(nextTimedBlockId))\n"
+        try! source.write(toFile: outputPath, atomically: true, encoding: .utf8)
     }
 }
 

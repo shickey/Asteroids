@@ -160,21 +160,23 @@ func debugEntityRef<T>(_ entity: EntityRef<T>) -> DebugStruct {
 
 
 
-struct DebugEvent {
-    var id : String
-    var cycleCount : U64
-    var functionName : String
+let InvalidDebugEventId = Int.max
+struct DebugTimer {
+    var id : Int = InvalidDebugEventId
+    var cycleCount : U64 = 0
+    var hitCount : Int = 0
+    var name : String = ""
+    var fileName : String = ""
+    var lineNumber : Int = 0
 }
 
-
-func TIMED_BLOCK_BEGIN(_ id : Int, _ functionName: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
-    
+func TIMED_BLOCK_BEGIN(_ id : Int, _ name: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
+    debugTimers[id] = DebugTimer(id: id, cycleCount: __rdtsc(), hitCount: 1, name: name, fileName: fileName, lineNumber: lineNumber)
 }
 
-func TIMED_BLOCK_END(_ id : Int, _ functionName: String = #function, _ fileName: String = #file, _ lineNumber: Int = #line) {
-    
+func TIMED_BLOCK_END(_ id : Int) {
+    debugTimers[id].cycleCount = __rdtsc() - debugTimers[id].cycleCount
 }
-
 
 
 

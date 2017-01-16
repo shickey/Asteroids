@@ -59,8 +59,16 @@ var firstRun = true // This feels wrong, but is useful for doing things on game 
 
 var restarting = false
 
+
+
 @_silgen_name("updateAndRender")
 public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, inputsPtr: UnsafeMutablePointer<Inputs>, renderCommandHeaderPtr: UnsafeMutablePointer<RenderCommandBufferHeader>) {
+    defer {
+        for timer in debugTimers {
+            print("\(timer.name): \(timer.cycleCount)")
+        }
+    }
+    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(0); defer { TIMED_BLOCK_END(0) };
     
     let gameMemory = gameMemoryPtr.pointee
     let inputs = inputsPtr.pointee
@@ -69,7 +77,6 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     let gameState = GameStateRef(gameStatePtr)
     
     if !gameState.gameInitialized {
-        /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(1); defer { TIMED_BLOCK_END(1) };
 
         gameState.zoneZone.base = gameMemory.permanentStorage + MemoryLayout<GameState>.size
         gameState.zoneZone.size = 1.megabytes
@@ -178,7 +185,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     
     let selectedId = debugState.selectedEntityId
     if selectedId != InvalidEntityId {
-        /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(2); defer { TIMED_BLOCK_END(2) };
+        /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(1); defer { TIMED_BLOCK_END(1) };
         
         let locator : BucketLocator = (selectedId / 64, selectedId % 64)
         if let selectedPtr = gameState.world.entities[locator] {
@@ -238,7 +245,6 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
 }
 
 func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ debugState: DebugStateRef) {
-    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(3); defer { TIMED_BLOCK_END(3) };
     bucketArrayClear(gameState.world.asteroids)
     bucketArrayClear(gameState.world.entities)
     clearCircularBuffer(gameState.world.lasers)
@@ -259,6 +265,7 @@ func restartGame(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ debugSta
 }
 
 func pushCommand<T: RenderCommand>(_ renderBufferBase: RawPtr, _ command: T) {
+    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(2); defer { TIMED_BLOCK_END(2) };
     
     // Get the buffer header
     var header : RenderCommandBufferHeader = <<-renderBufferBase
@@ -307,7 +314,7 @@ var laserTimeToWait : Float = 0.0
 
 func simulate(_ gameMemory: GameMemory, _ gameState: GameStateRef, _ dt: Float, _ inputs: Inputs, _ debugState: DebugStateRef) {
     
-    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(4); defer { TIMED_BLOCK_END(4) };
+    /*= TIMED_BLOCK =*/ TIMED_BLOCK_BEGIN(3); defer { TIMED_BLOCK_END(3) };
 
     let dt = dt * Float(debugState.simulationTimeFactor)
     
