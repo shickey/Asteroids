@@ -135,14 +135,14 @@ class CircularBufferRef<T> : Ref<CircularBuffer<T>> {
 }
 
 /************************
- * BitmapFont.swift
+ * NewFont.swift
  ************************/
 
 class BitmapFontRef : Ref<BitmapFont> {
-    var baseline : Float { get { return ptr.pointee.baseline } set(val) { ptr.pointee.baseline = val } }
-    var lineHeight : Float { get { return ptr.pointee.lineHeight } set(val) { ptr.pointee.lineHeight = val } }
     var chars : Ptr<BitmapChar> { get { return ptr.pointee.chars } set(val) { ptr.pointee.chars = val } }
-    var bitmap : BitmapRef { get { return ptr.pointee.bitmap } set(val) { ptr.pointee.bitmap = val } }
+    var advances : Ptr<F32> { get { return ptr.pointee.advances } set(val) { ptr.pointee.advances = val } }
+    var texels : RawPtr { get { return ptr.pointee.texels } set(val) { ptr.pointee.texels = val } }
+    var lineHeight : F32 { get { return ptr.pointee.lineHeight } set(val) { ptr.pointee.lineHeight = val } }
 }
 
 class BitmapCharRef : Ref<BitmapChar> {

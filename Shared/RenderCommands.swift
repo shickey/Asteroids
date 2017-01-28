@@ -86,10 +86,7 @@ public struct RenderCommandText : RenderCommand {
     public var quads : VertexPointer! = nil
     public var indices : U16Ptr! = nil
     
-    public var texels : U8Ptr! = nil
-    public var width : Int = 0
-    public var height : Int = 0
-    public var stride : Int = 0
+    public var texels : RawPtr! = nil
 }
 
 

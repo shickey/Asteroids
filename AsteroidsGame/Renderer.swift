@@ -112,7 +112,6 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         let MAX_LASERS = 12
         world.lasers = createCircularBuffer(gameState.entityZone, type: LaserRef.self, count: MAX_LASERS)
         
-        
         gameState.gameInitialized = true
     }
     
@@ -125,7 +124,9 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
         debugState.zoom = 1.0
         debugState.selectedEntityId = InvalidEntityId
         
-        debugState.font = loadBitmapFont(gameState.assetZone, "arial-12-white-blackstroke.txt")
+        // debugState.font = loadBitmapFont(gameState.assetZone, "arial-12-white-blackstroke.txt")
+        let fontFile = readFile(assetPath("font.bin"))!
+        debugState.font = loadFont(gameState.assetZone, gameMemory, fontFile.bytes)
         
         debugState.initialized = true
     }
@@ -218,12 +219,12 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
             if let debugInfo = debugInfoOpt {
                 renderBoundingBoxOnTorus(selected, gameState, renderBuffer)
                 
-                var textOrigin = Vec2(0.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight)
+               var textOrigin = Vec2(0.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight)
                 pushCommand(renderBuffer, renderText(debugInfo.name, renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
-                textOrigin.y -= debugState.font.lineHeight
+               textOrigin.y -= debugState.font.lineHeight
                 for (name, value) in debugInfo.entries {
                     pushCommand(renderBuffer, renderText("  \(name): \(value)", renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
-                    textOrigin.y -= debugState.font.lineHeight
+                   textOrigin.y -= debugState.font.lineHeight
                 }
             }
             else {
@@ -239,7 +240,8 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     }
     
     // Debug print number of live entities
-    pushCommand(renderBuffer, renderText("Live Entities: \(gameState.world.entities.used)", renderBufferHeader.windowSize, Vec2(renderBufferHeader.windowSize.w / 2.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight), debugState.font, renderBuffer))
+   pushCommand(renderBuffer, renderText("AVA WA To Ti Te", renderBufferHeader.windowSize, Vec2(renderBufferHeader.windowSize.w / 2.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight), debugState.font, renderBuffer))
+   // pushCommand(renderBuffer, renderText("Live Entities: \(gameState.world.entities.used)", renderBufferHeader.windowSize, Vec2(renderBufferHeader.windowSize.w / 2.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight), debugState.font, renderBuffer))
     
     firstRun = false
 }

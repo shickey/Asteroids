@@ -39,7 +39,7 @@ vertex VertexWithTex basic_transform_vertex(device float4x4 *uniforms [[ buffer(
 
 fragment half4 basic_texture_fragment(VertexWithTex v [[ stage_in ]],
                                texture2d<float> texture [[ texture(0) ]] ) {
-    constexpr sampler s(coord::pixel);
+    constexpr sampler s(coord::pixel, filter::linear);
     
     float4 color = texture.sample(s, v.uv);
     return half4(color);

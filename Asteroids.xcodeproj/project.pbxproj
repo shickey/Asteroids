@@ -23,7 +23,6 @@
 /* Begin PBXBuildFile section */
 		A34774031E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A34774011E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp */; };
 		A34774041E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A34774021E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt */; };
-		A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3547DF81DFB768800E74BEF /* TextRendering.swift */; };
 		A381F0421E1DDE5500620AFE /* DebugSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A381F0401E1DDDB800620AFE /* DebugSystem.swift */; };
 		A384E7151E2AC13400753DCF /* TimedBlocks_GENERATED.swift in Sources */ = {isa = PBXBuildFile; fileRef = A384E7141E2AC13400753DCF /* TimedBlocks_GENERATED.swift */; };
 		A3A18E251E01010E002F27DE /* MemoryZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A18E231E010055002F27DE /* MemoryZone.swift */; };
@@ -50,7 +49,6 @@
 		A3BEEA6F1DF6616800F79B91 /* RenderCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BEEA631DF6338700F79B91 /* RenderCommands.swift */; };
 		A3E789811E01D1D200050B19 /* DataStructures.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E7897F1E01D13800050B19 /* DataStructures.swift */; };
 		A3EACC901DF7849200025665 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC8E1DF783D200025665 /* Entities.swift */; };
-		A3EACC961DF7B4E200025665 /* BitmapFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC921DF7B47400025665 /* BitmapFont.swift */; };
 		A3EACC981DF7CAE600025665 /* AsteroidsApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC971DF7CAE600025665 /* AsteroidsApplication.swift */; };
 		A3EACC9A1DF83D5900025665 /* InputDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACC991DF83D5900025665 /* InputDevices.swift */; };
 		A3EACCA51DF90E6400025665 /* AssetLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCA31DF90A4F00025665 /* AssetLoader.swift */; };
@@ -60,8 +58,23 @@
 		A3EACCAF1DFA392C00025665 /* TypesAndUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */; };
 		A3F256701E08D50900360BBE /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F2566F1E08D50900360BBE /* Platform.swift */; };
 		A3F256711E08D50900360BBE /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F2566F1E08D50900360BBE /* Platform.swift */; };
+		A3F9035A1E32E3EE0046C63A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F903591E32E3EE0046C63A /* main.swift */; };
+		A3F903641E3B739F0046C63A /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F903621E3B72390046C63A /* Font.swift */; };
+		A3F903661E3B74C70046C63A /* font.bin in CopyFiles */ = {isa = PBXBuildFile; fileRef = A3F903651E3B74C70046C63A /* font.bin */; };
 		A3FB171A1E039247006DB7F6 /* RefStructs_GENERATED.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		A3F903611E35AD4C0046C63A /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.gcc;
+			filePatterns = stb_truetype;
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+			);
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
 		A3BEEA5D1DF6325400F79B91 /* PBXContainerItemProxy */ = {
@@ -95,9 +108,19 @@
 				A3BC20801E232A9D00677DA8 /* arial-12-white-blackstroke.bmp in CopyFiles */,
 				A34774031E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp in CopyFiles */,
 				A34774041E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt in CopyFiles */,
+				A3F903661E3B74C70046C63A /* font.bin in CopyFiles */,
 				A3AC95441E05FBDB00837A67 /* bad-font.txt in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A3F903551E32E3ED0046C63A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -105,7 +128,6 @@
 		A34773D01E0B3E44005CD952 /* todo.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
 		A34774011E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "source-sans-pro-16-white-shadow.bmp"; sourceTree = "<group>"; };
 		A34774021E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "source-sans-pro-16-white-shadow.txt"; sourceTree = "<group>"; };
-		A3547DF81DFB768800E74BEF /* TextRendering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextRendering.swift; sourceTree = "<group>"; };
 		A381F0401E1DDDB800620AFE /* DebugSystem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugSystem.swift; sourceTree = "<group>"; };
 		A384E7141E2AC13400753DCF /* TimedBlocks_GENERATED.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimedBlocks_GENERATED.swift; sourceTree = "<group>"; };
 		A3A18E231E010055002F27DE /* MemoryZone.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryZone.swift; sourceTree = "<group>"; };
@@ -135,13 +157,16 @@
 		A3C694471E1AA22400946AA3 /* Preprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preprocessor.swift; sourceTree = "<group>"; };
 		A3E7897F1E01D13800050B19 /* DataStructures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStructures.swift; sourceTree = "<group>"; };
 		A3EACC8E1DF783D200025665 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
-		A3EACC921DF7B47400025665 /* BitmapFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitmapFont.swift; sourceTree = "<group>"; };
 		A3EACC971DF7CAE600025665 /* AsteroidsApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsteroidsApplication.swift; sourceTree = "<group>"; };
 		A3EACC991DF83D5900025665 /* InputDevices.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputDevices.swift; sourceTree = "<group>"; };
 		A3EACCA31DF90A4F00025665 /* AssetLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetLoader.swift; sourceTree = "<group>"; };
 		A3EACCA91DF917DF00025665 /* Inputs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Inputs.swift; sourceTree = "<group>"; };
 		A3EACCAC1DFA38A600025665 /* TypesAndUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypesAndUtils.swift; sourceTree = "<group>"; };
 		A3F2566F1E08D50900360BBE /* Platform.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Platform.swift; sourceTree = "<group>"; };
+		A3F903571E32E3ED0046C63A /* GenerateFonts */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GenerateFonts; sourceTree = BUILT_PRODUCTS_DIR; };
+		A3F903591E32E3EE0046C63A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		A3F903621E3B72390046C63A /* Font.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Font.swift; sourceTree = "<group>"; };
+		A3F903651E3B74C70046C63A /* font.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = font.bin; sourceTree = "<group>"; };
 		A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefStructs_GENERATED.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -160,6 +185,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A3F903541E32E3ED0046C63A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -171,6 +203,7 @@
 				A3BEEA611DF6335900F79B91 /* AsteroidsGame */,
 				A3BEEA351DF630D600F79B91 /* AsteroidsPlatform */,
 				A3C694461E1AA1E400946AA3 /* Build */,
+				A3F903581E32E3ED0046C63A /* GenerateFonts */,
 				A3BEEA341DF630D600F79B91 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -180,6 +213,7 @@
 			children = (
 				A3BEEA331DF630D600F79B91 /* Asteroids.app */,
 				A3BEEA591DF6325000F79B91 /* libAsteroids.dylib */,
+				A3F903571E32E3ED0046C63A /* GenerateFonts */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -208,9 +242,7 @@
 				A3EACC9B1DF9098600025665 /* Assets */,
 				A3BEEA6B1DF6410200F79B91 /* Math.swift */,
 				A3EACCA31DF90A4F00025665 /* AssetLoader.swift */,
-				A3EACC921DF7B47400025665 /* BitmapFont.swift */,
 				A3BEEA651DF633D800F79B91 /* Renderer.swift */,
-				A3547DF81DFB768800E74BEF /* TextRendering.swift */,
 				A3EACC8E1DF783D200025665 /* Entities.swift */,
 				A3A18E231E010055002F27DE /* MemoryZone.swift */,
 				A3E7897F1E01D13800050B19 /* DataStructures.swift */,
@@ -218,6 +250,7 @@
 				A3FB17191E039247006DB7F6 /* RefStructs_GENERATED.swift */,
 				A384E7141E2AC13400753DCF /* TimedBlocks_GENERATED.swift */,
 				A381F0401E1DDDB800620AFE /* DebugSystem.swift */,
+				A3F903621E3B72390046C63A /* Font.swift */,
 			);
 			path = AsteroidsGame;
 			sourceTree = "<group>";
@@ -242,6 +275,7 @@
 				A3AC95451E05FBE400837A67 /* arial-24-white.bmp */,
 				A3AC95461E05FBE500837A67 /* arial-24-white.txt */,
 				A3AC95491E05FBEF00837A67 /* howsoon.wav */,
+				A3F903651E3B74C70046C63A /* font.bin */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -256,6 +290,14 @@
 				A3BC20791E22EB8E00677DA8 /* SharedMath.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		A3F903581E32E3ED0046C63A /* GenerateFonts */ = {
+			isa = PBXGroup;
+			children = (
+				A3F903591E32E3EE0046C63A /* main.swift */,
+			);
+			path = GenerateFonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -308,6 +350,24 @@
 			productReference = A3BEEA591DF6325000F79B91 /* libAsteroids.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		A3F903561E32E3ED0046C63A /* GenerateFonts */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A3F9035D1E32E3EE0046C63A /* Build configuration list for PBXNativeTarget "GenerateFonts" */;
+			buildPhases = (
+				A3F903531E32E3ED0046C63A /* Sources */,
+				A3F903541E32E3ED0046C63A /* Frameworks */,
+				A3F903551E32E3ED0046C63A /* CopyFiles */,
+			);
+			buildRules = (
+				A3F903611E35AD4C0046C63A /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = GenerateFonts;
+			productName = GenerateFonts;
+			productReference = A3F903571E32E3ED0046C63A /* GenerateFonts */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -329,6 +389,10 @@
 					A3EACC9C1DF909BE00025665 = {
 						CreatedOnToolsVersion = 7.3;
 					};
+					A3F903561E32E3ED0046C63A = {
+						CreatedOnToolsVersion = 8.1;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = A3BEEA2E1DF630D600F79B91 /* Build configuration list for PBXProject "Asteroids" */;
@@ -347,6 +411,7 @@
 				A3BEEA321DF630D600F79B91 /* Asteroids */,
 				A3BEEA581DF6325000F79B91 /* libAsteroids */,
 				A3EACC9C1DF909BE00025665 /* CompileAssets */,
+				A3F903561E32E3ED0046C63A /* GenerateFonts */,
 			);
 		};
 /* End PBXProject section */
@@ -406,12 +471,11 @@
 				A3EACC901DF7849200025665 /* Entities.swift in Sources */,
 				A3BEEA661DF633D800F79B91 /* Renderer.swift in Sources */,
 				A381F0421E1DDE5500620AFE /* DebugSystem.swift in Sources */,
+				A3F903641E3B739F0046C63A /* Font.swift in Sources */,
 				A3A18E251E01010E002F27DE /* MemoryZone.swift in Sources */,
 				A3F256711E08D50900360BBE /* Platform.swift in Sources */,
 				A384E7151E2AC13400753DCF /* TimedBlocks_GENERATED.swift in Sources */,
-				A3EACC961DF7B4E200025665 /* BitmapFont.swift in Sources */,
 				A3FB171A1E039247006DB7F6 /* RefStructs_GENERATED.swift in Sources */,
-				A3547DFA1DFB76DC00E74BEF /* TextRendering.swift in Sources */,
 				A3E789811E01D1D200050B19 /* DataStructures.swift in Sources */,
 				A3BC20831E23321B00677DA8 /* BucketArray.swift in Sources */,
 				A3EACCA51DF90E6400025665 /* AssetLoader.swift in Sources */,
@@ -420,6 +484,14 @@
 				A3EACCAB1DF917F000025665 /* Inputs.swift in Sources */,
 				A3BC207B1E22EB8E00677DA8 /* SharedMath.swift in Sources */,
 				A3EACCAE1DFA392500025665 /* TypesAndUtils.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A3F903531E32E3ED0046C63A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3F9035A1E32E3EE0046C63A /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -605,6 +677,30 @@
 			};
 			name = Release;
 		};
+		A3F9035B1E32E3EE0046C63A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		A3F9035C1E32E3EE0046C63A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -615,7 +711,7 @@
 				A3BEEA411DF630D600F79B91 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		A3BEEA421DF630D600F79B91 /* Build configuration list for PBXNativeTarget "Asteroids" */ = {
 			isa = XCConfigurationList;
@@ -624,7 +720,7 @@
 				A3BEEA441DF630D600F79B91 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		A3BEEA5A1DF6325000F79B91 /* Build configuration list for PBXNativeTarget "libAsteroids" */ = {
 			isa = XCConfigurationList;
@@ -633,7 +729,7 @@
 				A3BEEA5C1DF6325000F79B91 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		A3EACC9D1DF909BE00025665 /* Build configuration list for PBXAggregateTarget "CompileAssets" */ = {
 			isa = XCConfigurationList;
@@ -642,7 +738,16 @@
 				A3EACC9F1DF909BE00025665 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
+		};
+		A3F9035D1E32E3EE0046C63A /* Build configuration list for PBXNativeTarget "GenerateFonts" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A3F9035B1E32E3EE0046C63A /* Debug */,
+				A3F9035C1E32E3EE0046C63A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
