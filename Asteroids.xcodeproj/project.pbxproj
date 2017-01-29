@@ -202,7 +202,7 @@
 				A3EACCA81DF9179900025665 /* Shared */,
 				A3BEEA611DF6335900F79B91 /* AsteroidsGame */,
 				A3BEEA351DF630D600F79B91 /* AsteroidsPlatform */,
-				A3C694461E1AA1E400946AA3 /* Build */,
+				A3C694461E1AA1E400946AA3 /* Preprocessor */,
 				A3F903581E32E3ED0046C63A /* GenerateFonts */,
 				A3BEEA341DF630D600F79B91 /* Products */,
 			);
@@ -255,12 +255,12 @@
 			path = AsteroidsGame;
 			sourceTree = "<group>";
 		};
-		A3C694461E1AA1E400946AA3 /* Build */ = {
+		A3C694461E1AA1E400946AA3 /* Preprocessor */ = {
 			isa = PBXGroup;
 			children = (
 				A3C694471E1AA22400946AA3 /* Preprocessor.swift */,
 			);
-			path = Build;
+			path = Preprocessor;
 			sourceTree = "<group>";
 		};
 		A3EACC9B1DF9098600025665 /* Assets */ = {
@@ -440,7 +440,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export GAME_FILES=$(find $SOURCE_ROOT/AsteroidsGame -name '*.swift')\nexport SHARED_FILES=$(find $SOURCE_ROOT/Shared -name '*.swift')\n\n/usr/bin/env xcrun --sdk macosx swift $SOURCE_ROOT/Build/Preprocessor.swift";
+			shellScript = "export GAME_FILES=$(find $SOURCE_ROOT/AsteroidsGame -name '*.swift')\nexport SHARED_FILES=$(find $SOURCE_ROOT/Shared -name '*.swift')\n\n/usr/bin/env xcrun --sdk macosx swift $SOURCE_ROOT/Preprocessor/Preprocessor.swift";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -81,6 +81,20 @@ class DebugStateRef : Ref<DebugState> {
 }
 
 /************************
+ * Font.swift
+ ************************/
+
+class BitmapFontRef : Ref<BitmapFont> {
+    var chars : Ptr<BitmapChar> { get { return ptr.pointee.chars } set(val) { ptr.pointee.chars = val } }
+    var advances : Ptr<F32> { get { return ptr.pointee.advances } set(val) { ptr.pointee.advances = val } }
+    var texels : RawPtr { get { return ptr.pointee.texels } set(val) { ptr.pointee.texels = val } }
+    var lineHeight : F32 { get { return ptr.pointee.lineHeight } set(val) { ptr.pointee.lineHeight = val } }
+}
+
+class BitmapCharRef : Ref<BitmapChar> {
+}
+
+/************************
  * BucketArray.swift
  ************************/
 
@@ -132,20 +146,6 @@ class CircularBufferRef<T> : Ref<CircularBuffer<T>> {
     var maxCount : Int { get { return ptr.pointee.maxCount } set(val) { ptr.pointee.maxCount = val } }
     var count : Int { get { return ptr.pointee.count } set(val) { ptr.pointee.count = val } }
     var nextIndex : Int { get { return ptr.pointee.nextIndex } set(val) { ptr.pointee.nextIndex = val } }
-}
-
-/************************
- * NewFont.swift
- ************************/
-
-class BitmapFontRef : Ref<BitmapFont> {
-    var chars : Ptr<BitmapChar> { get { return ptr.pointee.chars } set(val) { ptr.pointee.chars = val } }
-    var advances : Ptr<F32> { get { return ptr.pointee.advances } set(val) { ptr.pointee.advances = val } }
-    var texels : RawPtr { get { return ptr.pointee.texels } set(val) { ptr.pointee.texels = val } }
-    var lineHeight : F32 { get { return ptr.pointee.lineHeight } set(val) { ptr.pointee.lineHeight = val } }
-}
-
-class BitmapCharRef : Ref<BitmapChar> {
 }
 
 /************************

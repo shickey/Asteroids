@@ -6,6 +6,9 @@
 //  Copyright © 2017 Sean Hickey. All rights reserved.
 //
 
+import Darwin
+import simd
+
 struct FontHeader {
     var magic : U32 = 0xF00D4DAD
     var numCharacters : U32
