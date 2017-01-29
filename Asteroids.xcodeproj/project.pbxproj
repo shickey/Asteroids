@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		A3258A841E3E7324002930FF /* BufferCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3258A831E3E7324002930FF /* BufferCreator.swift */; };
 		A34774031E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A34774011E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp */; };
 		A34774041E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = A34774021E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt */; };
 		A381F0421E1DDE5500620AFE /* DebugSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A381F0401E1DDDB800620AFE /* DebugSystem.swift */; };
@@ -125,6 +126,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A3258A831E3E7324002930FF /* BufferCreator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BufferCreator.swift; sourceTree = "<group>"; };
 		A34773D01E0B3E44005CD952 /* todo.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
 		A34774011E0E25B6005CD952 /* source-sans-pro-16-white-shadow.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "source-sans-pro-16-white-shadow.bmp"; sourceTree = "<group>"; };
 		A34774021E0E25B6005CD952 /* source-sans-pro-16-white-shadow.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "source-sans-pro-16-white-shadow.txt"; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				A3BEEA381DF630D600F79B91 /* ViewController.swift */,
 				A3EACC991DF83D5900025665 /* InputDevices.swift */,
 				A3BEEA451DF6312100F79B91 /* MetalWorker.swift */,
+				A3258A831E3E7324002930FF /* BufferCreator.swift */,
 				A3AC953F1E05C6CA00837A67 /* Audio.swift */,
 				A3BEEA471DF6315900F79B91 /* Shaders.metal */,
 				A3BEEA3A1DF630D600F79B91 /* Assets.xcassets */,
@@ -460,6 +463,7 @@
 				A3BEEA391DF630D600F79B91 /* ViewController.swift in Sources */,
 				A3BEEA371DF630D600F79B91 /* AppDelegate.swift in Sources */,
 				A3EACCAA1DF917DF00025665 /* Inputs.swift in Sources */,
+				A3258A841E3E7324002930FF /* BufferCreator.swift in Sources */,
 				A3EACC981DF7CAE600025665 /* AsteroidsApplication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -8,6 +8,7 @@
 
 public typealias platform_CreateVertexBuffer  = (VertexArray) -> RawPtr
 public typealias platform_CreateTextureBuffer = (RawPtr, Int, Int) -> RawPtr
+public typealias platform_GetTransientBuffer = (U32) -> (RawPtr, RawPtr)
 
 open class GameMemory {
     open var permanentStorageSize : Int = 0
@@ -22,4 +23,5 @@ open class GameMemory {
     // Platform Provided Functions
     open var platformCreateVertexBuffer : platform_CreateVertexBuffer! = nil
     open var platformCreateTextureBuffer : platform_CreateTextureBuffer! = nil
+    open var platformGetTransientBuffer : platform_GetTransientBuffer! = nil
 }

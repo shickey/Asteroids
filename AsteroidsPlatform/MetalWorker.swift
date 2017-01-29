@@ -131,26 +131,13 @@ func beginRendering(_ hostView: NSView) {
     // Platform API
     gameMemory.platformCreateVertexBuffer = createVertexBuffer
     gameMemory.platformCreateTextureBuffer = createTextureBuffer
+    gameMemory.platformGetTransientBuffer = getTransientVertexBuffer
     
     
     let displayId = CGMainDisplayID()
     CVDisplayLinkCreateWithCGDisplay(displayId, &displayLink)
     CVDisplayLinkSetOutputCallback(displayLink!, drawFrame, nil)
     CVDisplayLinkStart(displayLink!)
-}
-
-var buffers : [MTLBuffer] = []
-
-func createVertexBuffer(_ vertices: VertexArray) -> RawPtr {
-    let buffer = device.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Float>.size, options: [])
-    return RawPtr(Unmanaged.passRetained(buffer).toOpaque())
-}
-
-func createTextureBuffer(_ texels: RawPtr, _ width: Int, _ height: Int) -> RawPtr {
-    let textureDesc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm, width: width, height: height, mipmapped: false)
-    let texture = device.makeTexture(descriptor: textureDesc)
-    texture.replace(region: MTLRegionMake2D(0, 0, width, height), mipmapLevel: 0, slice: 0, withBytes: texels, bytesPerRow: 4 * width, bytesPerImage: 4 * width * height)
-    return RawPtr(Unmanaged.passRetained(texture).toOpaque())
 }
 
 func loadGameCode() {
@@ -352,16 +339,21 @@ func render() {
             
             var instanceTransform = textCommand.transform
             let instanceUniformsBuffer = device.makeBuffer(bytes: &instanceTransform, length: 16 * MemoryLayout<Float>.size, options: [])
-            let vertexBuffer = device.makeBuffer(bytes: textCommand.quads, length: textCommand.quadCount * 4 * 8 * MemoryLayout<Float>.size, options: [])
+//            let vertexBuffer = device.makeBuffer(bytes: textCommand.quads, length: textCommand.quadCount * 4 * 8 * MemoryLayout<Float>.size, options: [])
+            let vertexBuffer = Unmanaged<MTLBuffer>.fromOpaque(textCommand.quads).takeUnretainedValue()
             renderEncoder.setVertexBuffer(instanceUniformsBuffer, offset: 0, at: 0)
             renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 1)
             
-            let indexBuffer = device.makeBuffer(bytes: textCommand.indices, length: (textCommand.quadCount * 6) * MemoryLayout<Float>.size, options:[])
+//            let indexBuffer = device.makeBuffer(bytes: textCommand.indices, length: (textCommand.quadCount * 6) * MemoryLayout<Float>.size, options:[])
+            let indexBuffer = Unmanaged<MTLBuffer>.fromOpaque(textCommand.indices).takeUnretainedValue()
             
             let textureBuffer = Unmanaged<MTLTexture>.fromOpaque(textCommand.texels).takeUnretainedValue()
             
             renderEncoder.setFragmentTexture(textureBuffer, at: 0)
             renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: (textCommand.quadCount * 6), indexType: .uint16, indexBuffer: indexBuffer, indexBufferOffset: 0)
+            
+            releaseBufferToReuseQueue(textCommand.quads)
+            releaseBufferToReuseQueue(textCommand.indices)
         }
         
         if let nextCommandPtr = command.next {

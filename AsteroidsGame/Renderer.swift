@@ -220,10 +220,10 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
                 renderBoundingBoxOnTorus(selected, gameState, renderBuffer)
                 
                var textOrigin = Vec2(0.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight)
-                pushCommand(renderBuffer, renderText(debugInfo.name, renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
+                pushCommand(renderBuffer, renderTextBuildCommand(debugInfo.name, renderBufferHeader.windowSize, textOrigin, debugState.font, gameMemory))
                textOrigin.y -= debugState.font.lineHeight
                 for (name, value) in debugInfo.entries {
-                    pushCommand(renderBuffer, renderText("  \(name): \(value)", renderBufferHeader.windowSize, textOrigin, debugState.font, renderBuffer))
+                    pushCommand(renderBuffer, renderTextBuildCommand("  \(name): \(value)", renderBufferHeader.windowSize, textOrigin, debugState.font, gameMemory))
                    textOrigin.y -= debugState.font.lineHeight
                 }
             }
@@ -240,8 +240,7 @@ public func updateAndRender(_ gameMemoryPtr: UnsafeMutablePointer<GameMemory>, i
     }
     
     // Debug print number of live entities
-   pushCommand(renderBuffer, renderText("AVA WA To Ti Te", renderBufferHeader.windowSize, Vec2(renderBufferHeader.windowSize.w / 2.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight), debugState.font, renderBuffer))
-   // pushCommand(renderBuffer, renderText("Live Entities: \(gameState.world.entities.used)", renderBufferHeader.windowSize, Vec2(renderBufferHeader.windowSize.w / 2.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight), debugState.font, renderBuffer))
+    pushCommand(renderBuffer, renderTextBuildCommand("Live Entities: \(gameState.world.entities.used)", renderBufferHeader.windowSize, Vec2(renderBufferHeader.windowSize.w / 2.0, renderBufferHeader.windowSize.h - debugState.font.lineHeight), debugState.font, gameMemory))
     
     firstRun = false
 }

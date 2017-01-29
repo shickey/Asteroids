@@ -83,8 +83,8 @@ public struct RenderCommandText : RenderCommand {
     public var transform = float4x4(1)
     
     public var quadCount : Int = 0
-    public var quads : VertexPointer! = nil
-    public var indices : U16Ptr! = nil
+    public var quads : RawPtr! = nil
+    public var indices : RawPtr! = nil
     
     public var texels : RawPtr! = nil
 }

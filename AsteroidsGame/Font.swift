@@ -112,16 +112,17 @@ func fontAdvanceForCodepointPair(_ font: BitmapFontRef, _ c1: U16, _ c2: U16) ->
  *
  **************************************/
 
-func renderText(_ text: String, _ windowSize: Size, _ windowLocation: Vec2, _ font: BitmapFontRef, _ renderBuffer: RawPtr) -> RenderCommandText {
+func renderTextBuildCommand(_ text: String, _ windowSize: Size, _ windowLocation: Vec2, _ font: BitmapFontRef, _ gameMemory: GameMemory) -> RenderCommandText {
     
     var cursor : F32 = 0.0
     
     let codepoints = text.utf16
     
-    let verts = VertexPointer.allocate(capacity: codepoints.count * 4 * 8)
-    var vertsPtr = verts
-    let indices = U16Ptr.allocate(capacity: 6 * codepoints.count)
-    var indicesPtr = indices
+    let (vertsBufferPtr, vertsStoragePtr) = gameMemory.platformGetTransientBuffer!(U32(codepoints.count * 4 * 8 * 4))
+    var vertsPtr = vertsStoragePtr
+    
+    let (indicesBufferPtr, indicesStoragePtr) = gameMemory.platformGetTransientBuffer!(U32(codepoints.count * 6 * 2))
+    var indicesPtr = indicesStoragePtr
     
     for (i, codepoint) in codepoints.enumerated() {
         let bmpChar = font.chars[Int(codepoint)]
@@ -145,8 +146,8 @@ func renderText(_ text: String, _ windowSize: Size, _ windowLocation: Vec2, _ fo
         memcpy(vertsPtr, v, 4 * 8 * MemoryLayout<Float>.size)
         memcpy(indicesPtr, quadIndices, 6 * MemoryLayout<UInt16>.size)
         
-        vertsPtr += 4 * 8
-        indicesPtr += 6
+        vertsPtr += 4 * 8 * 4
+        indicesPtr += 6 * 2
         
         if i < codepoints.count - 1 {
             let nextCodepoint = codepoints[codepoints.startIndex.advanced(by: i + 1)]
@@ -159,8 +160,8 @@ func renderText(_ text: String, _ windowSize: Size, _ windowLocation: Vec2, _ fo
     let normalizedLocation = windowToNormalizedCoordinates(windowLocation, windowSize)
     command.transform = translateTransform(normalizedLocation.x, normalizedLocation.y) * scaleTransform(1.0 / (windowSize.w / 2.0), 1.0 / (windowSize.h / 2.0))
     command.quadCount = codepoints.count
-    command.quads = verts
-    command.indices = indices
+    command.quads = vertsBufferPtr
+    command.indices = indicesBufferPtr
     command.texels = font.texels
     
     return command

@@ -75,8 +75,7 @@ func kerningForCodepoints(_ first: U16, _ second: U16, _ font: CTFont) -> F32 {
 
 
 //let font = NSFont.monospacedDigitSystemFont(ofSize: 14.0, weight: 0.0) as CTFont
-let font = NSFont(name: "Arial", size: 28
-    .0)! as CTFont
+let font = NSFont(name: "SF Mono", size: 14.0)! as CTFont
 let lineHeight = CTFontGetAscent(font) + abs(CTFontGetDescent(font)) + CTFontGetLeading(font)
 
 let chars = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()[]{};:'\"<>?,./\\!@#$%^&*-_+=~"
